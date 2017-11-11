@@ -1,4 +1,4 @@
-### Use this package only if you like instant tech debt
+### :warning: Use this package only if you like instant tech debt :warning:
 ok, you've been warned
 
 ---
