@@ -15,7 +15,7 @@ multiple purchases of the same product
 of the same product have been made using the same credit card
 
 ---
-* Until it is a little more straightforward to modify core components, this
+\* - Until it is a little more straightforward to modify core components, this
 package complete overrides a few core components and adds the necessary code. I
 did my best to keep file paths/names the same so you could refer back to the
 core source.
