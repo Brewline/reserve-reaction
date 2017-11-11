@@ -1,13 +1,346 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
+import _ from "lodash";
+import Velocity from "velocity-animate";
+import "velocity-animate/velocity.ui";
 import { Components } from "@reactioncommerce/reaction-components";
-import VariantForm from "/imports/plugins/included/product-variant/components/variantForm";
 import { formatPriceString } from "/client/api";
 
-class InventoryLimitVariantForm extends VariantForm {
+const fieldNames = [
+  "title",
+  "originCountry",
+  "compareAtPrice",
+  "price",
+  "width",
+  "length",
+  "height",
+  "weight",
+  "taxCode",
+  "taxDescription",
+  "inventoryQuantity",
+  "inventoryPolicy",
+  "lowInventoryWarningThreshold"
+];
+
+const fieldGroups = {
+  title: { group: "variantDetails" },
+  originCountry: { group: "variantDetails" },
+  compareAtPrice: { group: "variantDetails" },
+  price: { group: "variantDetails" },
+  width: { group: "variantDetails" },
+  length: { group: "variantDetails" },
+  height: { group: "variantDetails" },
+  weight: { group: "variantDetails" },
+  taxCode: { group: "taxable" },
+  taxDescription: { group: "taxable" },
+  inventoryQuantity: { group: "inventoryManagement" },
+  inventoryPolicy: { group: "inventoryManagement" },
+  lowInventoryWarningThreshold: { group: "inventoryManagement" }
+};
+
+class VariantForm extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      expandedCard: props.editFocus,
+      variant: props.variant,
+      inventoryPolicy: props.variant.inventoryPolicy,
+      taxable: props.variant.taxable,
+      inventoryManagement: props.variant.inventoryManagement
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const nextVariant = nextProps.variant || {};
+    const currentVariant = this.state.variant || {};
+
+    if (_.isEqual(nextVariant, currentVariant) === false) {
+      for (const fieldName of fieldNames) {
+        if (nextVariant[fieldName] !== currentVariant[fieldName]) {
+          if (fieldName !== "taxCode") {
+            this.animateFieldFlash(fieldName);
+          }
+        }
+      }
+
+      this.setState({
+        expandedCard: nextProps.editFocus,
+        inventoryManagement: nextProps.variant.inventoryManagement,
+        inventoryPolicy: nextProps.variant.inventoryPolicy,
+        taxable: nextProps.variant.taxable,
+        variant: nextProps.variant
+      });
+    }
+
+    this.setState({
+      expandedCard: nextProps.editFocus
+    });
+  }
+
+  fieldGroupForFieldName(field) {
+    // Other wise, if a field was passed
+    // const fieldName = this.state.viewProps.field;
+
+    let fieldName;
+
+    // If the field is an array of field name
+    if (Array.isArray(field) && field.length) {
+      // Use the first field name
+      fieldName = field[0];
+    } else {
+      fieldName = field;
+    }
+
+    const fieldData = fieldGroups[fieldName];
+
+    if (fieldData && fieldData.group) {
+      return fieldData.group;
+    }
+
+    return fieldName;
+  }
+
+  animateFieldFlash(fieldName) {
+    const fieldRef = this.refs[`${fieldName}Input`];
+
+    if (fieldRef) {
+      const input = fieldRef.refs.input;
+      const isFieldValid = this.props.validation.isFieldValid(fieldName);
+      const flashColor = isFieldValid ? "#f0fff4" : "#ffeeef";
+
+      Velocity.RunSequence([
+        { e: input, p: { backgroundColor: flashColor }, o: { duration: 200 } },
+        { e: input, p: { backgroundColor: "#fff" }, o: { duration: 100 } }
+      ]);
+    }
+  }
+
+  get variant() {
+    return this.state.variant || this.props.variant || {};
+  }
+
+  handleFieldChange = (event, value, field) => {
+    this.setState(({ variant }) => ({
+      variant: {
+        ...variant,
+        [field]: value
+      }
+    }));
+  }
+
+  handleFieldBlur = (event, value, field) => {
+    if (this.props.onVariantFieldSave) {
+      this.props.onVariantFieldSave(this.variant._id, field, value, this.state.variant);
+    }
+  }
+
+  handleSelectChange = (value, field) => {
+    this.setState(({ variant }) => ({
+      variant: {
+        ...variant,
+        [field]: value
+      }
+    }), () => {
+      if (this.props.onVariantFieldSave) {
+        this.props.onVariantFieldSave(this.variant._id, field, value, this.state.variant);
+      }
+    });
+  }
+
+  handleCheckboxChange = (event, value, field) => {
+    this.setState(({ variant }) => ({
+      variant: {
+        ...variant,
+        [field]: value
+      }
+    }));
+
+    this.handleFieldBlur(event, value, field);
+  }
+
+  handleInventoryPolicyChange = (event, value, field) => {
+    /*
+    Due to some confusing verbiage on how inventoryPolicy works / is displayed, we need to handle this field
+    differently than we handle the other checkboxes in this component. Specifically, we display the opposite value of
+    what the actual field value is. Because this is a checkbox, that means that the opposite value is actually the
+    field value as well, not just a display value, so we need to reverse the boolean value when it gets passed into
+    this function before we send it to the server to update the data. Other than reversing the value, this function
+    is the same as `handleCheckboxChange`.
+    */
+
+    const inverseValue = !value;
+
+    this.setState(({ variant }) => ({
+      variant: {
+        ...variant,
+        [field]: inverseValue
+      }
+    }));
+
+
+    this.handleFieldBlur(event, inverseValue, field);
+  }
+
+  handleCardExpand = (event, card, cardName, isExpanded) => {
+    if (typeof this.props.onCardExpand === "function") {
+      this.props.onCardExpand(isExpanded ? cardName : undefined);
+    }
+  }
+
+  handleVariantVisibilityToggle = (variant) => {
+    return this.props.onVisibilityButtonClick(variant);
+  }
+
+  isExpanded = (groupName) => {
+    return this.state.expandedCard === groupName;
+  }
+
+  renderTaxCodeField() {
+    if (this.props.isProviderEnabled()) {
+      return (
+        <Components.Select
+          clearable={false}
+          i18nKeyLabel="productVariant.taxCode"
+          i18nKeyPlaceholder="productVariant.selectTaxCode"
+          label="Tax Code"
+          name="taxCode"
+          ref="taxCodeInput"
+          options={this.props.fetchTaxCodes()}
+          onChange={this.handleSelectChange}
+          value={this.variant.taxCode}
+        />
+      );
+    }
+    return (
+      <Components.TextField
+        i18nKeyLabel="productVariant.taxCode"
+        i18nKeyPlaceholder="productVariant.selectTaxCode"
+        placeholder="Select Tax Code"
+        label="Tax Code"
+        name="taxCode"
+        ref="taxCodeInput"
+        value={this.variant.taxCode}
+        onBlur={this.handleFieldBlur}
+        onChange={this.handleFieldChange}
+        onReturnKeyDown={this.handleFieldBlur}
+        validation={this.props.validation}
+      />
+    );
+  }
+
+  renderArchiveButton() {
+    if (this.props.isDeleted) {
+      return (
+        <Components.Button
+          icon="refresh"
+          className="rui btn btn-default btn-restore-variant flat"
+          tooltip="Restore"
+          onClick={() => this.props.restoreVariant(this.variant)}
+        />
+      );
+    }
+    return (
+      <Components.Button
+        icon="archive"
+        className="rui btn btn-default btn-remove-variant flat"
+        tooltip="Archive"
+        onClick={() => this.props.removeVariant(this.variant)}
+      />
+    );
+  }
+
+  renderArchivedLabel() {
+    if (this.props.isDeleted) {
+      return (
+        <div className="panel-subheading">
+          <span className="badge badge-danger" data-i18n="app.archived">
+            <span>Archived</span>
+          </span>
+        </div>
+      );
+    }
+  }
+
+  renderInventoryPolicyField() {
+    if (this.props.hasChildVariants(this.variant)) {
+      return (
+        <div className="col-sm-12">
+          <Components.Switch
+            i18nKeyLabel="productVariant.inventoryPolicy"
+            i18nKeyOnLabel="productVariant.inventoryPolicy"
+            name="inventoryPolicy"
+            label={"Allow backorder"}
+            onLabel={"Allow backorder"}
+            checked={!this.state.inventoryPolicy}
+            onChange={this.handleInventoryPolicyChange}
+            validation={this.props.validation}
+            disabled={true}
+            helpText={"Backorder allowance is now controlled by options"}
+            i18nKeyHelpText={"admin.helpText.variantBackorderToggle"}
+            style={{ backgroundColor: "lightgrey", cursor: "not-allowed" }}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="col-sm-12">
+        <Components.Switch
+          i18nKeyLabel="productVariant.inventoryPolicy"
+          i18nKeyOnLabel="productVariant.inventoryPolicy"
+          name="inventoryPolicy"
+          label={"Allow backorder"}
+          onLabel={"Allow backorder"}
+          checked={!this.state.inventoryPolicy}
+          onChange={this.handleInventoryPolicyChange}
+          validation={this.props.validation}
+        />
+      </div>
+    );
+  }
+
+  renderQuantityField() {
+    if (this.props.hasChildVariants(this.variant)) {
+      return (
+        <div className="col-sm-6">
+          <Components.TextField
+            i18nKeyLabel="productVariant.inventoryQuantity"
+            i18nKeyPlaceholder="0"
+            placeholder="0"
+            label="Quantity"
+            name="inventoryQuantity"
+            ref="inventoryQuantityInput"
+            value={this.props.onUpdateQuantityField(this.variant)}
+            style={{ backgroundColor: "lightgrey", cursor: "not-allowed" }}
+            disabled={true}
+            helpText={"Variant inventory is now controlled by options"}
+            i18nKeyHelpText={"admin.helpText.variantInventoryQuantity"}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="col-sm-6">
+        <Components.TextField
+          i18nKeyLabel="productVariant.inventoryQuantity"
+          i18nKeyPlaceholder="0"
+          placeholder="0"
+          label="Quantity"
+          name="inventoryQuantity"
+          ref="inventoryQuantityInput"
+          value={this.variant.inventoryQuantity}
+          onChange={this.handleFieldChange}
+          onBlur={this.handleFieldBlur}
+          onReturnKeyDown={this.handleFieldBlur}
+          validation={this.props.validation}
+          helpText={"Option inventory"}
+          i18nKeyHelpText={"admin.helpText.optionInventoryQuantity"}
+        />
+      </div>
+    );
   }
 
   renderInventoryLimitField() {
@@ -51,9 +384,6 @@ class InventoryLimitVariantForm extends VariantForm {
       </div>
     );
   }
-
-  // It breaks my heart to have to copy/paste all this code just to insert
-  // a field, but cest le vie, I suppose.
   renderVariantFields() {
     const cardName = `variant-${this.variant._id}`;
 
@@ -276,6 +606,9 @@ class InventoryLimitVariantForm extends VariantForm {
               />
             </div>
           </div>
+          <div className="row">
+            {this.renderInventoryPolicyField()}
+          </div>
 
           {/*
             begin custom code
@@ -285,16 +618,11 @@ class InventoryLimitVariantForm extends VariantForm {
             {this.renderInventoryLimitField()}
           </div>
           {/* end custom code */}
-
-          <div className="row">
-            {this.renderInventoryPolicyField()}
-          </div>
         </Components.SettingsCard>
       </Components.CardGroup>
     );
   }
 
-  // it further breaks my heart to copy/paste all of this code
   renderOptionFields() {
     const cardName = `variant-${this.variant._id}`;
 
@@ -486,8 +814,42 @@ class InventoryLimitVariantForm extends VariantForm {
       </Components.CardGroup>
     );
   }
+
+  render() {
+    if (this.props.type === "option") {
+      return (
+        <div>
+          {this.renderOptionFields()}
+        </div>
+      );
+    }
+    return (
+      <div>
+        {this.renderVariantFields()}
+      </div>
+    );
+  }
 }
 
-InventoryLimitVariantForm.propTypes.onUpdateLimitField = PropTypes.func;
+VariantForm.propTypes = {
+  cloneVariant: PropTypes.func,
+  countries: PropTypes.arrayOf(PropTypes.object),
+  editFocus: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+  fetchTaxCodes: PropTypes.func,
+  greyDisabledFields: PropTypes.func,
+  hasChildVariants: PropTypes.func,
+  isDeleted: PropTypes.bool,
+  isProviderEnabled: PropTypes.func,
+  onCardExpand: PropTypes.func,
+  onFieldChange: PropTypes.func,
+  onUpdateQuantityField: PropTypes.func,
+  onVariantFieldSave: PropTypes.func,
+  onVisibilityButtonClick: PropTypes.func,
+  removeVariant: PropTypes.func,
+  restoreVariant: PropTypes.func,
+  type: PropTypes.string,
+  validation: PropTypes.object,
+  variant: PropTypes.object
+};
 
-export default InventoryLimitVariantForm;
+export default VariantForm;

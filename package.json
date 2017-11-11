@@ -1,12 +1,28 @@
 {
   "name": "reaction-per-user-limits",
   "version": "1.0.0",
-  "description": "",
+  "description": "'Limit 1 per user' functionality",
   "main": "register.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "babel": {
+    "plugins": [
+      [
+        "module-resolver",
+        {
+          "root": [
+            "/"
+          ],
+          "alias": {
+            "@reactioncommerce/reaction-collections": "./imports/plugins/core/collections",
+            "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib"
+          }
+        }
+      ]
+    ]
+  }
 }

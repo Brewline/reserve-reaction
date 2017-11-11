@@ -1,10 +1,11 @@
 import "../lib/collections/schemas/products";
-import "./product-variant/variant-form-container-decorator";
-import "./product-detail-simple/product-detail-container-decorator";
+import "./product-variant/variant-form-container";
+import "./product-detail-simple/product-detail-container";
+import "./add-to-cart-button/add-to-cart-button-component"; // no container here
 
 import _ from "lodash";
 import { SimpleSchema } from "meteor/aldeed:simple-schema";
-import { Schemas, registerSchema } from "@reactioncommerce/reaction-collections";
+import { Schemas, registerSchema } from "/imports/plugins/core/collections";
 import { ProductVariantLimits } from "../lib/collections/schemas/products";
 
 // In order for the updated schema to be reflected in our client-side code,
