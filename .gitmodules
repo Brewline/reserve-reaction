@@ -1,6 +1,6 @@
 [submodule "imports/plugins/custom/reaction-untappd-oauth"]
 	path = imports/plugins/custom/reaction-untappd-oauth
 	url = git@github.com:Brewline/reaction-untappd-oauth.git
-[submodule "imports/plugins/custom/reaction-per-user-limits"]
-	path = imports/plugins/custom/reaction-per-user-limits
-	url = git@github.com:Brewline/reaction-er-user-limits.git
+[submodule "imports/plugins/custom/reaction-inventory-limit"]
+	path = imports/plugins/custom/reaction-inventory-limit
+	url = git@github.com:Brewline/reaction-inventory-limit.git
