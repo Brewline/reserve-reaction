@@ -1,0 +1,12 @@
+{
+  "name": "reaction-untappd-oauth",
+  "version": "1.0.0",
+  "description": "Untappd OAuth for Reaction Commerce",
+  "main": "register.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
