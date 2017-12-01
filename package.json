@@ -66,6 +66,7 @@
     "nock": "^9.0.14",
     "node-geocoder": "^3.18.0",
     "node-loggly-bulk": "^2.0.0",
+    "node-untappd": "0.4.1",
     "nodemailer-wellknown": "^0.2.3",
     "nouislider-algolia-fork": "^10.0.0",
     "path-to-regexp": "^1.7.0",

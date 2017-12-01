@@ -1,0 +1,12 @@
+{
+  "name": "reaction-bug-fixes-and-hacks",
+  "version": "1.0.0",
+  "description": "A dumping ground for things that I *think* might be broken... but probably aren't since the reaction folks are wicket smaht",
+  "main": "register.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
