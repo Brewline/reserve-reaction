@@ -1,3 +1,4 @@
+import { BrowserPolicy } from "meteor/browser-policy-common";
 import { Reaction } from "/server/api";
 
 Reaction.registerPackage({
@@ -22,3 +23,5 @@ Reaction.registerPackage({
     template: "untappdConnectSettings"
   }]
 });
+
+BrowserPolicy.content.allowOriginForAll("*.akamaized.net");

@@ -1,6 +1,7 @@
 /* eslint camelcase: 0 */
 import _ from "lodash";
-import Untappd from "node-untappd";
+import moment from "moment";
+import UntappdClient from "node-untappd";
 import { Job } from "meteor/vsivsi:job-collection";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "/server/api";
@@ -10,6 +11,12 @@ import { Products, Jobs, Tags } from "/lib/collections";
 import { getApiInfo } from "../api/api";
 import { connectorsRoles } from "../../lib/roles";
 import { importImages } from "../../jobs/image-import";
+
+// function requestUntappdCredential(options, fnCallback) {
+//   const untappdService = Package["brewline:accounts-untappd"].Untappd;
+
+//   untappdService.requestCredential(options, fnCallback);
+// }
 
 /**
  * @file Untappd connector import product method
@@ -30,61 +37,108 @@ import { importImages } from "../../jobs/image-import";
  *
  * @todo consider abstracting private Untappd import helpers into a helpers file
  */
-function createReactionProductFromUntappdProduct(options) {
-  const { untappdProduct, shopId, hashtags } = options;
+function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtags) {
   const reactionProduct = {
     ancestors: [],
     createdAt: new Date(),
-    description: untappdProduct.body_html.replace(/(<([^>]+)>)/ig, ""), // Strip HTML
-    handle: untappdProduct.handle,
+    description: untappdProduct.beer_description,
+    handle: untappdProduct.beer_slug,
     hashtags: hashtags,
     isDeleted: false,
     isVisible: false,
     metafields: [],
-    pageTitle: untappdProduct.pageTitle,
-    productType: untappdProduct.product_type,
-    requiresShipping: true,
-    shopId: shopId, // set shopId to active shopId;
-    untappdId: untappdProduct.id.toString(), // save it here to make sync lookups cheaper
+    pageTitle: untappdProduct.beer_style,
+    productType: untappdProduct.beer_style,
+    requiresShipping: false,
+    shopId: shopId,
     template: "productDetailSimple",
-    title: untappdProduct.title,
+    title: untappdProduct.beer_name,
     type: "simple",
     updatedAt: new Date(),
-    vendor: untappdProduct.vendor,
+    vendor: untappdProduct.brewery.brewery_name,
     workflow: {
       status: "new",
       workflow: ["imported"]
     },
-    skipRevision: true
+    skipRevision: true,
+    UntappdId: untappdProduct.bid,
+    // UntappdResource: untappdProduct, // once the Schema accepts this, uncomment
   };
 
-  // Add untappd options to meta fields as is.
-  if (Array.isArray(untappdProduct.options)) {
-    untappdProduct.options.forEach((option) => {
-      reactionProduct.metafields.push({
-        scope: "untappd",
-        key: option.name,
-        value: option.values.join(", "),
-        namespace: "options"
-      });
-    });
-  }
+  // TODO: anything useful here?
+  // // Add untappd options to meta fields as is.
+  // if (Array.isArray(untappdProduct.options)) {
+  //   untappdProduct.options.forEach((option) => {
+  //     reactionProduct.metafields.push({
+  //       scope: "untappd",
+  //       key: option.name,
+  //       value: option.values.join(", "),
+  //       namespace: "options"
+  //     });
+  //   });
+  // }
 
   return reactionProduct;
 }
 
 /**
- * Finds the images associated with a particular untappd variant
- * @method findProductImages
+ * Transforms a Untappd variant into a Reaction variant.
  * @private
- * @param  {number} untappdProductId The product `id` from untappd
- * @param  {array} images An array of image objects from a Untappd product
- * @return {array} Returns an array of image objects that match the passed untappdProductId
+ * @method createReactionVariantFromUntappdVariant
+ * @param  {object} untappdVariant
+ * @param  {String} variant aka, Variant Name
+ * @param  {Number} index
+ * @param  {[Number]} ancestors
+ * @param  {Number} shopId
+ * @return {object} An object that fits the `ProductVariant` schema
  */
-function findProductImages(untappdProductId, images) {
-  return images.filter((imageObj) => imageObj.product_id === untappdProductId);
-}
+function createReactionVariantFromUntappdVariant(untappdVariant, variant, index, ancestors, shopId) {
+  const reactionVariant = {
+    ancestors: ancestors,
+    barcode: untappdVariant.barcode,
+    compareAtPrice: untappdVariant.compare_at_price,
+    createdAt: new Date(),
+    // height: 0,
+    index: index,
+    inventoryManagement: true,
+    inventoryQuantity: 0,
+    inventoryPolicy: true, // do not allow backorder
+    isDeleted: false,
+    isVisible: true,
+    length: 0,
+    metafields: [],
+    optionTitle: variant,
+    requiresShipping: false,
+    shopId: shopId,
+    UntappdId: null,
+    // sku: untappdVariant.sku,
+    taxable: true,
+    taxCode: "0000",
+    title: variant,
+    type: "variant",
+    updatedAt: new Date(),
+    // weight: normalizeWeight(untappdVariant.grams),
+    // weightInGrams: untappdVariant.grams,
+    // width: 0,
+    workflow: {
+      status: "synced",
+      workflow: ["imported"]
+    },
+    skipRevision: true
+  };
 
+  if (untappdVariant.inventoryLimit > 0) {
+    reactionVariant.inventoryLimit = untappdVariant.inventoryLimit;
+    reactionVariant.lowInventoryWarningThreshold =
+      10 * untappdVariant.inventoryLimit;
+  }
+
+  if (untappdVariant.price) {
+    reactionVariant.price = parseFloat(untappdVariant.price);
+  }
+
+  return reactionVariant;
+}
 
 /**
  * cache all existing tags to memory {slug => id} so that when we're importing products we can
@@ -124,6 +178,163 @@ function saveImage(url, metadata) {
     }).save();
 }
 
+function saveProduct(untappdProduct) {
+  if (Products.findOne({ UntappdId: untappdProduct.bid }, { fields: { _id: 1 } })) {
+    Logger.debug(`Product ${untappdProduct.beer_name} already exists`);
+    return false;
+  }
+
+  const ids = [];
+  const shopId = Reaction.getShopId();
+  const tagCache = createTagCache();
+
+  Logger.debug(`Importing ${untappdProduct.beer_name}`);
+  const price = { min: null, max: null, range: "0.00" };
+
+  // Get tags from untappd and register them if they don't exist.
+  // push tag Id's into our hashtags array for use in the product
+  // We can't load all tags beforehand because Untappd doesn't have a tags API
+  const untappdTags = [untappdProduct.beer_style];
+
+  const hashtags = _.chain(untappdTags)
+    .filter(_.identity)
+    .map((tag) => {
+      const normalizedTag = {
+        name: tag,
+        slug: Reaction.getSlug(tag),
+        shopId: shopId,
+        isTopLevel: false,
+        updatedAt: new Date(),
+        createdAt: new Date()
+      };
+
+      // If we have a cached tag for this slug, we don't need to create a new one
+      if (!tagCache[normalizedTag.slug]) {
+        // this tag doesn't exist, create it, add it to our tag cache
+        normalizedTag._id = Tags.insert(normalizedTag);
+        tagCache[normalizedTag.slug] = normalizedTag._id;
+      }
+      // push the tag's _id into hashtags from the cache
+      return tagCache[normalizedTag.slug];
+    })
+    .value();
+
+  // Setup reaction product
+  const reactionProduct =
+    createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtags);
+
+  // Insert product, save id
+  const reactionProductId = Products.insert(
+    reactionProduct,
+    { selector: { type: "simple" }, publish: true }
+  );
+
+  ids.push(reactionProductId);
+
+  // Save the primary image to the grid and as priority 0
+  saveImage(untappdProduct.beer_label_hd, {
+    ownerId: Meteor.userId(),
+    productId: reactionProductId,
+    variantId: reactionProductId,
+    shopId: shopId,
+    priority: 0,
+    toGrid: 1
+  });
+
+  // Create one Variant: Can Release: <Date>
+  // Create Options:
+    // 4 Pack Cans (16oz) - 11.99
+    // 6 Pack Cans (12oz) - 11.99
+    // 6 Pack Bottles (12oz) - 11.99
+    // Bomber - 7.99
+    // 750ml - 9.99
+    // Growler Refill - 14.99
+    // Case (24) Cans - 47.99
+    // Case (24) Bottles - 47.99
+    // Case (12) Bombers - 79.99
+
+  Logger.debug(`Importing ${untappdProduct.beer_name} default variants`);
+
+  // create the default variant
+  const reactionVariant = createReactionVariantFromUntappdVariant(
+    { price: 0 },
+    `Can Release: ${moment().format("MMMM D, YYYY")}`,
+    0,
+    [reactionProductId],
+    shopId
+  );
+
+  // insert the Reaction variant
+  const reactionVariantId = Products.insert(reactionVariant, { publish: true });
+  ids.push(reactionVariantId);
+
+  // TODO: move these to the database
+  const defaultUntappdOptions = [
+    { title: "4 Pack Cans (16oz)", price: "11.99", inventoryLimit: 6 },
+    { title: "6 Pack Cans (12oz)", price: "11.99", inventoryLimit: 4 },
+    { title: "6 Pack Bottles (12oz)", price: "11.99", inventoryLimit: 4 },
+    { title: "Bomber (22oz)", price: "7.99", inventoryLimit: 12 },
+    { title: "750ml", price: "9.99", inventoryLimit: 6 },
+    { title: "Growler Refill", price: "14.99" },
+    { title: "Case (24) Cans", price: "47.99", inventoryLimit: 1 },
+    { title: "Case (24) Bottles", price: "47.99", inventoryLimit: 1 },
+    { title: "Case (12) Bombers", price: "79.99", inventoryLimit: 1 }
+  ];
+
+  Logger.debug(`Importing ${untappdProduct.beer_name} default options`);
+  defaultUntappdOptions.forEach((option, i) => {
+    const reactionOption = createReactionVariantFromUntappdVariant(
+      option,
+      option.title,
+      i,
+      [reactionProductId, reactionVariantId],
+      shopId
+    );
+
+    const reactionOptionId =
+      Products.insert(reactionOption, { type: "variant" });
+    ids.push(reactionOptionId);
+
+    // I would *much* rather add a reference to the Product's image, but "make
+    // it work, then make it better!"
+    saveImage(untappdProduct.beer_label_hd, {
+      ownerId: Meteor.userId(),
+      productId: reactionProductId,
+      variantId: reactionOptionId,
+      shopId: shopId,
+      priority: 1,
+      toGrid: 0
+    });
+
+    Logger.debug(`Imported ${untappdProduct.beer_name} default/${option.title}`);
+
+    // Update Max Price
+    if (price.max === null || price.max < reactionOption.price) {
+      price.max = reactionOption.price;
+    }
+
+    // Update Min Price
+    if (price.min === null || price.min > reactionOption.price) {
+      price.min = reactionOption.price;
+    }
+  }); // End defaultUntappdOptions forEach loop
+
+  // Set final product price
+  if (price.min !== price.max) {
+    price.range = `${price.min} - ${price.max}`;
+  } else {
+    price.range = `${price.max}`;
+  }
+  Products.update(
+    { _id: reactionProductId },
+    { $set: { price: price } },
+    { selector: { type: "simple" }, publish: true }
+  );
+  Logger.debug(`Product ${untappdProduct.beer_name} added`);
+
+  return ids;
+}
+
 export const methods = {
   /**
    * Imports products for the active Reaction Shop from Untappd with the API credentials setup for that shop.
@@ -133,265 +344,52 @@ export const methods = {
    * @param {object} options An object of options for the untappd API call. Available options here: https://help.untappd.com/api/reference/product#index
    * @returns {array} An array of the Reaction product _ids (including variants and options) that were created.
    */
-  async "connectors/untappd/import/products"(options) {
-    check(options, Match.Maybe(Object));
-    if (!Reaction.hasPermission(connectorsRoles)) {
-      throw new Meteor.Error(403, "Access Denied");
-    }
-
-    const apiCreds = getApiInfo();
-    const untappd = new Untappd(apiCreds);
-    const shopId = Reaction.getShopId();
-    const limit = 50; // Untappd returns a maximum of 250 results per request
-    const tagCache = createTagCache();
-    const ids = [];
-    const opts = Object.assign({}, {
-      published_status: "published",
-      limit: limit
-    }, { ... options });
-
+  async "connectors/untappd/import/products"(productId) {
     try {
-      const productCount = await untappd.product.count();
-      const numPages = Math.ceil(productCount / limit);
-      const pages = [...Array(numPages).keys()];
-      Logger.info(`Untappd Connector is preparing to import ${productCount} products`);
+      check(productId, Match.Maybe(Number));
 
-      for (const page of pages) {
-        Logger.debug(`Importing page ${page + 1} of ${numPages} - each page has ${limit} products`);
-        const untappdProducts = await untappd.product.list({ ...opts, page: page });
-        for (const untappdProduct of untappdProducts) {
-          if (!Products.findOne({ untappdId: untappdProduct.id }, { fields: { _id: 1 } })) {
-            Logger.debug(`Importing ${untappdProduct.title}`);
-            const price = { min: null, max: null, range: "0.00" };
+      if (!Reaction.hasPermission(connectorsRoles)) {
+        throw new Meteor.Error(403, "Access Denied");
+      }
 
-            // Get tags from untappd and register them if they don't exist.
-            // push tag Id's into our hashtags array for use in the product
-            // We can't load all tags beforehand because Untappd doesn't have a tags API
-            const hashtags = [];
-            const untappdTags = untappdProduct.tags.split(",");
-            for (const tag of untappdTags) {
-              if (tag !== "") {
-                const normalizedTag = {
-                  name: tag,
-                  slug: Reaction.getSlug(tag),
-                  shopId: shopId,
-                  isTopLevel: false,
-                  updatedAt: new Date(),
-                  createdAt: new Date()
-                };
+      const ServiceConfiguration =
+        Package['service-configuration'].ServiceConfiguration;
 
-                // If we have a cached tag for this slug, we don't need to create a new one
-                if (!tagCache[normalizedTag.slug]) {
-                  // this tag doesn't exist, create it, add it to our tag cache
-                  normalizedTag._id = Tags.insert(normalizedTag);
-                  tagCache[normalizedTag.slug] = normalizedTag._id;
-                }
-                // push the tag's _id into hashtags from the cache
-                hashtags.push(tagCache[normalizedTag.slug]);
-              }
-            }
+      const config =
+        ServiceConfiguration.configurations.findOne({ service: 'untappd' });
 
-            // Get Untappd variants, options and ternary options
-            const { untappdVariants, untappdOptions, untappdTernaryOptions } = getUntappdVariantsAndOptions(untappdProduct);
+      if (!config) {
+        throw new ServiceConfiguration.ConfigError();
+      }
 
-            // Setup reaction product
-            const reactionProduct = createReactionProductFromUntappdProduct({ untappdProduct, shopId, hashtags });
+      const debug = false;
+      const untappd = new UntappdClient(debug);
+      untappd.setClientId(config.clientId);
+      untappd.setClientSecret(config.secret);
+      // untappd.setAccessToken(accessToken);
 
-            // Insert product, save id
-            const reactionProductId = Products.insert(reactionProduct, { selector: { type: "simple" }, publish: true });
-            ids.push(reactionProductId);
+      // in case you need to add additional options
+      const opts = { BID: productId };
 
-            // Save the primary image to the grid and as priority 0
-            saveImage(untappdProduct.image.src, {
-              ownerId: Meteor.userId(),
-              productId: reactionProductId,
-              variantId: reactionProductId,
-              shopId: shopId,
-              priority: 0,
-              toGrid: 1
-            });
-
-            // Save all remaining product images to product
-            const productImages = findProductImages(untappdProduct.id, untappdProduct.images);
-            for (const productImage of productImages) {
-              if (untappdProduct.image.id !== productImage.id) {
-                saveImage(productImage.src, {
-                  ownerId: Meteor.userId(),
-                  productId: reactionProductId,
-                  variantId: reactionProductId,
-                  shopId: shopId,
-                  priority: productImage.position, // Untappd index positions starting at 1.
-                  toGrid: 0
-                });
-              }
-            }
-
-            // If variantLabel exists, we have at least one variant
-            if (untappdVariants) {
-              Logger.debug(`Importing ${untappdProduct.title} variants`);
-
-              untappdVariants.forEach((variant, i) => {
-                const untappdVariant = untappdProduct.variants.find((v) => v.option1 === variant);
-
-                if (untappdVariant) {
-                  // create the Reaction variant
-                  const reactionVariant = createReactionVariantFromUntappdVariant({
-                    untappdVariant,
-                    variant,
-                    index: i,
-                    ancestors: [reactionProductId],
-                    shopId
-                  });
-
-                  // insert the Reaction variant
-                  const reactionVariantId = Products.insert(reactionVariant, { publish: true });
-                  ids.push(reactionVariantId);
-
-                  // If we have untappd options, create reaction options
-                  if (untappdOptions) {
-                    Logger.debug(`Importing ${untappdProduct.title} ${variant} options`);
-                    untappdOptions.forEach((option, j) => {
-                      // Find the option that nests under our current variant.
-                      const untappdOption = untappdProduct.variants.find((o) => {
-                        return o.option1 === variant && o.option2 === option;
-                      });
-
-                      if (untappdOption) {
-                        const reactionOption = createReactionVariantFromUntappdVariant({
-                          untappdVariant: untappdOption,
-                          variant: option,
-                          index: j,
-                          ancestors: [reactionProductId, reactionVariantId],
-                          shopId
-                        });
-
-                        const reactionOptionId = Products.insert(reactionOption, { type: "variant" });
-                        ids.push(reactionOptionId);
-                        Logger.debug(`Imported ${untappdProduct.title} ${variant}/${option}`);
-
-                        // Update Max Price
-                        if (price.max === null || price.max < reactionOption.price) {
-                          price.max = reactionOption.price;
-                        }
-
-                        // Update Min Price
-                        if (price.min === null || price.min > reactionOption.price) {
-                          price.min = reactionOption.price;
-                        }
-
-                        // Save all relevant variant images to our option
-                        const optionImages = findVariantImages(untappdOption.id, untappdProduct.images);
-                        for (const optionImage of optionImages) {
-                          saveImage(optionImage.src, {
-                            ownerId: Meteor.userId(),
-                            productId: reactionProductId,
-                            variantId: reactionOptionId,
-                            shopId: shopId,
-                            priority: 1,
-                            toGrid: 0
-                          });
-                        }
-
-                        // THIS LOOP INSERTS PRODUCTS A LEVEL DEEPER THAN THE REACTION
-                        // UI CURRENTLY SUPPORTS. IF YOUR SHOPIFY STORE USES THREE OPTION
-                        // LEVELS, YOU WILL NEED TO BUILD UI SUPPORT FOR THAT.
-                        if (untappdTernaryOptions) {
-                          Logger.warn("Importing untappd product with 3 options. The Reaction UI does not currently support this.");
-                          Logger.debug(`Importing ${untappdProduct.title} ${variant} ${option} options`);
-                          untappdTernaryOptions.forEach((ternaryOption, k) => {
-                            // Find the option that nests under our current variant.
-                            const untappdTernaryOption = untappdProduct.variants.find((o) => {
-                              return o.option1 === variant && o.option2 === option && o.option3 === ternaryOption;
-                            });
-
-                            if (untappdTernaryOption) {
-                              const reactionTernaryOption = createReactionVariantFromUntappdVariant({
-                                untappdVariant: untappdTernaryOption,
-                                variant: ternaryOption,
-                                index: k,
-                                ancestors: [reactionProductId, reactionVariantId, reactionOptionId],
-                                shopId
-                              });
-
-                              const reactionTernaryOptionId = Products.insert(reactionTernaryOption, { type: "variant" });
-                              ids.push(reactionTernaryOptionId);
-                              Logger.debug(`Imported ${untappdProduct.title} ${variant}/${option}/${ternaryOption}`);
-
-                              // Update Max Price
-                              if (price.max === null || price.max < reactionTernaryOption.price) {
-                                price.max = reactionTernaryOption.price;
-                              }
-
-                              // Update Min Price
-                              if (price.min === null || price.min > reactionTernaryOption.price) {
-                                price.min = reactionTernaryOption.price;
-                              }
-
-                              // Save all relevant variant images to our option
-                              const ternaryOptionImages = findVariantImages(untappdTernaryOption.id, untappdProduct.images);
-                              for (const ternaryOptionImage of ternaryOptionImages) {
-                                saveImage(ternaryOptionImage.src, {
-                                  ownerId: Meteor.userId(),
-                                  productId: reactionProductId,
-                                  variantId: reactionOptionId,
-                                  shopId: shopId,
-                                  priority: 1,
-                                  toGrid: 0
-                                });
-                              } // So many close parens and brackets. Don't get lost.
-                            }
-                          }); // End untappdTernaryOptions forEach loop
-                        }
-                      }
-                    }); // End untappdOptions forEach loop
-                  } else {
-                    // Product does not have options, just variants
-                    // Update Max Price
-                    if (price.max === null || price.max < reactionVariant.price) {
-                      price.max = reactionVariant.price;
-                    }
-
-                    // Update Min Price
-                    if (price.min === null || price.min > reactionVariant.price) {
-                      price.min = reactionVariant.price;
-                    }
-
-                    // Save all relevant variant images to our variant.
-                    const variantImages = findVariantImages(untappdVariant.id, untappdProduct.images);
-                    for (const variantImage of variantImages) {
-                      saveImage(variantImage.src, {
-                        ownerId: Meteor.userId(),
-                        productId: reactionProductId,
-                        variantId: reactionVariantId,
-                        shopId: shopId,
-                        priority: 1,
-                        toGrid: 0
-                      });
-                    }
-                    Logger.debug(`Imported ${untappdProduct.title} ${variant}`);
-                  }
-                }
-              });
-            }
-
-            // Set final product price
-            if (price.min !== price.max) {
-              price.range = `${price.min} - ${price.max}`;
+      const result = await new Promise((resolve, reject) => {
+        try {
+          untappd.beerInfo(Meteor.bindEnvironment(function (error, data) {
+            if (error) {
+              reject(error);
             } else {
-              price.range = `${price.max}`;
-            }
-            Products.update({ _id: reactionProductId }, { $set: { price: price } }, { selector: { type: "simple" }, publish: true });
-            Logger.debug(`Product ${untappdProduct.title} added`);
-          } else { // product already exists check
-            Logger.debug(`Product ${untappdProduct.title} already exists`);
-          }
-        } // End product loop
-      } // End pages loop
-      Logger.info(`Reaction Untappd Connector has finished importing ${ids.length} products`);
+              const productIds = saveProduct(data.response.beer);
 
-      // Run jobs to import all queued images;
+              resolve(productIds);
+            }
+          }), opts);
+        } catch (error) {
+          Logger.error(`There was a problem querying Untappd for id '${productId}'`, error);
+          reject(error);
+        }
+      });
+
       importImages();
-      return ids;
+      return result;
     } catch (error) {
       Logger.error("There was a problem importing your products from Untappd", error);
       throw new Meteor.Error("There was a problem importing your products from Untappd", error);
@@ -412,263 +410,41 @@ export const methods = {
       throw new Meteor.Error(403, "Access Denied");
     }
 
-    const untappd = new UntappdClient(debug);
-    const shopId = Reaction.getShopId();
-    const limit = 50; // Untappd returns a maximum of 250 results per request
-    const tagCache = createTagCache();
-    const ids = [];
-    const opts = Object.assign({}, {
-      published_status: "published",
-      limit: limit
-    }, { ... options });
+    const ServiceConfiguration =
+      Package['service-configuration'].ServiceConfiguration;
 
-    try {
-      const result = await untappd.beerSearch(opts, _.noop);
-      const productCount = await untappd.product.count();
-      const numPages = Math.ceil(productCount / limit);
-      const pages = [...Array(numPages).keys()];
-      Logger.info(`Untappd Connector is preparing to import ${productCount} products`);
+    const config =
+      ServiceConfiguration.configurations.findOne({ service: 'untappd' });
 
-      for (const page of pages) {
-        Logger.debug(`Importing page ${page + 1} of ${numPages} - each page has ${limit} products`);
-        const untappdProducts = await untappd.product.list({ ...opts, page: page });
-        for (const untappdProduct of untappdProducts) {
-          if (!Products.findOne({ untappdId: untappdProduct.id }, { fields: { _id: 1 } })) {
-            Logger.debug(`Importing ${untappdProduct.title}`);
-            const price = { min: null, max: null, range: "0.00" };
-
-            // Get tags from untappd and register them if they don't exist.
-            // push tag Id's into our hashtags array for use in the product
-            // We can't load all tags beforehand because Untappd doesn't have a tags API
-            const hashtags = [];
-            const untappdTags = untappdProduct.tags.split(",");
-            for (const tag of untappdTags) {
-              if (tag !== "") {
-                const normalizedTag = {
-                  name: tag,
-                  slug: Reaction.getSlug(tag),
-                  shopId: shopId,
-                  isTopLevel: false,
-                  updatedAt: new Date(),
-                  createdAt: new Date()
-                };
-
-                // If we have a cached tag for this slug, we don't need to create a new one
-                if (!tagCache[normalizedTag.slug]) {
-                  // this tag doesn't exist, create it, add it to our tag cache
-                  normalizedTag._id = Tags.insert(normalizedTag);
-                  tagCache[normalizedTag.slug] = normalizedTag._id;
-                }
-                // push the tag's _id into hashtags from the cache
-                hashtags.push(tagCache[normalizedTag.slug]);
-              }
-            }
-
-            // Get Untappd variants, options and ternary options
-            const { untappdVariants, untappdOptions, untappdTernaryOptions } = getUntappdVariantsAndOptions(untappdProduct);
-
-            // Setup reaction product
-            const reactionProduct = createReactionProductFromUntappdProduct({ untappdProduct, shopId, hashtags });
-
-            // Insert product, save id
-            const reactionProductId = Products.insert(reactionProduct, { selector: { type: "simple" }, publish: true });
-            ids.push(reactionProductId);
-
-            // Save the primary image to the grid and as priority 0
-            saveImage(untappdProduct.image.src, {
-              ownerId: Meteor.userId(),
-              productId: reactionProductId,
-              variantId: reactionProductId,
-              shopId: shopId,
-              priority: 0,
-              toGrid: 1
-            });
-
-            // Save all remaining product images to product
-            const productImages = findProductImages(untappdProduct.id, untappdProduct.images);
-            for (const productImage of productImages) {
-              if (untappdProduct.image.id !== productImage.id) {
-                saveImage(productImage.src, {
-                  ownerId: Meteor.userId(),
-                  productId: reactionProductId,
-                  variantId: reactionProductId,
-                  shopId: shopId,
-                  priority: productImage.position, // Untappd index positions starting at 1.
-                  toGrid: 0
-                });
-              }
-            }
-
-            // If variantLabel exists, we have at least one variant
-            if (untappdVariants) {
-              Logger.debug(`Importing ${untappdProduct.title} variants`);
-
-              untappdVariants.forEach((variant, i) => {
-                const untappdVariant = untappdProduct.variants.find((v) => v.option1 === variant);
-
-                if (untappdVariant) {
-                  // create the Reaction variant
-                  const reactionVariant = createReactionVariantFromUntappdVariant({
-                    untappdVariant,
-                    variant,
-                    index: i,
-                    ancestors: [reactionProductId],
-                    shopId
-                  });
-
-                  // insert the Reaction variant
-                  const reactionVariantId = Products.insert(reactionVariant, { publish: true });
-                  ids.push(reactionVariantId);
-
-                  // If we have untappd options, create reaction options
-                  if (untappdOptions) {
-                    Logger.debug(`Importing ${untappdProduct.title} ${variant} options`);
-                    untappdOptions.forEach((option, j) => {
-                      // Find the option that nests under our current variant.
-                      const untappdOption = untappdProduct.variants.find((o) => {
-                        return o.option1 === variant && o.option2 === option;
-                      });
-
-                      if (untappdOption) {
-                        const reactionOption = createReactionVariantFromUntappdVariant({
-                          untappdVariant: untappdOption,
-                          variant: option,
-                          index: j,
-                          ancestors: [reactionProductId, reactionVariantId],
-                          shopId
-                        });
-
-                        const reactionOptionId = Products.insert(reactionOption, { type: "variant" });
-                        ids.push(reactionOptionId);
-                        Logger.debug(`Imported ${untappdProduct.title} ${variant}/${option}`);
-
-                        // Update Max Price
-                        if (price.max === null || price.max < reactionOption.price) {
-                          price.max = reactionOption.price;
-                        }
-
-                        // Update Min Price
-                        if (price.min === null || price.min > reactionOption.price) {
-                          price.min = reactionOption.price;
-                        }
-
-                        // Save all relevant variant images to our option
-                        const optionImages = findVariantImages(untappdOption.id, untappdProduct.images);
-                        for (const optionImage of optionImages) {
-                          saveImage(optionImage.src, {
-                            ownerId: Meteor.userId(),
-                            productId: reactionProductId,
-                            variantId: reactionOptionId,
-                            shopId: shopId,
-                            priority: 1,
-                            toGrid: 0
-                          });
-                        }
-
-                        // THIS LOOP INSERTS PRODUCTS A LEVEL DEEPER THAN THE REACTION
-                        // UI CURRENTLY SUPPORTS. IF YOUR SHOPIFY STORE USES THREE OPTION
-                        // LEVELS, YOU WILL NEED TO BUILD UI SUPPORT FOR THAT.
-                        if (untappdTernaryOptions) {
-                          Logger.warn("Importing untappd product with 3 options. The Reaction UI does not currently support this.");
-                          Logger.debug(`Importing ${untappdProduct.title} ${variant} ${option} options`);
-                          untappdTernaryOptions.forEach((ternaryOption, k) => {
-                            // Find the option that nests under our current variant.
-                            const untappdTernaryOption = untappdProduct.variants.find((o) => {
-                              return o.option1 === variant && o.option2 === option && o.option3 === ternaryOption;
-                            });
-
-                            if (untappdTernaryOption) {
-                              const reactionTernaryOption = createReactionVariantFromUntappdVariant({
-                                untappdVariant: untappdTernaryOption,
-                                variant: ternaryOption,
-                                index: k,
-                                ancestors: [reactionProductId, reactionVariantId, reactionOptionId],
-                                shopId
-                              });
-
-                              const reactionTernaryOptionId = Products.insert(reactionTernaryOption, { type: "variant" });
-                              ids.push(reactionTernaryOptionId);
-                              Logger.debug(`Imported ${untappdProduct.title} ${variant}/${option}/${ternaryOption}`);
-
-                              // Update Max Price
-                              if (price.max === null || price.max < reactionTernaryOption.price) {
-                                price.max = reactionTernaryOption.price;
-                              }
-
-                              // Update Min Price
-                              if (price.min === null || price.min > reactionTernaryOption.price) {
-                                price.min = reactionTernaryOption.price;
-                              }
-
-                              // Save all relevant variant images to our option
-                              const ternaryOptionImages = findVariantImages(untappdTernaryOption.id, untappdProduct.images);
-                              for (const ternaryOptionImage of ternaryOptionImages) {
-                                saveImage(ternaryOptionImage.src, {
-                                  ownerId: Meteor.userId(),
-                                  productId: reactionProductId,
-                                  variantId: reactionOptionId,
-                                  shopId: shopId,
-                                  priority: 1,
-                                  toGrid: 0
-                                });
-                              } // So many close parens and brackets. Don't get lost.
-                            }
-                          }); // End untappdTernaryOptions forEach loop
-                        }
-                      }
-                    }); // End untappdOptions forEach loop
-                  } else {
-                    // Product does not have options, just variants
-                    // Update Max Price
-                    if (price.max === null || price.max < reactionVariant.price) {
-                      price.max = reactionVariant.price;
-                    }
-
-                    // Update Min Price
-                    if (price.min === null || price.min > reactionVariant.price) {
-                      price.min = reactionVariant.price;
-                    }
-
-                    // Save all relevant variant images to our variant.
-                    const variantImages = findVariantImages(untappdVariant.id, untappdProduct.images);
-                    for (const variantImage of variantImages) {
-                      saveImage(variantImage.src, {
-                        ownerId: Meteor.userId(),
-                        productId: reactionProductId,
-                        variantId: reactionVariantId,
-                        shopId: shopId,
-                        priority: 1,
-                        toGrid: 0
-                      });
-                    }
-                    Logger.debug(`Imported ${untappdProduct.title} ${variant}`);
-                  }
-                }
-              });
-            }
-
-            // Set final product price
-            if (price.min !== price.max) {
-              price.range = `${price.min} - ${price.max}`;
-            } else {
-              price.range = `${price.max}`;
-            }
-            Products.update({ _id: reactionProductId }, { $set: { price: price } }, { selector: { type: "simple" }, publish: true });
-            Logger.debug(`Product ${untappdProduct.title} added`);
-          } else { // product already exists check
-            Logger.debug(`Product ${untappdProduct.title} already exists`);
-          }
-        } // End product loop
-      } // End pages loop
-      Logger.info(`Reaction Untappd Connector has finished importing ${ids.length} products`);
-
-      // Run jobs to import all queued images;
-      importImages();
-      return ids;
-    } catch (error) {
-      Logger.error("There was a problem importing your products from Untappd", error);
-      throw new Meteor.Error("There was a problem importing your products from Untappd", error);
+    if (!config) {
+      throw new ServiceConfiguration.ConfigError();
     }
+
+    const debug = false;
+    const untappd = new UntappdClient(debug);
+    untappd.setClientId(config.clientId);
+    untappd.setClientSecret(config.secret);
+    // untappd.setAccessToken(accessToken);
+
+    // in case you need to add additional options
+    const opts = Object.assign({}, { ... options });
+
+    const result = await new Promise((resolve, reject) => {
+      try {
+        untappd.beerSearch((error, data) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(data);
+          }
+        }, opts);
+      } catch (error) {
+        Logger.error("There was a problem searching Untappd", error);
+        reject(error);
+      }
+    });
+
+    return result;
   }
 };
 
