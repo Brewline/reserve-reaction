@@ -1,3 +1,4 @@
+import url from "url";
 import _ from "lodash";
 import store from "store";
 import { Accounts as MeteorAccounts } from "meteor/accounts-base";
@@ -27,8 +28,18 @@ const reactionState = new ReactiveDict();
 export const userPrefs = new ReactiveVar(undefined, (val, newVal) => JSON.stringify(val) === JSON.stringify(newVal));
 
 const deps = new Map();
-
+/**
+ * Reaction namespace
+ * Global reaction shop permissions methods and shop initialization
+ */
 export default {
+  /**
+   * @summary The active shop's domain (a shop may have multiple domains)
+   * @memberof Core/Client
+   * @private
+   */
+  _shopDomain: new ReactiveVar(null),
+
   /**
    * @summary The active shop
    * @memberof Core/Client
@@ -127,9 +138,7 @@ export default {
     return Tracker.autorun(() => {
       let shop;
       if (this.Subscriptions.MerchantShops.ready()) {
-        // get domain (e.g localhost) from absolute url (e.g http://localhost:3000/)
-        const [, , host] = Meteor.absoluteUrl().split("/");
-        const [domain] = host.split(":");
+        this._shopDomain.set(document.location.hostname); // client side code... is this ok??
 
         // if we don't have an active shopId, try to retreive it from the userPreferences object
         // and set the shop from the storedShopId
@@ -141,7 +150,7 @@ export default {
             });
           } else {
             shop = Shops.findOne({
-              domains: domain
+              domains: this.getDomain()
             });
           }
         }
@@ -194,6 +203,46 @@ export default {
    */
   get state() {
     return reactionState;
+  },
+
+  /**
+   * absoluteUrl
+   * @summary a wrapper method for Meteor.absoluteUrl which sets the rootUrl to
+   * the current URL (instead of defaulting to ROOT_URL)
+   * @param {String} [path] A path to append to the root URL. Do not include a leading "`/`".
+   * @param {Object} [options]
+   * @param {Boolean} options.secure Create an HTTPS URL.
+   * @param {Boolean} options.replaceLocalhost Replace localhost with 127.0.0.1. Useful for services that don't recognize localhost as a domain name.
+   * @param {String} options.rootUrl Override the default ROOT_URL from the server environment. For example: "`http://foo.example.com`"
+   * @return {String} URL for the given path and options
+   */
+  absoluteUrl(path, options) {
+    const o = _.extend({}, options);
+    const domain = this._shopDomain.get();
+
+    if (!("rootUrl" in o) && domain) {
+      // unfortunately, the scheme/protocal is not available here, so let's
+      // get it from the default Meteor absoluteUrl options, then replace the
+      // host
+      const rootUrl = url.parse(Meteor.absoluteUrl.defaultOptions.rootUrl);
+      rootUrl.host = domain;
+      o.rootUrl = rootUrl.format();
+    }
+
+    return Meteor.absoluteUrl(path, o);
+  },
+
+  /**
+   * getDomain
+   * @summary extracts the domain name from the absoluteUrl.
+   * @param {Object} [options] inheritied from absoluteUrl
+   * @param {Boolean} options.secure Create an HTTPS URL.
+   * @param {Boolean} options.replaceLocalhost Replace localhost with 127.0.0.1. Useful for services that don't recognize localhost as a domain name.
+   * @param {String} options.rootUrl Override the default ROOT_URL from the server environment. For example: "`http://foo.example.com`"
+   * @return {String} Domain/hostname for the given options
+   */
+  getDomain(options) {
+    return this.absoluteUrl("", options).split("/")[2].split(":")[0];
   },
 
   /**

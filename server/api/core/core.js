@@ -3,6 +3,7 @@ import Random from "@reactioncommerce/random";
 import packageJson from "/package.json";
 import _, { merge, uniqWith } from "lodash";
 import { Meteor } from "meteor/meteor";
+import { ReactiveVar } from "meteor/reactive-var";
 import { check } from "meteor/check";
 import { Accounts } from "meteor/accounts-base";
 import { Roles } from "meteor/alanning:roles";
@@ -26,6 +27,8 @@ import ConnectionDataStore from "./connectionDataStore";
 const { Jobs, Packages, Shops, Accounts: AccountsCollection } = Collections;
 
 export default {
+  _shopDomain: new ReactiveVar(null),
+
   init() {
     // run beforeCoreInit hooks
     Hooks.Events.run("beforeCoreInit");
@@ -58,6 +61,11 @@ export default {
       this.createDefaultAdminUser();
     }
     this.setAppVersion();
+
+    Meteor.onConnection((connection) => {
+      this._shopDomain.set(connection.httpHeaders.host);
+    });
+
     // hook after init finished
     Hooks.Events.run("afterCoreInit");
 
@@ -73,6 +81,33 @@ export default {
     const registeredPackage = this.Packages[packageInfo.name];
     return registeredPackage;
   },
+
+  /**
+   * absoluteUrl
+   * @summary a wrapper method for Meteor.absoluteUrl which sets the rootUrl to
+   * the current URL (instead of defaulting to ROOT_URL)
+   * @param {String} [path] A path to append to the root URL. Do not include a leading "`/`".
+   * @param {Object} [options]
+   * @param {Boolean} options.secure Create an HTTPS URL.
+   * @param {Boolean} options.replaceLocalhost Replace localhost with 127.0.0.1. Useful for services that don't recognize localhost as a domain name.
+   * @param {String} options.rootUrl Override the default ROOT_URL from the server environment. For example: "`http://foo.example.com`"
+   */
+  absoluteUrl(path, options) {
+    const o = _.extend({}, options);
+    const domain = this._shopDomain.get();
+
+    if (!("rootUrl" in o) && domain) {
+      // unlike the server-side code, we have access the protocol/scheme,
+      // however, to maintain consistency between the two, we mimic the behavior
+      // by using the default Meteor absoluteUrl rootUrl, and replacing the host
+      const rootUrl = url.parse(Meteor.absoluteUrl.defaultOptions.rootUrl);
+      rootUrl.host = domain;
+      o.rootUrl = rootUrl.format();
+    }
+
+    return Meteor.absoluteUrl(path, o);
+  },
+
   defaultCustomerRoles: ["guest", "account/profile", "product", "tag", "index", "cart/checkout", "cart/completed"],
   defaultVisitorRoles: ["anonymous", "guest", "product", "tag", "index", "cart/checkout", "cart/completed"],
   createGroups,
@@ -458,7 +493,7 @@ export default {
    * @return {String} Shop domain
    */
   getDomain() {
-    return url.parse(Meteor.absoluteUrl()).hostname;
+    return url.parse(this.absoluteUrl()).hostname;
   },
 
   /**
