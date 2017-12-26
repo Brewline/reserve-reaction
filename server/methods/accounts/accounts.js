@@ -763,9 +763,9 @@ export function sendWelcomeEmail(shopId, userId) {
   if (Array.isArray(shop.brandAssets)) {
     const brandAsset = _.find(shop.brandAssets, (asset) => asset.type === "navbarBrandImage");
     const mediaId = Media.findOne(brandAsset.mediaId);
-    emailLogo = path.join(Meteor.absoluteUrl(), mediaId.url());
+    emailLogo = path.join(Reaction.absoluteUrl(), mediaId.url());
   } else {
-    emailLogo = Meteor.absoluteUrl() + "resources/email-templates/shop-logo.png";
+    emailLogo = Reaction.absoluteUrl() + "resources/email-templates/shop-logo.png";
   }
 
   const dataForEmail = {
@@ -786,17 +786,17 @@ export function sendWelcomeEmail(shopId, userId) {
       display: true,
       facebook: {
         display: true,
-        icon: Meteor.absoluteUrl() + "resources/email-templates/facebook-icon.png",
+        icon: Reaction.absoluteUrl() + "resources/email-templates/facebook-icon.png",
         link: "https://www.facebook.com"
       },
       googlePlus: {
         display: true,
-        icon: Meteor.absoluteUrl() + "resources/email-templates/google-plus-icon.png",
+        icon: Reaction.absoluteUrl() + "resources/email-templates/google-plus-icon.png",
         link: "https://plus.google.com"
       },
       twitter: {
         display: true,
-        icon: Meteor.absoluteUrl() + "resources/email-templates/twitter-icon.png",
+        icon: Reaction.absoluteUrl() + "resources/email-templates/twitter-icon.png",
         link: "https://www.twitter.com"
       }
     },
@@ -813,7 +813,7 @@ export function sendWelcomeEmail(shopId, userId) {
   // Encode email address for URI
   const encodedEmailAddress = encodeURIComponent(defaultEmail.address);
   // assign verification url
-  dataForEmail.verificationUrl = `${Meteor.absoluteUrl()}account/profile/verify?email=${encodedEmailAddress}`;
+  dataForEmail.verificationUrl = `${Reaction.absoluteUrl()}account/profile/verify?email=${encodedEmailAddress}`;
   const userEmail = user.emails[0].address;
 
   let shopEmail;
@@ -930,9 +930,9 @@ function getEmailLogo(shop) {
   if (Array.isArray(shop.brandAssets)) {
     const brandAsset = _.find(shop.brandAssets, (asset) => asset.type === "navbarBrandImage");
     const mediaId = Media.findOne(brandAsset.mediaId);
-    emailLogo = path.join(Meteor.absoluteUrl(), mediaId.url());
+    emailLogo = path.join(Reaction.absoluteUrl(), mediaId.url());
   } else {
-    emailLogo = Meteor.absoluteUrl() + "resources/email-templates/shop-logo.png";
+    emailLogo = Reaction.absoluteUrl() + "resources/email-templates/shop-logo.png";
   }
   return emailLogo;
 }
@@ -978,7 +978,7 @@ function getDataForEmail(options) {
     primaryShop: primaryShop, // Primary shop data - may or may not be the same as shop
     shop: shop, // Shop Data
     contactEmail: _.get(shop, "emails[0].address"),
-    homepage: Meteor.absoluteUrl(),
+    homepage: Reaction.absoluteUrl(),
     emailLogo: emailLogo,
     copyrightDate: moment().format("YYYY"),
     legalName: _.get(shop, "addressBook[0].company"),
@@ -993,17 +993,17 @@ function getDataForEmail(options) {
       display: true,
       facebook: {
         display: true,
-        icon: Meteor.absoluteUrl() + "resources/email-templates/facebook-icon.png",
+        icon: Reaction.absoluteUrl() + "resources/email-templates/facebook-icon.png",
         link: "https://www.facebook.com"
       },
       googlePlus: {
         display: true,
-        icon: Meteor.absoluteUrl() + "resources/email-templates/google-plus-icon.png",
+        icon: Reaction.absoluteUrl() + "resources/email-templates/google-plus-icon.png",
         link: "https://plus.google.com"
       },
       twitter: {
         display: true,
-        icon: Meteor.absoluteUrl() + "resources/email-templates/twitter-icon.png",
+        icon: Reaction.absoluteUrl() + "resources/email-templates/twitter-icon.png",
         link: "https://www.twitter.com"
       }
     },
@@ -1017,7 +1017,7 @@ function getDataForEmail(options) {
     if (userToken) {
       return MeteorAccounts.urls.enrollAccount(userToken);
     }
-    return Meteor.absoluteUrl();
+    return Reaction.absoluteUrl();
   }
 }
 

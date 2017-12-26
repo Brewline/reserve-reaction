@@ -12,6 +12,15 @@ Meteor.publish("PrimaryShop", function () {
   });
 });
 
+Meteor.publish("Shop", function () {
+  return Shops.find({
+    _id: Reaction.getShopId()
+  }, {
+    fields: {},
+    limit: 1
+  });
+});
+
 Meteor.publish("MerchantShops", function () {
   const domain = Reaction.getDomain();
   const settings = Reaction.getMarketplaceSettings();
