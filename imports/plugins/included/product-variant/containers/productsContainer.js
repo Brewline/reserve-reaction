@@ -113,19 +113,13 @@ function composer(props, onData) {
   let canLoadMoreProducts = false;
 
   const slug = Reaction.Router.getParam("slug");
-  const shopIdOrSlug = Reaction.Router.getParam("shopSlug");
 
   const tag = Tags.findOne({ slug }) || Tags.findOne(slug);
   const scrollLimit = Session.get("productScrollLimit");
   let tags = {}; // this could be shop default implementation needed
-  let shopIds = {};
 
   if (tag) {
     tags = { tags: [tag._id] };
-  }
-
-  if (shopIdOrSlug) {
-    shopIds = { shops: [shopIdOrSlug] };
   }
 
   // if we get an invalid slug, don't return all products
@@ -159,8 +153,8 @@ function composer(props, onData) {
     }
   }
 
-  const queryParams = Object.assign({}, tags, Reaction.Router.current().queryParams, shopIds);
-  const productsSubscription = Meteor.subscribe("Products", scrollLimit, queryParams, sort, editMode);
+  const queryParams = Object.assign({}, tags, Reaction.Router.current().queryParams);
+  const productsSubscription = Meteor.subscribe("ShopProducts", scrollLimit, queryParams, sort, editMode);
 
   if (productsSubscription.ready()) {
     window.prerenderReady = true;

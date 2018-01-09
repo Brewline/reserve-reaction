@@ -21,6 +21,19 @@ Reaction.registerPackage({
     provides: ["connectorSettings"],
     container: "dashboard",
     template: "untappdConnectSettings"
+  }, {
+    label: "Untappd Marketplace Shops",
+    name: "untappdMarketplaceShops",
+    icon: "fa fa-globe",
+    route: "shop/settings/untappd",
+    provides: ["shopSettings"],
+    container: "dashboard",
+    template: "untappdMarketplaceShops",
+    showForShopTypes: ["primary"],
+    permissions: [{
+      label: "Marketplace Shops",
+      permission: "marketplaceShops"
+    }]
   }]
 });
 

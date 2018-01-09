@@ -1,3 +1,5 @@
+// TODO: consider combining with untappd-connector-import-container
+
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
@@ -6,9 +8,9 @@ import { Products } from "/lib/collections";
 import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
 import './connect-with';
-import UntappdConnectorImport from './untappd-connector-import-component';
+import UntappdMarketplaceShops from './untappd-marketplace-shops-component';
 
-class UntappdConnectorImportContainer extends Component {
+class UntappdMarketplaceShopsContainer extends Component {
   constructor(props) {
     super(props);
 
@@ -16,7 +18,7 @@ class UntappdConnectorImportContainer extends Component {
     this.fetchSearchResults = this.fetchSearchResults.bind(this);
 
     //// initial state
-    const alertId = "connectors-untappd-search";
+    const alertId = "untappd-marketplace-shops-search";
 
     this.state = {
       alertOptions: {
@@ -35,7 +37,7 @@ class UntappdConnectorImportContainer extends Component {
   }
 
   fetchSearchResults(q) {
-    Meteor.call("connectors/untappd/search/products", { q }, (err, res) => {
+    Meteor.call("connectors/untappd/search/shops", { q }, (err, res) => {
       if (err) {
         // TODO: correct wording
         return ReactionAlerts.add(
@@ -47,13 +49,13 @@ class UntappdConnectorImportContainer extends Component {
         );
       }
 
-      this.setState({ searchResults: res.response.beers.items });
+      this.setState({ searchResults: res.response.brewery.items });
     });
   }
 
   render() {
     return (
-      <UntappdConnectorImport
+      <UntappdMarketplaceShops
         {...this.props}
         onGetAccessToken={this.fetchAccessToken}
         onSearch={this.fetchSearchResults}
@@ -77,9 +79,9 @@ function composer(props, onData) {
 }
 
 registerComponent(
-  "UntappdConnectorImport",
-  UntappdConnectorImportContainer,
+  "UntappdMarketplaceShops",
+  UntappdMarketplaceShopsContainer,
   composeWithTracker(composer)
 );
 
-export default composeWithTracker(composer)(UntappdConnectorImportContainer);
+export default composeWithTracker(composer)(UntappdMarketplaceShopsContainer);

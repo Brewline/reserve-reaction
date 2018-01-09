@@ -530,6 +530,21 @@ export default {
     }
   },
 
+  getShop(providedShopId) {
+    const shopId = providedShopId || this.getShopId();
+    return Shops.findOne({
+      _id: shopId
+    });
+  },
+
+  getMerchantShops() {
+    return Shops.find({
+      _id: {
+        $nin: [this.getPrimaryShopId()]
+      }
+    });
+  },
+
   /**
    * getShopName
    * @summary gets name of shop by provided shopId, or current active shop if shopId is not provided
@@ -537,10 +552,7 @@ export default {
    * @return {String} - shop name
    */
   getShopName(providedShopId) {
-    const shopId = providedShopId || this.getShopId();
-    const shop = Shops.findOne({
-      _id: shopId
-    });
+    const shop = this.getShop(providedShopId);
     return shop && shop.name;
   },
 
@@ -560,9 +572,7 @@ export default {
   },
 
   getShopCurrency() {
-    const shop = Shops.findOne({
-      _id: this.shopId
-    });
+    const shop = this.getShop();
 
     return shop && shop.currency || "USD";
   },

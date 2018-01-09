@@ -2,19 +2,19 @@ import React, { Component } from "react";
 import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
 
 // TOOD: wrap this component
-export default class UntappdConnectorProductComponent extends Component {
+export default class UntappdMarketplaceShopComponent extends Component {
   constructor(props) {
     super(props);
 
-    this.addProduct = this.addProduct.bind(this);
+    this.handleAddShop = this.handleAddShop.bind(this);
   }
 
-  addProduct() {
-    this.props.onAddProduct(this.props.product.beer.bid);
+  handleAddShop() {
+    this.props.onAddShop(this.props.brewery.brewery_id);
   }
 
   render() {
-    const { product } = this.props;
+    const { brewery } = this.props;
 
     return (
       <div
@@ -23,10 +23,10 @@ export default class UntappdConnectorProductComponent extends Component {
           clear: "both",
           overflow: "hidden"
         }}
-        onClick={this.addProduct}
+        onClick={this.handleAddShop}
       >
         <img
-          src={product.beer.beer_label}
+          src={brewery.brewery_label}
           style={{
             float: "left",
             marginRight: "5px",
@@ -34,11 +34,7 @@ export default class UntappdConnectorProductComponent extends Component {
             maxHeight: "100px"
           }}
         />
-        <h4>{product.beer.beer_name}</h4>
-        <h6>{product.brewery.brewery_name}</h6>
-        <p>
-          {product.beer.beer_style}
-        </p>
+        <h4>{brewery.brewery_name}</h4>
       </div>
     );
   }

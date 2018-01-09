@@ -19,14 +19,11 @@ export const UntappdProduct = new SimpleSchema({
     type: Number,
     optional: true,
     decimal: false
-  // },
-  // UntappdResource: {
-  //   type: Object,
-  //   optional: true
-  // },
-  // Brewer: {
-  //   type: Object,
-  //   optional: true
+  },
+  UntappdResource: {
+    type: Object,
+    optional: true,
+    blackbox: true
   }
 });
 
