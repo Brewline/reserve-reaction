@@ -46,7 +46,7 @@ Meteor.methods({
       throw new Meteor.Error("access-denied", "Access Denied");
     }
 
-    // Users may only create shops for themselves
+    // Non-admin users may only create shops for themselves
     if (!hasPrimaryShopOwnerPermission && shopAdminUserId !== Meteor.userId()) {
       throw new Meteor.Error("access-denied", "Access Denied");
     }
@@ -57,7 +57,6 @@ Meteor.methods({
       throw new Meteor.Error("access-denied", "Access Denied");
     }
 
-    const count = Collections.Shops.find().count() || "";
     const currentUser = Meteor.user();
     const currentAccount = Collections.Accounts.findOne({ _id: currentUser._id });
     if (!currentUser) {
@@ -81,16 +80,23 @@ Meteor.methods({
     }
 
     // we'll accept a shop object, or clone the current shop
-    const seedShop = shopData || Collections.Shops.findOne(Reaction.getPrimaryShopId());
+    let seedShop = shopData;
+
+    if (_.isEmpty(seedShop)) {
+      const count = Collections.Shops.find().count() || "";
+      seedShop = Reaction.getPrimaryShop();
+      // generate unique shop name
+      seedShop.name = seedShop.name + count;
+    }
+
+    // ensure unique id
+    // (shouldn't Mongo handle this for us? with lesser risk of collision?)
+    seedShop._id = Random.id();
 
     // Never create a second primary shop
     if (seedShop.shopType === "primary") {
       seedShop.shopType = "merchant";
     }
-
-    // ensure unique id and shop name
-    seedShop._id = Random.id();
-    seedShop.name = seedShop.name + count;
 
     // We trust the owner's shop clone, check only when shopData is passed as an argument
     if (shopData) {
@@ -124,16 +130,16 @@ Meteor.methods({
     const newShop = Collections.Shops.findOne({ _id: newShopId });
 
     // we should have created new shop, or errored
-    Logger.info("Created shop: ", shop._id);
+    Logger.info("Created shop: ", newShopId);
 
     // update user
-    Reaction.insertPackagesForShop(shop._id);
-    Reaction.createGroups({ shopId: shop._id });
-    const ownerGroup = Collections.Groups.findOne({ slug: "owner", shopId: shop._id });
-    Roles.addUsersToRoles([currentUser, shopUser._id], ownerGroup.permissions, shop._id);
+    Reaction.insertPackagesForShop(newShopId);
+    Reaction.createGroups({ shopId: newShopId });
+    const ownerGroup = Collections.Groups.findOne({ slug: "owner", shopId: newShopId });
+    Roles.addUsersToRoles([currentUser, shopUser._id], ownerGroup.permissions, newShopId);
     Collections.Accounts.update({ _id: shopUser._id }, {
       $set: {
-        shopId: shop._id
+        shopId: newShopId
       },
       $addToSet: {
         groups: ownerGroup._id
@@ -144,7 +150,7 @@ Meteor.methods({
     Collections.Shops.update({ _id: Reaction.getPrimaryShopId() }, {
       $addToSet: {
         merchantShops: {
-          _id: newShop._id,
+          _id: newShopId,
           slug: newShop.slug,
           name: newShop.name
         }
@@ -152,7 +158,7 @@ Meteor.methods({
     });
 
     // Set active shop to new shop.
-    return { shopId: shop._id };
+    return { shopId: newShopId };
   },
 
   /**

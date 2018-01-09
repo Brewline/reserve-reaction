@@ -530,6 +530,8 @@ describe("Account Meteor method ", function () {
       sandbox.stub(Meteor, "user", function () {
         return fakeUser;
       });
+      // do not attempt to send emails
+      sandbox.stub(Reaction.Email, "send");
     });
 
     it("should ensure only admin can invite as shop owner", function () {
@@ -551,7 +553,7 @@ describe("Account Meteor method ", function () {
           email: fakeUser.emails[0].address,
           name: fakeUser.profile.addressBook[0].fullName
         })
-      ).to.not.throw(Meteor.Error, /Access denied/);
+      ).to.not.throw(Meteor.Error);
 
       return done();
     });
@@ -563,7 +565,30 @@ describe("Account Meteor method ", function () {
           email: "custom@email.co",
           name: "custom name"
         })
-      ).to.not.throw(Meteor.Error, /Access denied/);
+      ).to.not.throw(Meteor.Error);
+
+      return done();
+    });
+
+    it("creates a shop with the data provided", function (done) {
+      sandbox.stub(Reaction, "hasPermission", () => true);
+      const shopName = Random.id();
+      const primaryShop = getShop();
+      const shopData = {
+        name: shopName,
+        locales: primaryShop.locales
+      };
+
+      // set default data to avoid validation errors
+      Shops.simpleSchema().clean(shopData);
+
+      Meteor.call("accounts/inviteShopOwner", {
+        email: "custom1@email.co",
+        name: "custom name"
+      }, shopData);
+
+      const newShopCount = Shops.find({ name: shopName }).count();
+      expect(newShopCount).to.equal(1);
 
       return done();
     });

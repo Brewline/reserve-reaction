@@ -568,12 +568,14 @@ export function addressBookRemove(addressId, accountUserId) {
  * @param {Object} options -
  * @param {String} options.email - email of invitee
  * @param {String} options.name - name of invitee
+ * @param {Object} shopData - (optional) data used to create the new shop
  * @returns {Boolean} returns true
  */
-export function inviteShopOwner(options) {
+export function inviteShopOwner(options, shopData) {
   check(options, Object);
   check(options.email, String);
   check(options.name, String);
+  check(shopData, Match.Maybe(Object));
   const { name, email } = options;
 
   if (!Reaction.hasPermission("admin", this.userId, Reaction.getPrimaryShopId())) {
@@ -592,7 +594,7 @@ export function inviteShopOwner(options) {
     });
   }
 
-  const { shopId } = Meteor.call("shop/createShop", userId) || {};
+  const { shopId } = Meteor.call("shop/createShop", userId, shopData) || {};
   const primaryShop = Reaction.getPrimaryShop();
 
   // Compile Email with SSR
@@ -926,15 +928,21 @@ export function setUserPermissions(userId, permissions, group) {
  * @return {String} Email logo path
  */
 function getEmailLogo(shop) {
-  let emailLogo;
   if (Array.isArray(shop.brandAssets)) {
-    const brandAsset = _.find(shop.brandAssets, (asset) => asset.type === "navbarBrandImage");
-    const mediaId = Media.findOne(brandAsset.mediaId);
-    emailLogo = path.join(Reaction.absoluteUrl(), mediaId.url());
-  } else {
-    emailLogo = Reaction.absoluteUrl() + "resources/email-templates/shop-logo.png";
+    let media;
+    const brandAsset =
+      _.find(shop.brandAssets, (asset) => asset.type === "navbarBrandImage");
+
+    if (brandAsset) {
+      media = Media.findOne(brandAsset.mediaId);
+    }
+
+    if (media) {
+      return path.join(Reaction.absoluteUrl(), media.url());
+    }
   }
-  return emailLogo;
+
+  return Reaction.absoluteUrl() + "resources/email-templates/shop-logo.png";
 }
 
 /**
@@ -946,16 +954,18 @@ function getEmailLogo(shop) {
  * @return {String} Name of currentUser or "Admin"
  */
 function getCurrentUserName(currentUser) {
-  if (currentUser && currentUser.profile && currentUser.profile.name) {
-    return currentUser.profile.name;
-  }
+  if (currentUser) {
+    if (currentUser.profile && currentUser.profile.name) {
+      return currentUser.profile.name;
+    }
 
-  if (currentUser.name) {
-    return currentUser.name;
-  }
+    if (currentUser.name) {
+      return currentUser.name;
+    }
 
-  if (currentUser.username) {
-    return currentUser.username;
+    if (currentUser.username) {
+      return currentUser.username;
+    }
   }
 
   return "Admin";

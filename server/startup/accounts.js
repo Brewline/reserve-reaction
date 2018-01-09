@@ -120,9 +120,14 @@ export default function () {
         } else {
           group = Collections.Groups.findOne({ slug: "customer", shopId });
         }
+        if (group) {
+          roles[shopId] = group.permissions;
+          additionals.groups = [group._id];
+        }
         // if no group or customer permissions retrieved from DB, use the default Reaction customer set
-        roles[shopId] = group.permissions || Reaction.defaultCustomerRoles;
-        additionals.groups = [group._id];
+        if (!roles[shopId]) {
+          roles[shopId] = Reaction.defaultCustomerRoles;
+        }
         // also add services with email defined to user.emails[]
         for (const service in user.services) {
           if (user.services[service].email) {
