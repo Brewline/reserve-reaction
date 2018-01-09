@@ -1,18 +1,19 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { Reaction } from "/client/api";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
-import UntappdConnectorProduct from './untappd-connector-product-component';
+import UntappdMarketplaceShop from './untappd-marketplace-shop-component';
 
-class UntappdConnectorProductContainer extends Component {
+class UntappdMarketplaceShopContainer extends Component {
   constructor(props) {
     super(props);
 
-    this.addProduct = this.addProduct.bind(this);
+    this.addShop = this.addShop.bind(this);
 
     //// initial state
-    const alertId = "connectors-untappd-add-product";
+    const alertId = "connectors-untappd-add-shop";
 
     this.state = {
       alertOptions: {
@@ -23,8 +24,8 @@ class UntappdConnectorProductContainer extends Component {
     };
   }
 
-  addProduct(productId) {
-    Meteor.call("connectors/untappd/import/products", productId, (err, res) => {
+  addShop(untappdShopId) {
+    Meteor.call("connectors/untappd/import/shops", untappdShopId, (err, shop) => {
       if (err) {
         // TODO: correct wording
         return ReactionAlerts.add(
@@ -35,23 +36,16 @@ class UntappdConnectorProductContainer extends Component {
           })
         );
       } else {
-        // TODO: correct wording
-        return ReactionAlerts.add(
-          "Product Added to Shop. Processing Images...",
-          "success",
-          Object.assign({}, this.state.alertOptions, {
-            i18nKey: "admin.settings.createGroupError"
-          })
-        );
+        Reaction.setShopId(shop._id);
       }
     });
   }
 
   render() {
     return (
-      <UntappdConnectorProduct
+      <UntappdMarketplaceShop
         {...this.props}
-        onAddProduct={this.addProduct}
+        onAddShop={this.addShop}
       />
     );
   }
@@ -62,9 +56,9 @@ function composer(props, onData) {
 }
 
 registerComponent(
-  "UntappdConnectorProduct",
-  UntappdConnectorProductContainer,
+  "UntappdMarketplaceShop",
+  UntappdMarketplaceShopContainer,
   composeWithTracker(composer)
 );
 
-export default composeWithTracker(composer)(UntappdConnectorProductContainer);
+export default composeWithTracker(composer)(UntappdMarketplaceShopContainer);

@@ -10,7 +10,7 @@ import { Reaction } from "/server/api";
 import { Products, Jobs, Tags } from "/lib/collections";
 import { getApiInfo } from "../api/api";
 import { connectorsRoles } from "../../lib/roles";
-import { importImages } from "../../jobs/image-import";
+import { importProductImages } from "../../jobs/image-import";
 
 // function requestUntappdCredential(options, fnCallback) {
 //   const untappdService = Package["brewline:accounts-untappd"].Untappd;
@@ -45,7 +45,7 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     handle: untappdProduct.beer_slug,
     hashtags: hashtags,
     isDeleted: false,
-    isVisible: false,
+    isVisible: true,
     metafields: [],
     pageTitle: untappdProduct.beer_style,
     productType: untappdProduct.beer_style,
@@ -62,7 +62,7 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     },
     skipRevision: true,
     UntappdId: untappdProduct.bid,
-    // UntappdResource: untappdProduct, // once the Schema accepts this, uncomment
+    UntappdResource: untappdProduct
   };
 
   // TODO: anything useful here?
@@ -97,7 +97,6 @@ function createReactionVariantFromUntappdVariant(untappdVariant, variant, index,
     ancestors: ancestors,
     barcode: untappdVariant.barcode,
     compareAtPrice: untappdVariant.compare_at_price,
-    createdAt: new Date(),
     // height: 0,
     index: index,
     inventoryManagement: true,
@@ -116,7 +115,6 @@ function createReactionVariantFromUntappdVariant(untappdVariant, variant, index,
     taxCode: "0000",
     title: variant,
     type: "variant",
-    updatedAt: new Date(),
     // weight: normalizeWeight(untappdVariant.grams),
     // weightInGrams: untappdVariant.grams,
     // width: 0,
@@ -169,7 +167,7 @@ function createTagCache() {
  * @return {undefined}
  */
 function saveImage(url, metadata) {
-  new Job(Jobs, "connectors/untappd/import/image", { url: url, metadata: metadata })
+  new Job(Jobs, "connectors/untappd/import/product/image", { url, metadata })
     .priority("normal")
     .retry({
       retries: 5,
@@ -232,14 +230,19 @@ function saveProduct(untappdProduct) {
   ids.push(reactionProductId);
 
   // Save the primary image to the grid and as priority 0
-  saveImage(untappdProduct.beer_label_hd, {
-    ownerId: Meteor.userId(),
-    productId: reactionProductId,
-    variantId: reactionProductId,
-    shopId: shopId,
-    priority: 0,
-    toGrid: 1
-  });
+  const labelUrl = untappdProduct.beer_label_hd || untappdProduct.beer_label;
+  if (labelUrl) {
+    saveImage(labelUrl, {
+      ownerId: Meteor.userId(),
+      productId: reactionProductId,
+      variantId: reactionProductId,
+      shopId: shopId,
+      priority: 0,
+      toGrid: 1
+    });
+  } else {
+    Logger.info(`Missing image for ${untappdProduct.beer_name}: hd: ${untappdProduct.beer_label_hd}/sd: ${untappdProduct.beer_label}`);
+  }
 
   // Create one Variant: Can Release: <Date>
   // Create Options:
@@ -297,14 +300,19 @@ function saveProduct(untappdProduct) {
 
     // I would *much* rather add a reference to the Product's image, but "make
     // it work, then make it better!"
-    saveImage(untappdProduct.beer_label_hd, {
-      ownerId: Meteor.userId(),
-      productId: reactionProductId,
-      variantId: reactionOptionId,
-      shopId: shopId,
-      priority: 1,
-      toGrid: 0
-    });
+    const labelUrl = untappdProduct.beer_label_hd || untappdProduct.beer_label;
+    if (labelUrl) {
+      saveImage(labelUrl, {
+        ownerId: Meteor.userId(),
+        productId: reactionProductId,
+        variantId: reactionOptionId,
+        shopId: shopId,
+        priority: 1,
+        toGrid: 0
+      });
+    } else {
+      Logger.info(`Missing image for ${untappdProduct.beer_name}: hd: ${untappdProduct.beer_label_hd}/sd: ${untappdProduct.beer_label}`);
+    }
 
     Logger.debug(`Imported ${untappdProduct.beer_name} default/${option.title}`);
 
@@ -388,7 +396,7 @@ export const methods = {
         }
       });
 
-      importImages();
+      importProductImages();
       return result;
     } catch (error) {
       Logger.error("There was a problem importing your products from Untappd", error);

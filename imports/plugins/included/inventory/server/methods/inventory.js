@@ -15,7 +15,7 @@ export function registerInventory(product) {
   // TODO: Permit product type registration and iterate through product types and schemas
   const simpleProductSchema = Reaction.collectionSchema("Products", { type: "simple" });
   const variantProductSchema = Reaction.collectionSchema("Products", { type: "variant" });
-  check(product, Match.OneOf(simpleProductSchema, variantProductSchema));
+  // check(product, Match.OneOf(simpleProductSchema, variantProductSchema));
   let type;
   switch (product.type) {
     case "variant":

@@ -1,0 +1,32 @@
+{
+  "name": "reaction-shop-storefront",
+  "version": "1.0.0",
+  "description": "",
+  "main": "register.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "babel": {
+    "plugins": [
+      [
+        "module-resolver",
+        {
+          "root": [
+            "./"
+          ],
+          "alias": {
+            "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib"
+          }
+        }
+      ]
+    ],
+    "presets": [
+      "env",
+      "react",
+      "stage-2"
+    ]
+  }
+}

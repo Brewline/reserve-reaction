@@ -1,16 +1,12 @@
-// TOOD: Create Container Class
-// pass accessToken to Component
-// swap login button for "import" when accessToken is present
-// list beers
-// import individual beer
+// TODO: consider combining with untappd-connector-import-component
 
 import _ from "lodash";
 import React, { Component } from "react";
 import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
 
-import UntappdConnectorProduct from "./untappd-connector-product-container"
+import UntappdMarketplaceShop from "./untappd-marketplace-shop-container"
 
-export default class UntappdConnectorImport extends Component {
+export default class UntappdMarketplaceShops extends Component {
   // static propTypes = {
   //   accessToken: PropTypes.string,
   //   onGetAccessToken: PropTypes.func,
@@ -68,14 +64,14 @@ export default class UntappdConnectorImport extends Component {
     );
   }
 
-  renderSearchResult(product, index) {
+  renderSearchResult(brewery, index) {
     // <i className="fa fa-cloud-download"></i>
     return (
       <ListItem
-        className="panel-search-results__product"
+        className="panel-search-results__shop"
         key={index}
       >
-        <UntappdConnectorProduct product={product} />
+        <UntappdMarketplaceShop brewery={brewery.brewery} />
       </ListItem>
     );
   }
@@ -90,7 +86,7 @@ export default class UntappdConnectorImport extends Component {
         </h4>
 
         <p>
-          Tap the import icon net to each beer to add it to your shop.
+          Tap the import icon net to each brewery to create a shop.
         </p>
 
         <List className="panel-search-results__list">

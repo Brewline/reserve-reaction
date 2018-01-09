@@ -69,13 +69,7 @@ const filters = new SimpleSchema({
 
 registerSchema("filters", filters);
 
-/**
- * products publication
- * @param {Number} [productScrollLimit] - optional, defaults to 24
- * @param {Array} shops - array of shopId to retrieve product from.
- * @return {Object} return product cursor
- */
-Meteor.publish("Products", function (productScrollLimit = 24, productFilters, sort = {}, editMode = true) {
+function productsPublication(productScrollLimit = 24, productFilters, sort = {}, editMode = true) {
   check(productScrollLimit, Number);
   check(productFilters, Match.OneOf(undefined, Object));
   check(sort, Match.OneOf(undefined, Object));
@@ -276,7 +270,6 @@ Meteor.publish("Products", function (productScrollLimit = 24, productFilters, so
     }
   } // end if productFilters
 
-
   // We publish an admin version of this publication to admins of products who are in "Edit Mode"
   // Authorized content curators for shops get special publication of the product
   // with all relevant revisions all is one package
@@ -285,9 +278,9 @@ Meteor.publish("Products", function (productScrollLimit = 24, productFilters, so
     selector.isVisible = {
       $in: [true, false, null, undefined]
     };
-    selector.shopId = {
-      $in: activeShopsIds
-    };
+    // selector.shopId = {
+    //   $in: activeShopsIds
+    // };
 
     // Get _ids of top-level products
     const productIds = Products.find(selector, {
@@ -436,6 +429,7 @@ Meteor.publish("Products", function (productScrollLimit = 24, productFilters, so
         mediaCursor
       ];
     }
+
     // Revision control is disabled, but is admin
     const productCursor = Products.find(newSelector, {
       sort,
@@ -570,4 +564,31 @@ Meteor.publish("Products", function (productScrollLimit = 24, productFilters, so
     productCursor,
     mediaCursor
   ];
-});
+}
+
+Meteor.publish("ShopProducts", function (productScrollLimit = 24, productFilters, sort = {}, editMode = true) {
+  check(productScrollLimit, Number);
+  check(productFilters, Match.OneOf(undefined, Object));
+  check(sort, Match.OneOf(undefined, Object));
+  check(editMode, Match.Maybe(Boolean));
+
+  const shopId = Reaction.getShopId();
+
+  if (!shopId) {
+    return this.ready();
+  }
+
+  const filters = Object.assign({}, productFilters, { shops: [shopId] });
+
+  const res = productsPublication.call(this, productScrollLimit, filters, sort, editMode);
+
+  return res;
+})
+
+/**
+ * products publication
+ * @param {Number} [productScrollLimit] - optional, defaults to 24
+ * @param {Array} shops - array of shopId to retrieve product from.
+ * @return {Object} return product cursor
+ */
+Meteor.publish("Products", productsPublication);
