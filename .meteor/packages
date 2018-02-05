@@ -46,7 +46,6 @@ facebook-config-ui@1.0.0
 google-config-ui@1.0.0
 twitter-config-ui@1.0.0
 
-
 # Community Packages
 alanning:roles
 aldeed:autoform
@@ -61,19 +60,16 @@ cfs:standard-packages
 cfs:storage-adapter
 cfs:ui
 dispatch:run-as-user
-jparker:gravatar
 juliancwirko:s-alert
 juliancwirko:s-alert-stackslide
 kadira:dochead
 matb33:collection-hooks
 meteorhacks:ssr
 meteorhacks:subs-manager
-natestrauser:select2
 ongoworks:security
 raix:ui-dropped-event
 tmeasday:publish-counts
 vsivsi:job-collection@=1.4.0
-react-meteor-data@=0.2.9
 percolate:migrations
 gadicc:blaze-react-component
 
