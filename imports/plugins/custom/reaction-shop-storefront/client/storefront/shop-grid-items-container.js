@@ -80,7 +80,7 @@ const wrapComponent = (Comp) => (
         if (asset) {
           const brandAsset = Media.findOne({ _id: asset.mediaId });
 
-          if (brandAsset) {
+          if (brandAsset instanceof FS.File) {
             return brandAsset;
           }
         }

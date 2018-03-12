@@ -69,7 +69,7 @@
     "nock": "^9.1.3",
     "node-geocoder": "^3.21.1",
     "node-loggly-bulk": "^2.2.0",
-    "node-untappd": "0.4.1",
+    "node-untappd": "github:Brewline/node-untappd.git",
     "nodemailer-wellknown": "^0.2.3",
     "nouislider-algolia-fork": "^10.0.0",
     "path-to-regexp": "^2.1.0",

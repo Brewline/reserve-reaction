@@ -82,7 +82,7 @@ export class MarketplaceShopStorefront extends Component {
         target="_blank"
         className="btn btn-primary"
       >
-        {url}
+        {url.replace(/^https?:\/\/(www\.)?/, '')}
       </a>
     );
   }
@@ -149,19 +149,17 @@ export class MarketplaceShopStorefront extends Component {
     return (
       <div>
         <div className="shop-storefront rui items flex-nowrap">
-          <div className="rui item static start axis vertical">
+          <div className="shop-storefront__brand rui item static start axis vertical">
             {this.renderBrand()}
           </div>
 
-          <div className="rui item variable start axis vertical">
+          <div className="shop-storefront__content rui item variable start axis vertical">
             <h1 className="shop-name">{shop.name}</h1>
             <p>{shop.description}</p>
 
-            <div className="nav-dashboard-controls">
-              <ul className="storefront-social">
-                {this.socialOptions().map((b, i) => <li key={i}>{b}</li>)}
-              </ul>
-            </div>
+            <ul className="storefront-social flex-wrap">
+              {this.socialOptions().map((b, i) => <li key={i}>{b}</li>)}
+            </ul>
           </div>
         </div>
 

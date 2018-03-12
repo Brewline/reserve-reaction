@@ -39,7 +39,7 @@ const shop = {
   description: faker.company.catchPhrase(),
   keywords: faker.company.bsAdjective(),
   addressBook: [ getAddress() ],
-  domains: ["localhost"],
+  domains: ["localhost", "local.brewline.io"],
   emails: [
     {
       address: faker.internet.email(),

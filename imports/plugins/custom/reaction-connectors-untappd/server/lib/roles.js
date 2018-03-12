@@ -1,1 +1,3 @@
-export const connectorsRoles = ["admin", "owner", "connectors", "reaction-connectors-untappd"];
+export const untappdConnectorRole = "reaction-connectors-untappd";
+export const connectorsRoles =
+  ["admin", "owner", "connectors", untappdConnectorRole];

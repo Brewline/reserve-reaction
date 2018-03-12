@@ -1,4 +1,7 @@
 import { Meteor } from "meteor/meteor";
+import { check, Match } from "meteor/check";
+import { Reaction } from "/server/api";
+import { Cart } from "/lib/collections";
 
 // customize RC stock server method. skip shipment for digital goods.
 Meteor.startup(() => {

@@ -30,13 +30,13 @@ import { getSlug } from "/lib/api";
 /**
  * Transforms a Untappd shop into a Reaction shop.
  * @private
- * @method createReactionShopFromUntappdShop
+ * @method createReactionShopDataFromUntappdShop
  * @param  {object} untappdShop the Untappd shop object
  * @return {object} An object that fits the `Product` schema
  *
  * @todo consider abstracting private Untappd import helpers into a helpers file
  */
-function createReactionShopFromUntappdShop(untappdShop) {
+export function createReactionShopDataFromUntappdShop(untappdShop) {
   if (!untappdShop || !untappdShop.brewery_id) { return; } // raise?
 
   const primaryShop = Reaction.getPrimaryShop();
@@ -162,15 +162,37 @@ function saveImage(shopId, url, metadata) {
     }).save();
 }
 
+export function untappdShopExists(UntappdId) {
+  return Shops.findOne({ UntappdId }, { fields: { _id: 1 } });
+}
+
+export function setShopImage(reactionShop, untappdShop) {
+  // Save the primary image to the grid and as priority 0
+  saveImage(reactionShop._id, untappdShop.brewery_label, {
+    type: "brandAsset",
+    ownerId: Meteor.userId(),
+    shopId: reactionShop._id
+  });
+}
+
+// it's a little annoying, but addressBook is wiped, so let's add it back
+export function hackRestoreAddressBook(shop, shopData) {
+  Shops.update(shop._id, {
+    $set: {
+      addressBook: shopData.addressBook
+    }
+  });
+}
+
 function saveShop(untappdShop) {
-  if (Shops.findOne({ UntappdId: untappdShop.brewery_id }, { fields: { _id: 1 } })) {
+  if (untappdShopExists(untappdShop.brewery_id)) {
     const msg = `Shop (${untappdShop.brewery_name}) already exists`;
     Logger.warn(msg);
     throw new Meteor.Error(400, msg);
   }
 
   // Setup reaction product
-  const shopData = createReactionShopFromUntappdShop(untappdShop);
+  const shopData = createReactionShopDataFromUntappdShop(untappdShop);
   const ownerData = {
     email: `${shopData.slug}@brewline.io`,
     name: shopData.name
@@ -180,88 +202,82 @@ function saveShop(untappdShop) {
 
   const shop = Shops.findOne({ name: shopData.name });
 
-  // it's a little annoying, but addressBook is wiped, so let's add it back
-  Shops.update(shop._id, {
-    $set: {
-      addressBook: shopData.addressBook
-    }
-  });
+  hackRestoreAddressBook(shop, shopData)
 
-  // Save the primary image to the grid and as priority 0
-  saveImage(shop._id, untappdShop.brewery_label, {
-    type: "brandAsset",
-    ownerId: Meteor.userId(),
-    shopId: shop._id
-  });
+  setShopImage(shop, untappdShop);
 
   Logger.debug(`Shop ${untappdShop.brewery_name} added`);
 
   return shop;
 }
 
+export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
+  try {
+    const ServiceConfiguration =
+      Package['service-configuration'].ServiceConfiguration;
+
+    const config =
+      ServiceConfiguration.configurations.findOne({ service: 'untappd' });
+
+    if (!config) {
+      throw new ServiceConfiguration.ConfigError();
+    }
+
+    const debug = false;
+    const untappd = new UntappdClient(debug);
+    untappd.setClientId(config.clientId);
+    untappd.setClientSecret(config.secret);
+    // untappd.setAccessToken(accessToken);
+
+    // in case you need to add additional options
+    const opts = { BREWERY_ID: untappdShopId };
+
+    const result = {};
+
+    await new Promise((resolve, reject) => {
+      try {
+        untappd.breweryInfo(Meteor.bindEnvironment(function (error, data) {
+          if (error) {
+            reject(error);
+          } else {
+            const shop = fnSaveShop(data.response.brewery);
+
+            result.shop = shop;
+
+            resolve(shop);
+          }
+        }), opts);
+      } catch (error) {
+        Logger.error(`There was a problem querying Untappd for id '${untappdShopId}'`, error);
+        reject(error);
+      }
+    });
+
+    importShopImages();
+    return result.shop;
+  } catch (error) {
+    Logger.error("There was a problem importing your shop from Untappd", error);
+    throw new Meteor.Error("There was a problem importing your shop from Untappd", error);
+  }
+}
+
 export const methods = {
   /**
-   * Imports shop from Untappd.
+   * Imports & create a shop from Untappd.
    *
    * @async
    * @method connectors/untappd/import/shops
-   * @param {object} options An object of options for the untappd API call. Available options here: https://help.untappd.com/api/reference/product#index
-   * @returns {array} An array of the Reaction product _ids (including variants and options) that were created.
+   * @param {string} untappdShopId untappd's shop id
+   * @returns {object} A shop
    */
-  async "connectors/untappd/import/shops"(shopId) {
-    try {
-      check(shopId, Match.Maybe(Number));
+  async "connectors/untappd/import/shops"(untappdShopId) {
+    check(untappdShopId, Match.Maybe(Number));
 
-      if (!Reaction.hasPermission(connectorsRoles)) {
-        throw new Meteor.Error(403, "Access Denied");
-      }
-
-      const ServiceConfiguration =
-        Package['service-configuration'].ServiceConfiguration;
-
-      const config =
-        ServiceConfiguration.configurations.findOne({ service: 'untappd' });
-
-      if (!config) {
-        throw new ServiceConfiguration.ConfigError();
-      }
-
-      const debug = false;
-      const untappd = new UntappdClient(debug);
-      untappd.setClientId(config.clientId);
-      untappd.setClientSecret(config.secret);
-      // untappd.setAccessToken(accessToken);
-
-      // in case you need to add additional options
-      const opts = { BREWERY_ID: shopId };
-
-      const result = {};
-
-      await new Promise((resolve, reject) => {
-        try {
-          untappd.breweryInfo(Meteor.bindEnvironment(function (error, data) {
-            if (error) {
-              reject(error);
-            } else {
-              const shop = saveShop(data.response.brewery);
-
-              result.shop = shop;
-
-              resolve(shop);
-            }
-          }), opts);
-        } catch (error) {
-          Logger.error(`There was a problem querying Untappd for id '${shopId}'`, error);
-          reject(error);
-        }
-      });
-
-      importShopImages();
-      return result.shop;
-    } catch (error) {
-      Logger.error("There was a problem importing your shop from Untappd", error);
-      throw new Meteor.Error("There was a problem importing your shop from Untappd", error);
+    if (!Reaction.hasPermission(connectorsRoles)) {
+      throw new Meteor.Error(403, "Access Denied");
     }
+
+    return importUntappdShop(untappdShopId);
   },
 
   /**
@@ -274,9 +290,6 @@ export const methods = {
    */
   async "connectors/untappd/search/shops"(options) {
     check(options, Match.Maybe(Object));
-    if (!Reaction.hasPermission(connectorsRoles)) {
-      throw new Meteor.Error(403, "Access Denied");
-    }
 
     const ServiceConfiguration =
       Package['service-configuration'].ServiceConfiguration;

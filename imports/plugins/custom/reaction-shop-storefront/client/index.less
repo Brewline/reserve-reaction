@@ -1,14 +1,21 @@
 ul.storefront-social {
+	display: flex;
 	padding-left: 0;
+	list-style-type: none;
+
+	justify-content: flex-end;
+	@media (min-width: @screen-md-min) {
+		justify-content: space-between;
+	}
 
 	li {
-		margin-right: 10px;
+		margin: 10px 10px 0 0;
 	}
 }
 
 // to minimize the amount of css generated, shop grids use product grid css
 // except where overridden
-.marketplace-storefront {
+// .marketplace-storefront {
 	.product-grid-item {
 		.shop-image {
 			background-size: contain;
@@ -16,9 +23,13 @@ ul.storefront-social {
 			background-color: white;
 		}
 	}
-}
+// }
 
 .shop-storefront {
+	.shop-storefront__brand {
+		background-color: white;
+	}
+
 	.logo {
 		margin-top: 8px; // idk... just felt right
 

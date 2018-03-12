@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
-import { Products, Media } from "/lib/collections";
+import { Media } from "/lib/collections";
 
 import ShopStorefront from './shop-storefront-component';
 

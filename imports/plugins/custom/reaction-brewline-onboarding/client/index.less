@@ -1,0 +1,73 @@
+@import "../../../included/default-theme/client/styles/variables.less";
+
+body.app-brewlineOnboardingBrewery {
+	#reactionAppContainer > .reaction-toolbar,
+	.rui.toolbar.admin-shortcut-bar,
+	.reaction-navigation-footer {
+		display: none;
+	}
+
+	background-position: center center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-image: url('https://brewline.s3.amazonaws.com/uploads/2017/08/launch-bg-1-300x208.jpg');
+	// min-height: 100vh;
+
+	@media (min-width: @screen-md-min) {
+		background-image: url('https://brewline.s3.amazonaws.com/uploads/2017/08/launch-bg-1-768x532.jpg');
+	}
+	@media (min-width: @screen-lg-min) {
+		background-image: url('https://brewline.s3.amazonaws.com/uploads/2017/08/launch-bg-1.jpg');
+	}
+
+	main {
+		background-color: transparent;
+	}
+}
+
+.onboarding-container {
+	display: flex;
+	justify-content: center;
+
+	color: white;
+
+	.panel-search-results__list {
+		color: @text-color;
+	}
+}
+
+.onboarding__steps-container {
+	padding: 20px;
+	max-width: 600px;
+}
+
+.navbar--onboarding {
+	.navbar-content {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+
+		.title {
+			margin-top: 10px;
+
+			@media only screen and (max-width: @screen-sm-max) {
+				display: none;
+			}
+		}
+
+		.contact-us {
+			margin: 10px;
+		}
+	}
+}
+
+.button-with-annotation {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.admin-controls-content label {
+	color: inherit; // override color setting
+}
