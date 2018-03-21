@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
-import { Reaction } from "/client/api";
+import { Reaction, Router } from "/client/api";
 import { Products } from "/lib/collections";
 
 import WhatsNext from './whats-next-component';
@@ -9,7 +9,8 @@ import WhatsNext from './whats-next-component';
 function composer(props, onData) {
   let shop, product;
 
-  const shopSubscription = Meteor.subscribe("Shop");
+  // use PrimaryShop as a proxy for the non-existant "Shop"
+  const shopSubscription = Meteor.subscribe("PrimaryShop");
   const productsSubscription = Meteor.subscribe("Products");
 
   if (shopSubscription.ready()) {
@@ -23,10 +24,19 @@ function composer(props, onData) {
     });
   }
 
+  const done = () => {
+    if (product) {
+      Router.go("product", { handle: product._id });
+    } else {
+      Router.go("index");
+    }
+  }
+
   onData(null, {
     ...props,
     shop,
-    product
+    product,
+    done
   });
 }
 

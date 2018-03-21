@@ -48,6 +48,7 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     isVisible: true,
     metafields: [],
     pageTitle: untappdProduct.beer_style,
+    price: { range: "0" },
     productType: untappdProduct.beer_style,
     requiresShipping: false,
     shopId: shopId,
@@ -107,9 +108,9 @@ function createReactionVariantFromUntappdVariant(untappdVariant, variant, index,
     length: 0,
     metafields: [],
     optionTitle: variant,
+    price: { range: "0" },
     requiresShipping: false,
     shopId: shopId,
-    UntappdId: null,
     // sku: untappdVariant.sku,
     taxable: true,
     taxCode: "0000",
@@ -122,7 +123,8 @@ function createReactionVariantFromUntappdVariant(untappdVariant, variant, index,
       status: "synced",
       workflow: ["imported"]
     },
-    skipRevision: true
+    skipRevision: true,
+    UntappdId: null
   };
 
   if (untappdVariant.inventoryLimit > 0) {

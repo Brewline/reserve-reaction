@@ -1,5 +1,8 @@
 @import "../../../included/default-theme/client/styles/variables.less";
 
+@bgColor1: rgba(46,73,182,1);
+@bgColor2: rgba(42,67,167,1);
+
 body.app-brewlineOnboardingBrewery {
 	#reactionAppContainer > .reaction-toolbar,
 	.rui.toolbar.admin-shortcut-bar,
@@ -8,17 +11,17 @@ body.app-brewlineOnboardingBrewery {
 	}
 
 	background-position: center center;
-	background-size: cover;
-	background-repeat: no-repeat;
-	background-image: url('https://brewline.s3.amazonaws.com/uploads/2017/08/launch-bg-1-300x208.jpg');
-	// min-height: 100vh;
+	background-repeat: repeat;
 
-	@media (min-width: @screen-md-min) {
-		background-image: url('https://brewline.s3.amazonaws.com/uploads/2017/08/launch-bg-1-768x532.jpg');
-	}
-	@media (min-width: @screen-lg-min) {
-		background-image: url('https://brewline.s3.amazonaws.com/uploads/2017/08/launch-bg-1.jpg');
-	}
+	@bgImage: 'https://brewline.s3.amazonaws.com/uploads/2018/03/brewline-bg-pattern-1.png';
+	background-color: @bgColor1;
+	background-image: url(@bgImage), -moz-radial-gradient(center, ellipse farthest-corner, @bgColor1 33%, @bgColor2 100%);
+	background-image: url(@bgImage), -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(33%, @bgColor1), color-stop(100%, @bgColor2));
+	background-image: url(@bgImage), -webkit-radial-gradient(center, ellipse farthest-corner, @bgColor1 33%, @bgColor2 100%);
+	background-color: url(@bgImage), -o-radial-gradient(center, ellipse farthest-corner, @bgColor1 33%, @bgColor2 100%);
+	background-color: url(@bgImage), -ms-radial-gradient(center, ellipse farthest-corner, @bgColor1 33%, @bgColor2 100%);
+	background-color: url(@bgImage), radial-gradient(ellipse at center, @bgColor1 33%, @bgColor2 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2a43a7', endColorstr='#2e49b6', GradientType=1 );
 
 	main {
 		background-color: transparent;
@@ -36,9 +39,64 @@ body.app-brewlineOnboardingBrewery {
 	}
 }
 
-.onboarding__steps-container {
-	padding: 20px;
+.max-width-container() {
 	max-width: 600px;
+	margin: 0 auto;
+}
+
+.onboarding__steps-container {
+	.max-width-container;
+
+	padding: 20px;
+
+	&.onboarding-brewery-about {
+		width: 100%;
+		max-width: 100%;
+		padding: 0;
+	}
+}
+
+.onboarding-brewery-about {
+	.features {
+		.media {
+			margin-top: 10px; // override :first-child no margin
+		}
+		.icon {
+			width: 56px; // measured in practice
+		}
+	}
+
+	.hero-wrapper,
+	.cta-wrapper {
+		padding: 20px;
+		min-height: 300px;
+	}
+
+	.hero-title {
+		text-align: center;
+	}
+
+	.cta-wrapper,
+	.hero-content,
+	.features-content {
+		.max-width-container;
+	}
+
+	.hero-content {
+		margin-top: 40px;
+
+		.button {
+			margin-top: 20px;
+		}
+	}
+
+	.features-wrapper {
+		padding: 20px;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		background-color: white;
+		color: @text-color;
+	}
 }
 
 .navbar--onboarding {
@@ -66,6 +124,7 @@ body.app-brewlineOnboardingBrewery {
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
+	text-align: center;
 }
 
 .admin-controls-content label {

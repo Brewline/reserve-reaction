@@ -8,17 +8,19 @@ Reaction.registerPackage({
   autoEnable: true,
   registry: [{
     name: "brewlineOnboardingBrewery",
-    route: "/welcome/brewery",
+    layout: "onboardingLayout",
+    route: "/welcome/brewery/:step?",
     template: "BrewlineOnboarding",
     workflow: "onboardingBrewery"
   }, {
     name: "brewlineOnboardingConsumer",
-    route: "/welcome/customer",
+    layout: "onboardingLayout",
+    route: "/welcome/customer/:step?",
     template: "BrewlineOnboarding",
     workflow: "onboardingCustomer"
   }],
   layout: [{
-    layout: "coreLayout",
+    layout: "onboardingLayout",
     workflow: "onboardingBrewery",
     collection: "Accounts",
     theme: "default",
@@ -34,6 +36,7 @@ Reaction.registerPackage({
     }
   }, {
     template: "OnboardingBreweryAbout",
+    path: "about",
     label: "Find your Brewery",
     workflow: "onboardingBrewery",
     container: "brewline-onboarding-main",
@@ -41,6 +44,7 @@ Reaction.registerPackage({
     position: String(++breweryStep)
   }, {
     template: "OnboardingBreweryLogin",
+    path: "login",
     label: "Login",
     workflow: "onboardingBrewery",
     container: "brewline-onboarding-main",
@@ -48,6 +52,7 @@ Reaction.registerPackage({
     position: String(++breweryStep)
   }, {
     template: "OnboardingBrewerySearch",
+    path: "search",
     label: "Find your Brewery",
     workflow: "onboardingBrewery",
     container: "brewline-onboarding-main",
@@ -55,6 +60,7 @@ Reaction.registerPackage({
     position: String(++breweryStep)
   }, {
     template: "OnboardingBreweryProducts",
+    path: "products",
     label: "Choose Products",
     workflow: "onboardingBrewery",
     container: "brewline-onboarding-main",
@@ -62,6 +68,7 @@ Reaction.registerPackage({
     position: String(++breweryStep)
   }, {
     template: "OnboardingBreweryWhatsNext",
+    path: "whats-next",
     label: "What's Next?",
     workflow: "onboardingBrewery",
     container: "brewline-onboarding-main",

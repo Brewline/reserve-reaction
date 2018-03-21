@@ -1,6 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { Components } from "@reactioncommerce/reaction-components";
+import { Button } from "/imports/plugins/core/ui/client/components";
 
 import UntappdMarketplaceShop from "@brewline/untappd-connector/client/settings/untappd-marketplace-shop-component";
 
@@ -60,15 +61,57 @@ export default class Search extends Component {
     );
   }
 
-  render() {
-    return (
-      <div className="admin-controls-content">
-        <h1>Search for your Brewery</h1>
+  renderStepComplete() {
+    const shopName = _.get(this.props, "currentBrewery.name", "Your brewery");
 
+    return (
+      <div>
         <p>
-          <em>Log in with your Untappd Brewery account to skip this step.</em>
+          Great! {shopName} has already been created.
         </p>
 
+        <Button
+          className={{
+            btn: true,
+            "btn-primary": true,
+            "btn-lg": true,
+            flat: false
+          }}
+          onClick={this.props.onNextStep}
+        >
+          Next step
+        </Button>
+      </div>
+    );
+  }
+
+  renderAutoComplete() {
+    const breweryId = _.get(this.props, "userBrewery.brewery_id")
+    return (
+      <div>
+        <p>
+          Great! Using your brewery&rsquo;s Untappd account, we can create it
+          automatically.
+        </p>
+
+        <Button
+          className={{
+            btn: true,
+            "btn-primary": true,
+            "btn-lg": true,
+            flat: false
+          }}
+          onClick={() => this.props.onAddShop(breweryId)}
+        >
+          Next step
+        </Button>
+      </div>
+    );
+  }
+
+  renderStepIncomplete() {
+    return (
+      <div>
         <form onSubmit={this.handleSearch}>
           <div className="form-group" data-required="true">
             <label htmlFor="untappd-search" className="control-label">Name</label>
@@ -83,15 +126,43 @@ export default class Search extends Component {
           </div>
 
 
-          <button type="submit" className="btn btn-default">
-            <i className="fa fa-search"></i>
+          <Button
+            type="submit"
+            className={{
+              btn: true,
+              "btn-primary": true,
+              "btn-lg": true,
+              flat: false
+            }}
+            icon="search"
+          >
             <span data-i18n="admin.untappdConnectSettings.startImport">
               Search
             </span>
-          </button>
+          </Button>
         </form>
 
         {this.renderSearchResults()}
+      </div>
+    );
+  }
+
+  render() {
+    let content;
+
+    if (this.props.currentBrewery) {
+      content = this.renderStepComplete();
+    } else if (this.props.userBrewery) {
+      content = this.renderAutoComplete();
+    } else {
+      content = this.renderStepIncomplete();
+    }
+
+    return (
+      <div className="admin-controls-content">
+        <h1>Search for your Brewery</h1>
+
+        {content}
       </div>
     );
   }

@@ -16,7 +16,7 @@ class ProductsContainer extends Component {
     Meteor.call("connectors/untappd/search/products", { q }, (err, res) => {
       if (err) {
         // TODO: correct wording
-        return Alerts.toast(err.reason, "danger");
+        return Alerts.toast(err.reason, "error");
       }
 
       this.setState({ searchResults: res.response.beers.items });
@@ -27,7 +27,7 @@ class ProductsContainer extends Component {
     Meteor.call("connectors/untappd/import/products", productId, (err, res) => {
       if (err) {
         // TODO: correct wording
-        Alerts.toast(err.reason, "danger");
+        Alerts.toast(err.reason, "error");
       } else {
         // TODO: correct wording
         Alerts.toast("Product Added to Shop. Processing Images...", "success");
@@ -61,13 +61,7 @@ function composer(props, onData) {
         beerSearch: true
       });
 
-      return ReactionAlerts.add(
-        err.reason,
-        "danger",
-        Object.assign({}, alertOptions, {
-          i18nKey: "admin.settings.breweryBeerListError"
-        })
-      );
+      return Alerts.toast(error.reason, "error");
     }
 
     if (searchResults) {

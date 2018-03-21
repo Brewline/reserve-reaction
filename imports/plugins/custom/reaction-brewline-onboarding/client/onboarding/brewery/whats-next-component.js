@@ -2,12 +2,10 @@ import _ from "lodash";
 import React, { Component } from "react";
 
 export default class WhatsNext extends Component {
-  getShopName(prefix = "", suffix = "") {
+  getShopName(defaultValue = "") {
     const shopName = _.get(this.props, "shop.name");
 
-    if (!shopName) { return; }
-
-    return `${prefix}${shopName}${suffix}`;
+    return shopName || defaultValue;
   }
 
   getProductName() {
@@ -20,9 +18,9 @@ export default class WhatsNext extends Component {
         <h1>You&rsquo;re Almost Done!</h1>
 
         <p>
-          Your shop{this.getShopName(", ", ",")} has been created on the Brewline
-          platform and you are almost ready to your {this.getProductName()} beer
-          release.
+          {this.getShopName("Your shop")} has been created on the Brewline
+          platform and you are almost ready to launch your {this.getProductName()}
+          beer release.
         </p>
 
         <h3>What&rsquo;s Next:</h3>
@@ -33,17 +31,17 @@ export default class WhatsNext extends Component {
           account with Stripe, so you can get paid; creating a subdomain on
           brewline.io for your shop; creating purchase limits; etc.). Afterward
           your shop will be activated and you may begin pre-selling your next
-          release.
+          beer release.
         </p>
 
         <p>
           Until then, you can visit your shop and update any of its information,
-          import additional beers to be part of your release, add new beers or
-          products, set available quantities and limits, or just explore.
+          import additional beers, add new beers or products, set available
+          quantities and limits, or just explore.
         </p>
 
-        <button className="btn btn-primary" onClick={this.props.onNextStep}>
-          Go to {this.getShopName()}
+        <button className="btn btn-primary" onClick={this.props.done}>
+          Go to {this.getShopName("your shop")}
         </button>
       </div>
     );

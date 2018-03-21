@@ -177,6 +177,8 @@ export function setShopImage(reactionShop, untappdShop) {
 
 // it's a little annoying, but addressBook is wiped, so let's add it back
 export function hackRestoreAddressBook(shop, shopData) {
+  if (!shop) { return; }
+
   Shops.update(shop._id, {
     $set: {
       addressBook: shopData.addressBook

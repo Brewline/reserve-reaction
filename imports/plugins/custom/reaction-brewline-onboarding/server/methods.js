@@ -79,6 +79,10 @@ Meteor.methods({
       ({ UntappdId: breweryId } = Shops.findOne(Reaction.getShopId()));
     }
 
+    if (!breweryId) {
+      throw new Meteor.Error(404, "Brewery not found");
+    }
+
     // if (!Reaction.hasPermission(connectorsRoles)) {
     //   throw new Meteor.Error(403, "Access Denied");
     // }
@@ -105,6 +109,8 @@ Meteor.methods({
         untappd.breweryBeerList((error, data) => {
           if (error) {
             reject(error);
+          } else if (!data || !data.response || !data.response.beers) {
+            reject("No beers found for brewery");
           } else {
             resolve(data.response.beers.items);
           }

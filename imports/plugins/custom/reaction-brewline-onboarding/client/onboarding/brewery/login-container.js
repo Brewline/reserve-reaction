@@ -22,6 +22,7 @@ function composer(props, onData) {
 
   onData(null, {
     ...props,
+    loggedInUser: Meteor.user(),
     onLogin
   });
 }

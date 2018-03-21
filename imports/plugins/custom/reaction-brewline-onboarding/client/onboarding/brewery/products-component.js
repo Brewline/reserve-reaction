@@ -46,7 +46,7 @@ export default class Products extends Component {
   render() {
     return (
       <div>
-        <h1>Set up your Can/Bottle Release</h1>
+        <h1>Set up your Beer Release</h1>
 
         <p>
           Choose the beer you are selling.

@@ -27,10 +27,16 @@ class Onboarding extends Component {
     this.props.onWorkflowChange(workflow, template);
   }
 
-  renderTemplate() {
+  getTemplateName() {
     if (!this.props.workflowStep) { return; }
 
     let { template } = this.props.workflowStep;
+
+    return template;
+  }
+
+  renderTemplate() {
+    const template = this.getTemplateName();
 
     if (!template) { return; }
 
@@ -42,9 +48,12 @@ class Onboarding extends Component {
   }
 
   render() {
+    const containerClassName =
+      `onboarding__steps-container ${_.kebabCase(this.getTemplateName())}`;
+
     return (
-      <div class="onboarding-container">
-        <div class="onboarding__steps-container">
+      <div className="onboarding-container">
+        <div className={containerClassName}>
           <Components.Alerts placement="onboarding" />
 
           {this.renderTemplate()}
@@ -54,69 +63,88 @@ class Onboarding extends Component {
   }
 }
 
-function thisAndPreviousSteps(workflow, step) {
-  const shopId = Reaction.getShopId();
+function workflowSteps() {
+  // const shopId = Reaction.getShopId();
+  const shopId = Reaction.getPrimaryShopId();
   const { name } = Router.current().route;
   // use the router to determine the "current" package
   const pkg = Packages.findOne({ shopId, "registry.name": name }) || {};
+  // get the workflow from the package (which could have a few workflows)
+  const workflow = _.find(pkg.registry, r => r.name === name);
   // get the steps correspondingn to this workflow
-  const steps = _.chain(pkg.layout)
+  return steps = _.chain(pkg.layout)
     .filter(l => !!l.template)
-    .filter(l => l.workflow === workflow)
+    .filter(l => l.workflow === workflow.workflow)
     .value();
-  // find the current step
-  const currentStep = _.find(steps, s => s.template === step);
+}
+
+function currentStep(steps = workflowSteps()) {
+  const routeStep = Router.getParam("step");
+
+  const step = _.find(steps, s => s.path === routeStep);
+
+  return step || steps[0];
+}
+
+function thisAndPreviousSteps(steps = workflowSteps()) {
+  const step = currentStep(steps);
+
   // find all steps which come before it
   return _.chain(steps)
-    .filter(s => s.position <= currentStep.position)
+    .filter(s => s.position <= step.position)
     .map(s => s.template)
     .value();
 }
 
-const handleWorkflowChange = (workflow, template) => {
-  const statuses = thisAndPreviousSteps(workflow, template);
+function nextStep(steps = workflowSteps()) {
+  const step = currentStep(steps);
+
+  return _.chain(steps)
+    .sortBy("position")
+    .find(s => s.position > step.position)
+    .value();
+}
+
+function handleWorkflowChange(template) {
+  const steps = workflowSteps();
+  const statuses = thisAndPreviousSteps(steps);
+  let { path } = nextStep(steps);
 
   Meteor.call("onboarding/updateWorkflow", template, statuses);
+
+  if (path) {
+    Router.go("brewlineOnboardingBrewery", { step: path });
+  } else if (!statuses || !statuses.length) {
+    // if statuses is empty, start the onboarding
+    Router.go("brewlineOnboardingBrewery");
+  } else {
+    // looks like you're done... go to last step
+    ({ path } = steps[steps.length - 1]);
+    Router.go("brewlineOnboardingBrewery", { step: path });
+  }
 };
 
 function composer(props, onData) {
   let workflowStep;
 
   if (Meteor.subscribe("Packages", Reaction.getShopId()).ready()) {
-    const shopId = Reaction.getShopId();
-    const { name } = Router.current().route;
-    // use the router to determine the "current" package
-    const pkg = Packages.findOne({ shopId, "registry.name": name }) || {};
-    // get the workflow from the package (which could have a few workflows)
-    const workflow = _.find(pkg.registry, r => r.name === name);
-    // get the steps correspondingn to this workflow
-    const steps = _.chain(pkg.layout)
-      .filter(l => !!l.template)
-      .filter(l => l.workflow === workflow.workflow)
-      .value();
-    // get the current user
-    // TODO: generalize with `Collections[pkg.layout[0].collection]`
-    const account = Accounts.findOne({ userId: Meteor.userId(), shopId });
-    // get the current step this user is on
-    const completedWorkflowSteps =
-      account && account.onboarding && account.onboarding.workflow || [];
+    const steps = workflowSteps();
 
-    // there seems to be a race condition, where sometimes we re-render before
-    // an account has its workflow updated. In those cases, the user is sent
-    // to the beginning of the workflow. Should we update the URL to help?
-    // if (!completedWorkflowSteps.length) {
-    //   if (Reaction.getShop().shopType !== "primary") {
-    //     workflowStep = "OnboardingBreweryProducts";
-    //   } else if (false) {
-    //     workflowStep = "OnboardingBrewerySearch";
-    //   }
-    // } else {
-      // find the first step the user has not completed
+    workflowStep = currentStep(steps);
+
+    if (!workflowStep) {
+      // get the current user
+      // TODO: generalize with `Collections[pkg.layout[0].collection]`
+      const account = Accounts.findOne({ userId: Meteor.userId() });
+      // get the current step this user is on
+      const completedWorkflowSteps =
+        account && account.onboarding && account.onboarding.workflow || [];
+
       workflowStep = _.chain(steps)
         .sortBy("position")
         .find(s => !_.includes(completedWorkflowSteps, s.template))
         .value();
-    // }
+    }
 
     // is this the right place? seems like no, but :shrug:
     if (!workflowStep) {
