@@ -2,7 +2,7 @@
 import _ from "lodash";
 import moment from "moment";
 import UntappdClient from "node-untappd";
-import { Job } from "meteor/vsivsi:job-collection";
+import { Job } from "/imports/plugins/core/job-collection/lib";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "/server/api";
 import { check, Match } from "meteor/check";

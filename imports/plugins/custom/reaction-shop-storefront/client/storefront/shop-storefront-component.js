@@ -1,5 +1,6 @@
 import _ from "lodash";
-import React, { Component, PropTypes } from "react";
+import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Components } from "@reactioncommerce/reaction-components";
 
 export class PrimaryShopStorefront extends Component {
@@ -41,7 +42,8 @@ export class PrimaryShopStorefront extends Component {
   }
 }
 
-// import React, { Component, PropTypes } from "react";
+// import React, { Component } from "react";
+// import PropTypes from "prop-types";
 // import { Components } from "@reactioncommerce/reaction-components";
 
 export class MarketplaceShopStorefront extends Component {

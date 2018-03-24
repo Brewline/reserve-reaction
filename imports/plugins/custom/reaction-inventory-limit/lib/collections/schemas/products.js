@@ -1,11 +1,10 @@
-import { SimpleSchema } from "meteor/aldeed:simple-schema";
+import SimpleSchema from "simpl-schema";
 import { Products } from "/lib/collections";
 
 export const ProductVariantLimits = new SimpleSchema({
   inventoryLimit: {
-    type: Number,
+    type: SimpleSchema.Integer,
     optional: true,
-    decimal: false,
     label: "Maximum number of items that may be purchased"
   }
 });

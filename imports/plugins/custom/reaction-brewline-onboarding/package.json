@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "node-untappd": "github:Brewline/node-untappd"
+  },
   "babel": {
     "plugins": [
       [

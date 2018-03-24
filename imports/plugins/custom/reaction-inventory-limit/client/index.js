@@ -4,7 +4,7 @@ import "./product-detail-simple/product-detail-container";
 import "./add-to-cart-button/add-to-cart-button-component"; // no container here
 
 import _ from "lodash";
-import { SimpleSchema } from "meteor/aldeed:simple-schema";
+import SimpleSchema from "simpl-schema";
 import { Schemas, registerSchema } from "/imports/plugins/core/collections";
 import { ProductVariantLimits } from "../lib/collections/schemas/products";
 

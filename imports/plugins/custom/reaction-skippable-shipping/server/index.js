@@ -16,7 +16,7 @@ Meteor.startup(() => {
     const inSkippableState = workflow === "coreCartWorkflow" &&
       newWorkflowStatus === "coreCheckoutShipping";
 
-    if (inSkippableState) {
+    if (false && inSkippableState) {
       // TODO: check that all products are digital
 
       // push cart workflow twice and essentially skip shipping step

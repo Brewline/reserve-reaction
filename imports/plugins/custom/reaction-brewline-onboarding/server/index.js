@@ -1,7 +1,7 @@
 import { Hooks, Logger, Reaction } from "/server/api";
 import { Shops } from "/lib/collections";
 
-import "./collections"
+import "./collections" // TODO: move to ../lib/collections
 import "./methods"
 
 function addRolesToVisitors() {

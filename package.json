@@ -72,6 +72,7 @@
     "node-fetch": "^2.0.0",
     "node-geocoder": "^3.22.0",
     "node-loggly-bulk": "^2.2.1",
+    "node-untappd": "github:Brewline/node-untappd",
     "nodemailer-wellknown": "^0.2.3",
     "nouislider-algolia-fork": "^10.0.0",
     "path-to-regexp": "^2.1.0",

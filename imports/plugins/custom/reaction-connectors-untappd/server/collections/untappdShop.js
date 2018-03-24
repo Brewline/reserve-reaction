@@ -1,4 +1,4 @@
-import { SimpleSchema } from "meteor/aldeed:simple-schema";
+import SimpleSchema from "simpl-schema";
 import { Shops } from "/lib/collections";
 import { registerSchema } from "/imports/plugins/core/collections";
 
@@ -16,9 +16,8 @@ import { registerSchema } from "/imports/plugins/core/collections";
  */
 export const UntappdShop = new SimpleSchema({
   UntappdId: {
-    type: Number,
-    optional: true,
-    decimal: false
+    type: SimpleSchema.Integer,
+    optional: true
   },
   UntappdResource: {
     type: Object,
