@@ -9,12 +9,12 @@ Reaction.registerPackage({
   registry: [{
     name: "brewlineOnboardingBrewery",
     route: "/welcome/brewery",
-    template: "brewlineOnboarding",
+    template: "BrewlineOnboarding",
     workflow: "onboardingBrewery"
   }, {
     name: "brewlineOnboardingConsumer",
     route: "/welcome/customer",
-    template: "brewlineOnboarding",
+    template: "BrewlineOnboarding",
     workflow: "onboardingCustomer"
   }],
   layout: [{

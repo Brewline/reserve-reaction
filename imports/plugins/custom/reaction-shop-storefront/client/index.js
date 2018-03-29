@@ -3,7 +3,7 @@ import "./storefront/storefront";
 import { Session } from "meteor/session";
 
 Session.set("INDEX_OPTIONS", {
-  template: "shopStorefront",
+  template: "ShopStorefront",
   layoutHeader: "NavBar",
   layoutFooter: "Footer",
   notFound: "notFound",

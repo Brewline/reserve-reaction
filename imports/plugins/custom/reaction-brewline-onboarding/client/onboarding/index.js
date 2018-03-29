@@ -1,5 +1,3 @@
-import "./onboarding.html";
-
 import "./brewery";
 // import "./consumer";
 
@@ -45,10 +43,12 @@ class Onboarding extends Component {
 
   render() {
     return (
-      <div>
-        <Components.Alerts placement="onboarding" />
+      <div class="onboarding-container">
+        <div class="onboarding__steps-container">
+          <Components.Alerts placement="onboarding" />
 
-        {this.renderTemplate()}
+          {this.renderTemplate()}
+        </div>
       </div>
     );
   }
@@ -143,9 +143,3 @@ export default composeWithTracker(composer)(Onboarding);
 
 import { Template } from "meteor/templating";
 // import { Components } from "@reactioncommerce/reaction-components";
-
-Template.brewlineOnboarding.helpers({
-  templateProps() {
-    return { component: Components.BrewlineOnboarding };
-  }
-});
