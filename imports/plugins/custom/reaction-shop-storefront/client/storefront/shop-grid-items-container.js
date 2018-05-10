@@ -10,7 +10,7 @@ import { compose } from "recompose";
 import { registerComponent } from "@reactioncommerce/reaction-components";
 import { Session } from "meteor/session";
 import { Reaction } from "/client/api";
-import { Media } from "/lib/collections";
+import { Media } from "/imports/plugins/core/files/client";
 import { SortableItem } from "/imports/plugins/core/ui/client/containers";
 import ShopGridItems from "./shop-grid-items-component";
 
@@ -24,6 +24,7 @@ const wrapComponent = (Comp) => (
       unmountMe: PropTypes.func
     }
 
+    // TODO: is this contructor necessary? I think not.
     constructor() {
       super();
 
@@ -78,22 +79,23 @@ const wrapComponent = (Comp) => (
         const [asset] = shop.brandAssets;
 
         if (asset) {
-          const brandAsset = Media.findOne({ _id: asset.mediaId });
+          const brandAssets = Media.findLocal({ _id: asset.mediaId });
+          const brandAsset = brandAssets && brandAssets[0];
 
-          if (brandAsset instanceof FS.File) {
+          if (brandAsset) {
             return brandAsset;
           }
         }
       }
 
-      const media = Media.findOne({
+      const media = Media.findLocal({
         "metadata.shopId": this.props.shop._id /* ,
         "metadata.type": "brandAsset" */
       }, {
         sort: { "uploadedAt": -1 } // sorted by most recent
       });
 
-      return media instanceof FS.File ? media : false;
+      return media && media[0];
     }
 
     isMediumWeight = () => {

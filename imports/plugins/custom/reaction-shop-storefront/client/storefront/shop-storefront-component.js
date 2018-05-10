@@ -82,9 +82,9 @@ export class MarketplaceShopStorefront extends Component {
       <a
         href={url}
         target="_blank"
-        className="btn btn-primary"
+        className="btn"
       >
-        {url.replace(/^https?:\/\/(www\.)?/, '')}
+        {url}
       </a>
     );
   }
@@ -136,7 +136,6 @@ export class MarketplaceShopStorefront extends Component {
 
   socialOptions() {
     return [
-      this.urlOption(),
       this.untappdOption(),
       this.instagramOption(),
       this.facebookOption(),
@@ -157,6 +156,7 @@ export class MarketplaceShopStorefront extends Component {
 
           <div className="shop-storefront__content rui item variable start axis vertical">
             <h1 className="shop-name">{shop.name}</h1>
+            <p>{this.urlOption()}</p>
             <p>{shop.description}</p>
 
             <ul className="storefront-social flex-wrap">

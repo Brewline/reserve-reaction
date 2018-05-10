@@ -1,20 +1,26 @@
-import { Jobs, Media } from "/lib/collections";
+import { FileRecord } from "@reactioncommerce/file-collections";
+import { Jobs } from "/lib/collections";
+import { Media } from "/imports/plugins/core/files/server";
+import fetch from "node-fetch";
+
+async function addMediaFromUrl({ url, metadata }) {
+  const fileRecord = await FileRecord.fromUrl(url, { fetch });
+
+  // Set workflow to "published" to bypass revision control on insert for this image.
+  fileRecord.metadata = { ...metadata, workflow: "published" };
+
+  return Media.insert(fileRecord);
+}
 
 export const importProductImages = () => {
   Jobs.processJobs("connectors/untappd/import/product/image", {
     pollInterval: 60 * 60 * 1000, // Retry failed images after an hour
     workTimeout: 5 * 1000 // No image import should last more than 5 seconds
   }, (job, callback) => {
-    const { url, metadata } = job.data;
+    const { data } = job;
 
     try {
-      const fileObj = new FS.File();
-      fileObj.attachData(url);
-
-      // Set workflow to "published" to bypass revision control on insert for this image.
-      fileObj.metadata = { ...metadata, workflow: "published" };
-      const media = Media.insert(fileObj);
-      // Logger.info(`Image inserted from ${url} into ${metadata}`);
+      Promise.await(addMediaFromUrl(data));
 
       job.done(`Finished importing image from ${url}`);
       callback();
@@ -30,16 +36,10 @@ export const importShopImages = () => {
     pollInterval: 60 * 60 * 1000, // Retry failed images after an hour
     workTimeout: 5 * 1000 // No image import should last more than 5 seconds
   }, (job, callback) => {
-    const { shopId, url, metadata } = job.data;
+    const { data } = job;
 
     try {
-      const fileObj = new FS.File();
-      fileObj.attachData(url);
-
-      // Set workflow to "published" to bypass revision control on insert for this image.
-      fileObj.metadata = { ...metadata, workflow: "published" };
-      const media = Media.insert(fileObj);
-      // Logger.info(`Image inserted from ${url} into ${metadata}`);
+      const media = Promise.await(addMediaFromUrl(data));
 
       // TODO: figure out how to listen for this job's completion to separate
       // this code out
@@ -47,6 +47,7 @@ export const importShopImages = () => {
       // set the media as the Nav Bar Image
       // TODO: ensure it's not already set?
       if (media) {
+        const { shopId } = data;
         Collections.Shops.update({
           _id: shopId
         }, {

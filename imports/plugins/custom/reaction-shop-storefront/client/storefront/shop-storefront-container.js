@@ -9,7 +9,8 @@ import ShopStorefront from './shop-storefront-component';
 function composer(props, onData) {
   let shop, brandMedia, merchantShops; // TODO: move merchantShops to ShopGrid
 
-  const shopSubscription = Meteor.subscribe("Shop");
+  // use PrimaryShop as a proxy for Shop
+  const shopSubscription = Meteor.subscribe("PrimaryShop");
   const merchantShopsSubscription = Meteor.subscribe("MerchantShops");
 
   if (shopSubscription.ready()) {

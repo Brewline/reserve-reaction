@@ -128,11 +128,11 @@ Meteor.methods({
    */
   "shop/createShop"(shopAdminUserId, shopData) {
     check(shopAdminUserId, Match.Optional(String));
-    if (shopData) {
-      Collections.Shops.simpleSchema(shopData).validate(shopData);
-      // Never create a second primary shop
-      if (shopData.shopType === "primary") shopData.shopType = "merchant";
-    }
+    // Ideally, we would check that shopData honors the Shops schema, however,
+    // I am not aware of a way to ignore required fields in the schema. This
+    // data is validated against the schema below, once it has been cleaned up,
+    // so it is ok to simply check for an object here
+    check(shopData, Match.Maybe(Object));
 
     // Get the current marketplace settings
     const marketplace = Reaction.getMarketplaceSettings();
@@ -189,9 +189,44 @@ Meteor.methods({
     }
 
     // we'll accept a shop object, or clone the current shop
-    const shop = shopData || cloneShop(primaryShopId);
-    shop.emails = shopUser.emails;
-    shop.addressBook = shopAccount.addressBook;
+    let seedShop = shopData;
+
+    if (_.isEmpty(seedShop)) {
+      const count = Collections.Shops.find().count() || "";
+      seedShop = Reaction.getPrimaryShop();
+      // generate unique shop name
+      seedShop.name = seedShop.name + count;
+    }
+
+    // ensure unique id
+    // (shouldn't Mongo handle this for us? with lesser risk of collision?)
+    seedShop._id = Random.id();
+
+    // Never create a second primary shop
+    if (seedShop.shopType === "primary") {
+      seedShop.shopType = "merchant";
+    }
+
+    // We trust the owner's shop clone, check only when shopData is passed as an argument
+    if (shopData) {
+      Collections.Shops.simpleSchema(shopData).validate(shopData);
+    }
+
+    const shop = Object.assign({}, seedShop, {
+      emails: shopUser.emails,
+      addressBook: shopAccount.addressBook
+    });
+
+    // Clean up values that get automatically added
+    delete shop.createdAt;
+    delete shop.updatedAt;
+    delete shop.slug;
+    // TODO audience permissions need to be consolidated into [object] and not [string]
+    // permissions with [string] on layout ie. orders and checkout, cause the insert to fail
+    delete shop.layout;
+    // delete brandAssets object from shop to prevent new shops from carrying over existing shop's
+    // brand image
+    delete shop.brandAssets;
 
     let newShopId;
 
@@ -229,7 +264,7 @@ Meteor.methods({
     Collections.Shops.update({ _id: primaryShopId }, {
       $addToSet: {
         merchantShops: {
-          _id: newShop._id,
+          _id: newShopId,
           slug: newShop.slug,
           name: newShop.name
         }

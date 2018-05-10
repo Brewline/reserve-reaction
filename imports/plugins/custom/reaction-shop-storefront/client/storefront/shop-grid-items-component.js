@@ -40,7 +40,7 @@ class ShopGridItems extends Component {
     const media = this.props.media();
     let backgroundImageUrl, mediaClassName;
 
-    if (media === false) {
+    if (!media) {
       mediaClassName = "placeholder-image";
       backgroundImageUrl = "/resources/placeholder.gif";
     } else {
