@@ -28,7 +28,7 @@ class ShopGrid extends Component {
 
           <button
             className="product-grid-item-images product-grid-item-images--new"
-            on-click={this.onNewShopClick()}
+            on-click={this.props.onNewShopClick}
             data-event-category="grid"
             data-event-label="grid shop click"
             data-event-value="new"
@@ -49,7 +49,7 @@ class ShopGrid extends Component {
           {/* ^^ not sure we need all of this ^^ */}
           <div className="grid-content">
             <button
-              on-click={this.onNewShopClick()}
+              on-click={this.props.onNewShopClick}
               data-event-category="grid"
               data-event-action="shop-click"
               data-event-label="grid shop click"
