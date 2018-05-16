@@ -24,18 +24,6 @@ const wrapComponent = (Comp) => (
       unmountMe: PropTypes.func
     }
 
-    // TODO: is this contructor necessary? I think not.
-    constructor() {
-      super();
-
-      this.shopPath = this.shopPath.bind(this);
-      this.positions = this.positions.bind(this);
-      this.weightClass = this.weightClass.bind(this);
-      this.shopMedia = this.shopMedia.bind(this);
-      this.isMediumWeight = this.isMediumWeight.bind(this);
-      this.onClick = this.onClick.bind(this);
-    }
-
     shopPath = () => {
       if (this.props.shop) {
         let handle = this.props.shop.handle;
@@ -103,33 +91,6 @@ const wrapComponent = (Comp) => (
       const weight = positions.weight || 0;
 
       return weight === 1;
-    }
-
-    handleCheckboxSelect = (list, shop) => {
-      let checkbox = list.querySelector(`input[type=checkbox][value="${shop._id}"]`);
-      const items = document.querySelectorAll("li.shop-grid-item");
-      const activeItems = document.querySelectorAll("li.shop-grid-item.active");
-      const selected = activeItems.length;
-
-      if (event.shiftKey && selected > 0) {
-        const indexes = [
-          Array.prototype.indexOf.call(items, document.querySelector(`li.shop-grid-item[id="${shop._id}"]`)),
-          Array.prototype.indexOf.call(items, activeItems[0]),
-          Array.prototype.indexOf.call(items, activeItems[selected - 1])
-        ];
-        for (let i = _.min(indexes); i <= _.max(indexes); i++) {
-          checkbox = items[i].querySelector("input[type=checkbox]");
-          if (checkbox.checked === false) {
-            checkbox.checked = true;
-            this.props.itemSelectHandler(checkbox.checked, shop._id);
-          }
-        }
-      } else {
-        if (checkbox) {
-          checkbox.checked = !checkbox.checked;
-          this.props.itemSelectHandler(checkbox.checked, shop._id);
-        }
-      }
     }
 
     onClick = (event) => {

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
-import { Media } from "/lib/collections";
+import { Media } from "/imports/plugins/core/files/client";
 
 import ShopStorefront from './shop-storefront-component';
 
@@ -27,7 +27,7 @@ function composer(props, onData) {
       _.find(shop.brandAssets, (asset) => asset.type === "navbarBrandImage");
 
     if (brandAsset && brandAsset.mediaId) {
-      brandMedia = Media.findOne(brandAsset.mediaId);
+      brandMedia = Media.findOneLocal(brandAsset.mediaId);
     }
   }
 

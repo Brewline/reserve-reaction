@@ -76,7 +76,9 @@ Meteor.methods({
       breweryId = untappdBreweryId;
     } else {
       // TODO: implement Reaction.getShop()
-      ({ UntappdId: breweryId } = Shops.findOne(Reaction.getShopId()));
+      const shopId = Reaction.getShopId();
+      const shop = Shops.findOne(shopId);
+      ({ UntappdId: breweryId } = shop);
     }
 
     if (!breweryId) {

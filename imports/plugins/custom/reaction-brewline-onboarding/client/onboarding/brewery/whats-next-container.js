@@ -25,11 +25,12 @@ function composer(props, onData) {
   }
 
   const done = () => {
-    if (product) {
-      Router.go("product", { handle: product._id });
-    } else {
+    // Go to product? might be confusing. let's go to shop in all cases.
+    // if (product) {
+    //   Router.go("product", { handle: product._id });
+    // } else {
       Router.go("index");
-    }
+    // }
   }
 
   onData(null, {

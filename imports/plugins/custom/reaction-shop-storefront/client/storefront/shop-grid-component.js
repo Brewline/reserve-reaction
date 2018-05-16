@@ -9,10 +9,63 @@ import { Components } from "@reactioncommerce/reaction-components";
 
 class ShopGrid extends Component {
   static propTypes = {
-    shops: PropTypes.array
+    shops: PropTypes.array,
+    showAddShop: PropTypes.bool
   }
 
-  renderShopGridItems = (shops) => {
+  renderAddShopGridItem() {
+    // if (!this.props.showNewShopCta) { return; }
+
+    // const weightClass = this.props.weightClass();
+    const weightClass = "";
+
+    return (
+      <li
+        className={`product-grid-item ${weightClass}`}
+      >
+        <div>
+          <span className="product-grid-item-alerts" />
+
+          <button
+            className="product-grid-item-images product-grid-item-images--new"
+            on-click={this.onNewShopClick()}
+            data-event-category="grid"
+            data-event-label="grid shop click"
+            data-event-value="new"
+          >
+            <div>
+              <div className="title">
+                Import your shop in minutes
+              </div>
+              <div className="cta">
+                We import data from Untappd so you will be up and running <em>fast</em>
+              </div>
+              <div className="subtitle">
+                <strong>Now accepting requests for early access!</strong>
+              </div>
+            </div>
+          </button>
+
+          {/* ^^ not sure we need all of this ^^ */}
+          <div className="grid-content">
+            <button
+              on-click={this.onNewShopClick()}
+              data-event-category="grid"
+              data-event-action="shop-click"
+              data-event-label="grid shop click"
+              data-event-value="new"
+            >
+              <div className="overlay">
+                <div className="overlay-title">Your Shop Here!</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </li>
+    );
+  }
+
+  renderShopGridItems(shops) {
     if (Array.isArray(shops)) {
       return shops.map((shop, index) => {
         return (
@@ -40,9 +93,11 @@ class ShopGrid extends Component {
     return (
       <div className="container-main">
         <div className="product-grid">
-            <ul className="product-grid-list list-unstyled" id="product-grid-list">
-              {this.renderShopGridItems(this.props.shops)}
-            </ul>
+          <ul className="product-grid-list list-unstyled" id="product-grid-list">
+            {this.renderShopGridItems(this.props.shops)}
+
+            {this.renderAddShopGridItem()}
+          </ul>
         </div>
       </div>
     );

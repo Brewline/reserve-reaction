@@ -12,6 +12,7 @@ async function addMediaFromUrl({ url, metadata }) {
   return Media.insert(fileRecord);
 }
 
+// TODO: rename to processimportProductImagesJobs
 export const importProductImages = () => {
   Jobs.processJobs("connectors/untappd/import/product/image", {
     pollInterval: 60 * 60 * 1000, // Retry failed images after an hour
@@ -22,15 +23,16 @@ export const importProductImages = () => {
     try {
       Promise.await(addMediaFromUrl(data));
 
-      job.done(`Finished importing image from ${url}`);
+      job.done(`Finished importing image from ${data.url}`);
       callback();
     } catch (error) {
-      job.fail(`Failed to import image from ${url}.`);
+      job.fail(`Failed to import image from ${data.url}: '${error.message}'`);
       callback();
     }
   });
 };
 
+// TODO: rename to processImportShopImagesJobs
 export const importShopImages = () => {
   Jobs.processJobs("connectors/untappd/import/shop/image", {
     pollInterval: 60 * 60 * 1000, // Retry failed images after an hour
@@ -60,10 +62,10 @@ export const importShopImages = () => {
         });
       }
 
-      job.done(`Finished importing image from ${url}`);
+      job.done(`Finished importing image from ${data.url}`);
       callback();
     } catch (error) {
-      job.fail(`Failed to import image from ${url}.`);
+      job.fail(`Failed to import image from ${data.url}: '${error.message}'`);
       callback();
     }
   });

@@ -42,3 +42,40 @@ ul.storefront-social {
 		margin-top: 0;
 	}
 }
+
+.marketplace-storefront {
+	.product-grid-item-images {
+		&--new {
+			.title {
+				@arrow-height: 15px;
+
+				position: relative;
+				font-size: 200%;
+				text-align: center;
+				background-color: @brand-primary;
+				color: white;
+				margin-bottom: 2 * @arrow-height;
+
+				&:after {
+					@arrow-width: 4 / 3 * @arrow-height;
+
+					content: "";
+					margin-left: -@arrow-width;
+					border: @arrow-width solid transparent;
+					border-top: @arrow-height solid @brand-primary;
+					position: absolute;
+					top: 100%;
+					left: 50%;
+					height: 0;
+					width: 0;
+				}
+			}
+
+			.title,
+			.subtitle,
+			.cta {
+				padding: 10px;
+			}
+		}
+	}
+}

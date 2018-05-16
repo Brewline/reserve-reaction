@@ -28,7 +28,7 @@ export default class WhatsNext extends Component {
         <p>
           Scott or Pat, Brewline&rsquo;s founders, will reach out to make sure
           all the boxes are checked to begin selling (e.g., setting up an
-          account with Stripe, so you can get paid; creating a subdomain on
+          account with Stripe so you can get paid; creating a subdomain on
           brewline.io for your shop; creating purchase limits; etc.). Afterward
           your shop will be activated and you may begin pre-selling your next
           beer release.

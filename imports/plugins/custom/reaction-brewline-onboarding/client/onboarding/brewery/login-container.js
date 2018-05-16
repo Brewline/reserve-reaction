@@ -4,7 +4,7 @@ import {
   composeWithTracker,
   registerComponent
 } from "@reactioncommerce/reaction-components";
-// import { Reaction } from "/client/api";
+import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
 
 import Login from './login-component';
@@ -20,9 +20,14 @@ function composer(props, onData) {
     });
   };
 
+  let loggedInUser;
+  if (!Reaction.hasPermission("anonymous")) {
+    loggedInUser = Meteor.user();
+  }
+
   onData(null, {
     ...props,
-    loggedInUser: Meteor.user(),
+    loggedInUser,
     onLogin
   });
 }

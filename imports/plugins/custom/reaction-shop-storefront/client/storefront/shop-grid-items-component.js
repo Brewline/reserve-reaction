@@ -61,7 +61,7 @@ class ShopGridItems extends Component {
         <a
           href={this.props.shopPath()}
           data-event-category="grid"
-          data-event-action="product-click"
+          data-event-action="shop-click"
           data-event-label="grid shop click"
           data-event-value={this.props.shop._id}
           onDoubleClick={this.handleDoubleClick}

@@ -1,6 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { Reaction } from "/client/api";
 import { Components } from "@reactioncommerce/reaction-components";
 
 export class PrimaryShopStorefront extends Component {
@@ -21,15 +22,21 @@ export class PrimaryShopStorefront extends Component {
     );
   }
 
+  handleNewShopClick = () => {
+    Router.go("/welcome/brewery");
+  }
+
+  handleShopClick = (shopId) => {
+    Reaction.setShopId(shopId);
+    Router.go("index");
+  }
+
   renderMarketplace() {
-    return <Components.ShopGrid shops={this.props.merchantShops} />;
-    // return (
-    //   <ul>
-    //     {_.map(this.props.merchantShops, (shop, i) => (
-    //       <li key={i}>{shop.name}</li>
-    //     ))}
-    //   </ul>
-    // );
+    return <Components.ShopGrid
+      shops={this.props.merchantShops}
+      onNewShopClick={this.handleNewShopClick}
+      onShopClick={this.handleShopClick}
+    />;
   }
 
   render() {
@@ -55,8 +62,9 @@ export class MarketplaceShopStorefront extends Component {
   };
 
   renderBrand() {
-    const shop = this.props.shop || { name: "" };
-    const logo = this.props.brandMedia && this.props.brandMedia.url();
+    const { brandMedia } = this.props;
+
+    const logo = brandMedia && brandMedia.url({ store: "thumbnail" });
 
     return <Components.Brand logo={logo} />;
   }
@@ -66,6 +74,7 @@ export class MarketplaceShopStorefront extends Component {
       <a
         href={url}
         target="_blank"
+        onClick={this.goHome}
       >
         <i className={`fa fa-${provider} fa-2x`} />
       </a>
@@ -113,7 +122,14 @@ export class MarketplaceShopStorefront extends Component {
 
     if (!instagram) { return; }
 
-    return this.linkedIcon(`https://www.instagram.com/${instagram}`, "instagram");
+    let url;
+    if (instagram.indexOf("http") === 0) {
+      url = instagram;
+    } else {
+      url = `https://www.instagram.com/${instagram}`;
+    }
+
+    return this.linkedIcon(url, "instagram");
   }
 
   facebookOption() {
@@ -122,7 +138,14 @@ export class MarketplaceShopStorefront extends Component {
 
     if (!facebook) { return; }
 
-    return this.linkedIcon(`https://www.facebook.com/${facebook}`, "facebook");
+    let url;
+    if (facebook.indexOf("http") === 0) {
+      url = facebook;
+    } else {
+      url = `https://www.facebook.com/${facebook}`;
+    }
+
+    return this.linkedIcon(url, "facebook");
   }
 
   twitterOption() {
@@ -131,7 +154,14 @@ export class MarketplaceShopStorefront extends Component {
 
     if (!twitter) { return; }
 
-    return this.linkedIcon(`https://twitter.com/${twitter}`, "twitter");
+    let url;
+    if (twitter.indexOf("http") === 0) {
+      url = twitter;
+    } else {
+      url = `https://twitter.com/${twitter}`;
+    }
+
+    return this.linkedIcon(url, "twitter");
   }
 
   socialOptions() {
