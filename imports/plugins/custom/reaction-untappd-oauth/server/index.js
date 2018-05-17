@@ -3,6 +3,9 @@ import { Reaction } from "/server/api";
 
 // Untappd is globally accessible
 Untappd.rootUrl = function () {
-  // return Reaction.absoluteUrl();
-  return "local.brewline.io";
+  if (process.env.NODE_ENV === "development") {
+    return "local.brewline.io";
+  }
+
+  return Reaction.absoluteUrl();
 };

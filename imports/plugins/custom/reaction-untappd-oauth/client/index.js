@@ -9,6 +9,5 @@ ServiceConfigHelper.addProvider("Untappd", [
 
 // Untappd is globally accessible
 Untappd.rootUrl = function () {
-  // return Reaction.absoluteUrl();
-  return "local.brewline.io";
+  return Reaction.absoluteUrl();
 };
