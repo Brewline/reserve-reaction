@@ -23,7 +23,7 @@ class OnboardingNavBar extends Component {
 
   renderBrand() {
     const shop = this.props.shop || { name: "" };
-    const logo = this.props.brandMedia && this.props.brandMedia.url();
+    const logo = this.props.brandMedia && this.props.brandMedia.url({ store: "thumbnail" });
 
     return (
       <Components.Brand
