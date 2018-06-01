@@ -26,9 +26,9 @@ class ShopGrid extends Component {
         <div>
           <span className="product-grid-item-alerts" />
 
-          <button
+          <a
             className="product-grid-item-images product-grid-item-images--new"
-            on-click={this.props.onNewShopClick}
+            onClick={this.props.onNewShopClick}
             data-event-category="grid"
             data-event-label="grid shop click"
             data-event-value="new"
@@ -44,12 +44,12 @@ class ShopGrid extends Component {
                 <strong>Now accepting requests for early access!</strong>
               </div>
             </div>
-          </button>
+          </a>
 
           {/* ^^ not sure we need all of this ^^ */}
           <div className="grid-content">
-            <button
-              on-click={this.props.onNewShopClick}
+            <a
+              onClick={this.props.onNewShopClick}
               data-event-category="grid"
               data-event-action="shop-click"
               data-event-label="grid shop click"
@@ -58,7 +58,7 @@ class ShopGrid extends Component {
               <div className="overlay">
                 <div className="overlay-title">Your Shop Here!</div>
               </div>
-            </button>
+            </a>
           </div>
         </div>
       </li>

@@ -3,11 +3,15 @@ import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 import { Media } from "/imports/plugins/core/files/client";
+import { Router } from "/client/modules/router";
 
 import ShopStorefront from './shop-storefront-component';
 
 function composer(props, onData) {
-  let shop, brandMedia, merchantShops; // TODO: move merchantShops to ShopGrid
+  let shop;
+  let brandMedia;
+  let merchantShops;
+  let isPrimaryShop;
 
   // use PrimaryShop as a proxy for Shop
   const shopSubscription = Meteor.subscribe("PrimaryShop");
@@ -15,10 +19,16 @@ function composer(props, onData) {
 
   if (shopSubscription.ready()) {
     shop = Reaction.getShop();
+
+    isPrimaryShop = Reaction.getPrimaryShopId() === shop._id;
   }
 
   if (merchantShopsSubscription.ready()) {
     merchantShops = Reaction.getMerchantShops();
+
+    if (isPrimaryShop && (!merchantShops || !merchantShops.length)) {
+      Router.go("brewlineOnboardingBrewery");
+    }
   }
 
   if (shop && Array.isArray(shop.brandAssets)) {
