@@ -28,6 +28,7 @@ class ShopGrid extends Component {
 
           <a
             className="product-grid-item-images product-grid-item-images--new"
+            href="/welcome/brewery"
             onClick={this.props.onNewShopClick}
             data-event-category="grid"
             data-event-label="grid shop click"
@@ -49,6 +50,7 @@ class ShopGrid extends Component {
           {/* ^^ not sure we need all of this ^^ */}
           <div className="grid-content">
             <a
+              href="/welcome/brewery"
               onClick={this.props.onNewShopClick}
               data-event-category="grid"
               data-event-action="shop-click"

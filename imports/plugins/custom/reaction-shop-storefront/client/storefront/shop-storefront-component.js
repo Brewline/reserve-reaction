@@ -22,13 +22,15 @@ export class PrimaryShopStorefront extends Component {
     );
   }
 
-  handleNewShopClick = () => {
-    Router.go("/welcome/brewery");
+  handleNewShopClick = (event) => {
+    event.preventDefault();
+
+    Reaction.Router.go("/welcome/brewery");
   }
 
   handleShopClick = (shopId) => {
     Reaction.setShopId(shopId);
-    Router.go("index");
+    Reaction.Router.go("index");
   }
 
   renderMarketplace() {
