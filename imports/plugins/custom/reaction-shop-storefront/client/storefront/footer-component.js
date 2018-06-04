@@ -16,13 +16,13 @@ export default class Footer extends Component {
     const { primaryShop = {}, primaryShopMedia } = this.props;
     const { name: title } = primaryShop;
 
-    const logo = primaryShopMedia && primaryShopMedia.url({ store: "thumbnail" });
+    const logo = primaryShopMedia && primaryShopMedia.url({ store: "large" });
 
     // copied from Brand.js, with click handler replaced
     return (
       <a className="brand" href="/" onClick={this.handleGoToPrimaryShop}>
-        <div className="logo">
-          <img src={logo} alt={title} />
+        <div className="logo" style={{ display: "inline-block" }}>
+          <img src={logo} alt={title} style={{ height: "55px", marginRight: "10px" }} />
         </div>
         <span className="title">{title}</span>
       </a>
