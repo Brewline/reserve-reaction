@@ -13,7 +13,6 @@ import { registerInventory } from "../methods/inventory";
 
 Fixtures();
 
-
 function resetInventory() {
   Inventory.remove({});
   const products = Products.find().fetch();
@@ -130,7 +129,6 @@ describe("Inventory Hooks", function () {
     const order = Orders.findOne({ cartId: cart._id });
     const shipping = { items: [] };
     Meteor.call("orders/shipmentShipped", order, shipping, () => {
-      Meteor._sleepForMs(500);
       const shippedInventoryItem = Inventory.findOne(inventoryItem._id);
       expect(shippedInventoryItem.workflow.status).to.equal("shipped");
       return done();
