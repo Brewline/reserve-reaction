@@ -109,7 +109,7 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
     emails: emails,
     // timezone: , // infer from current IP?
     metafields: [],
-    active: false,
+    active: true,
     workflow: {
       status: "new"
     },
