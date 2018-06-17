@@ -1,6 +1,6 @@
 import SimpleSchema from "simpl-schema";
-import { Shops } from "/lib/collections";
-import { registerSchema } from "/imports/plugins/core/collections";
+import { Shop } from "/lib/collections/schemas/shops";
+import { registerSchema } from "@reactioncommerce/schemas";
 
 /**
  * @file UntappdShop
@@ -32,4 +32,4 @@ export const UntappdShop = new SimpleSchema({
 
 registerSchema("UntappdShop", UntappdShop);
 
-Shops.attachSchema(UntappdShop);
+Shop.extend(UntappdShop);

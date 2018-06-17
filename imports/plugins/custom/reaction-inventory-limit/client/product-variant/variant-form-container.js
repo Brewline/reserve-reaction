@@ -2,15 +2,15 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { compose } from "recompose";
 import { registerComponent } from "@reactioncommerce/reaction-components";
-import { Schemas } from "/imports/plugins/core/collections";
 import { Meteor } from "meteor/meteor";
 import { Session } from "meteor/session";
+import { Validation } from "@reactioncommerce/schemas";
 import { ReactionProduct } from "/lib/api";
 import { Packages } from "/lib/collections";
 import { Reaction, i18next } from "/client/api";
 import { TaxCodes } from "/imports/plugins/core/taxes/lib/collections";
+import { ProductVariant } from "/lib/collections/schemas/products";
 import VariantForm from "./variant-form-component"; // override!
-import { Validation } from "@reactioncommerce/reaction-collections";
 
 const wrapComponent = (Comp) => (
   class VariantFormContainer extends Component {
@@ -21,7 +21,7 @@ const wrapComponent = (Comp) => (
     constructor(props) {
       super(props);
 
-      this.validation = new Validation(Schemas.ProductVariant);
+      this.validation = new Validation(ProductVariant);
 
       this.state = {
         validationStatus: this.validation.validationStatus,

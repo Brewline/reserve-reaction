@@ -1,6 +1,6 @@
 import SimpleSchema from "simpl-schema";
 import { PackageConfig } from "/lib/collections/schemas/registry";
-import { registerSchema } from "/imports/plugins/core/collections";
+import { registerSchema } from "@reactioncommerce/schemas";
 
 /**
  * @file UntappdProduct

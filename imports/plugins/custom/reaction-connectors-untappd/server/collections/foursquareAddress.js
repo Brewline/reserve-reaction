@@ -1,6 +1,6 @@
 import SimpleSchema from "simpl-schema";
 import { Address } from "/lib/collections";
-import { registerSchema } from "/imports/plugins/core/collections";
+import { registerSchema } from "@reactioncommerce/schemas";
 
 /**
  * @file FoursquareAddress
