@@ -3,6 +3,6 @@
 *.min.*
 .reaction/jsdoc/templates/*
 client/plugins.js
-imports/plugins/custom/*
 packages/*
 server/plugins.js
+node_modules

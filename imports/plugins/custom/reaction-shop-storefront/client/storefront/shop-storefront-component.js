@@ -172,7 +172,7 @@ export class MarketplaceShopStorefront extends Component {
       this.instagramOption(),
       this.facebookOption(),
       this.twitterOption()
-    ].filter(o => o);
+    ].filter((o) => o);
   }
 
   render() {
@@ -214,10 +214,6 @@ export default class ShopStorefront extends Component {
   // static propTypes = {
   //   shop: PropTypes.object
   // }
-
-  constructor(props) {
-    super(props);
-  }
 
   isPrimaryShop() {
     return this.props.shop.shopType === "primary"; // TODO: add method to Shop

@@ -130,15 +130,15 @@ const wrapComponent = (Comp) => (
     // }
 
     render() {
-        // <Components.DragDropProvider>
-        // </Components.DragDropProvider>
+      // <Components.DragDropProvider>
+      // </Components.DragDropProvider>
       return (
-          <Comp
-            {...this.props}
-          />
-            // shops={this.shops}
-            // onMove={this.handleShopDrag}
-            // itemSelectHandler={this.handleSelectShopItem}
+        <Comp
+          {...this.props}
+        />
+        // shops={this.shops}
+        // onMove={this.handleShopDrag}
+        // itemSelectHandler={this.handleSelectShopItem}
       );
     }
   }
