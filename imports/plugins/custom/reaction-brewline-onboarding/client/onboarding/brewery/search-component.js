@@ -52,9 +52,7 @@ export default class Search extends Component {
 
         <Components.List className="panel-search-results__list">
           {
-            this.props.searchResults.map(
-              (r, i) => this.renderSearchResult(r, i)
-            )
+            this.props.searchResults.map((r, i) => this.renderSearchResult(r, i))
           }
         </Components.List>
       </div>
@@ -72,10 +70,10 @@ export default class Search extends Component {
 
         <Button
           className={{
-            btn: true,
+            "btn": true,
             "btn-primary": true,
             "btn-lg": true,
-            flat: false
+            "flat": false
           }}
           onClick={this.props.onNextStep}
         >
@@ -86,7 +84,7 @@ export default class Search extends Component {
   }
 
   renderAutoComplete() {
-    const breweryId = _.get(this.props, "userBrewery.brewery_id")
+    const breweryId = _.get(this.props, "userBrewery.brewery_id");
     return (
       <div>
         <p>
@@ -96,10 +94,10 @@ export default class Search extends Component {
 
         <Button
           className={{
-            btn: true,
+            "btn": true,
             "btn-primary": true,
             "btn-lg": true,
-            flat: false
+            "flat": false
           }}
           onClick={() => this.props.onAddShop(breweryId)}
         >
@@ -129,10 +127,10 @@ export default class Search extends Component {
           <Button
             type="submit"
             className={{
-              btn: true,
+              "btn": true,
               "btn-primary": true,
               "btn-lg": true,
-              flat: false
+              "flat": false
             }}
             icon="search"
           >

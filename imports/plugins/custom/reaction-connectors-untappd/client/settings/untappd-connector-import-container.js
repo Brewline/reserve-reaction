@@ -5,8 +5,8 @@ import { Reaction } from "/client/api";
 import { Products } from "/lib/collections";
 import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
-import './connect-with';
-import UntappdConnectorImport from './untappd-connector-import-component';
+import "./connect-with";
+import UntappdConnectorImport from "./untappd-connector-import-component";
 
 class UntappdConnectorImportContainer extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class UntappdConnectorImportContainer extends Component {
     this.fetchAccessToken = this.fetchAccessToken.bind(this);
     this.fetchSearchResults = this.fetchSearchResults.bind(this);
 
-    //// initial state
+    // // initial state
     const alertId = "connectors-untappd-search";
 
     this.state = {
@@ -68,9 +68,9 @@ function composer(props, onData) {
   const subscription = Reaction.Subscriptions.Packages;
 
   if (subscription.ready()) {
-    socialSettings.hasAccessToken = true
-    socialSettings.searchTerm = ""
-    socialSettings.products = []
+    socialSettings.hasAccessToken = true;
+    socialSettings.searchTerm = "";
+    socialSettings.products = [];
   }
 
   onData(null, socialSettings);

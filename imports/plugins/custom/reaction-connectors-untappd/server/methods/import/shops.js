@@ -41,9 +41,7 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
 
   const primaryShop = Reaction.getPrimaryShop();
 
-  const slug = getSlug(
-    _.get(untappdShop, "claimed_status.claimed_slug") || untappdShop.brewery_slug
-  );
+  const slug = getSlug(_.get(untappdShop, "claimed_status.claimed_slug") || untappdShop.brewery_slug);
 
   const emails = [{ address: `${slug}@brewline.io` }];
 
@@ -67,7 +65,7 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
     });
   }
 
-  _.each(_.get(untappdShop, "locations.items", []), function (item) {
+  _.each(_.get(untappdShop, "locations.items", []), (item) => {
     const venue = _.get(item, "venue", {});
     const location = _.get(venue, "location");
 
@@ -96,17 +94,17 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
   });
 
   const reactionShop = Object.assign({}, primaryShop, {
-    slug: slug,
+    slug,
     merchantShops: null,
     shopType: "merchant",
     name: untappdShop.brewery_name,
     description: untappdShop.brewery_description,
-    addressBook: addressBook,
+    addressBook,
     domains: [
       `${slug}.brewline.io`, // primary
       Reaction.getDomain()
     ],
-    emails: emails,
+    emails,
     // timezone: , // infer from current IP?
     metafields: [],
     active: true,
@@ -205,7 +203,7 @@ function saveShop(untappdShop) {
 
   const shop = Shops.findOne({ name: shopData.name });
 
-  hackRestoreAddressBook(shop, shopData)
+  hackRestoreAddressBook(shop, shopData);
 
   setShopImage(shop, untappdShop);
 
@@ -217,10 +215,10 @@ function saveShop(untappdShop) {
 export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
   try {
     const ServiceConfiguration =
-      Package['service-configuration'].ServiceConfiguration;
+      Package["service-configuration"].ServiceConfiguration;
 
     const config =
-      ServiceConfiguration.configurations.findOne({ service: 'untappd' });
+      ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
     if (!config) {
       throw new ServiceConfiguration.ConfigError();
@@ -239,7 +237,7 @@ export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
 
     await new Promise((resolve, reject) => {
       try {
-        untappd.breweryInfo(Meteor.bindEnvironment(function (error, data) {
+        untappd.breweryInfo(Meteor.bindEnvironment((error, data) => {
           if (error) {
             reject(error);
           } else {
@@ -295,10 +293,10 @@ export const methods = {
     check(options, Match.Maybe(Object));
 
     const ServiceConfiguration =
-      Package['service-configuration'].ServiceConfiguration;
+      Package["service-configuration"].ServiceConfiguration;
 
     const config =
-      ServiceConfiguration.configurations.findOne({ service: 'untappd' });
+      ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
     if (!config) {
       throw new ServiceConfiguration.ConfigError();
@@ -311,7 +309,7 @@ export const methods = {
     // untappd.setAccessToken(accessToken);
 
     // in case you need to add additional options
-    const opts = Object.assign({}, { ... options });
+    const opts = Object.assign({}, { ...options });
 
     const result = await new Promise((resolve, reject) => {
       try {

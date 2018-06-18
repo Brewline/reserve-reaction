@@ -1,12 +1,12 @@
 import _ from "lodash";
-import { Meteor } from 'meteor/meteor'
+import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
 import { compose } from "recompose";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
 
-import Search from './search-component';
+import Search from "./search-component";
 
 const ACCOUNT_TYPE_BREWERY = "brewery";
 const ACCOUNT_TYPE_USER = "user";
@@ -21,8 +21,9 @@ class SearchContainer extends Component {
       return defaultValue;
     }
 
-    const brewery = _.find(this.state.searchResults,
-      r => _.get(r, "brewery.brewery_id") === untappdShopId
+    const brewery = _.find(
+      this.state.searchResults,
+      (r) => _.get(r, "brewery.brewery_id") === untappdShopId
     );
 
     if (!brewery) { return defaultValue; }

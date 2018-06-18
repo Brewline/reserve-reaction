@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
-import UntappdConnectorProduct from './untappd-connector-product-component';
+import UntappdConnectorProduct from "./untappd-connector-product-component";
 
 class UntappdConnectorProductContainer extends Component {
   constructor(props) {
@@ -11,7 +11,7 @@ class UntappdConnectorProductContainer extends Component {
 
     this.addProduct = this.addProduct.bind(this);
 
-    //// initial state
+    // // initial state
     const alertId = "connectors-untappd-add-product";
 
     this.state = {
@@ -34,16 +34,15 @@ class UntappdConnectorProductContainer extends Component {
             i18nKey: "admin.settings.createGroupError"
           })
         );
-      } else {
-        // TODO: correct wording
-        return ReactionAlerts.add(
-          "Product Added to Shop. Processing Images...",
-          "success",
-          Object.assign({}, this.state.alertOptions, {
-            i18nKey: "admin.settings.createGroupError"
-          })
-        );
       }
+      // TODO: correct wording
+      return ReactionAlerts.add(
+        "Product Added to Shop. Processing Images...",
+        "success",
+        Object.assign({}, this.state.alertOptions, {
+          i18nKey: "admin.settings.createGroupError"
+        })
+      );
     });
   }
 

@@ -42,10 +42,10 @@ const wrapComponent = (Comp) => (
       return "/";
     }
 
-    positions = () => {
+    positions = () =>
       // TODO: figure this out
-      return {};
-    }
+      ({})
+
 
     weightClass = () => {
       const { weight } = this.positions();
@@ -80,7 +80,7 @@ const wrapComponent = (Comp) => (
         "metadata.shopId": this.props.shop._id /* ,
         "metadata.type": "brandAsset" */
       }, {
-        sort: { "uploadedAt": -1 } // sorted by most recent
+        sort: { uploadedAt: -1 } // sorted by most recent
       });
 
       return media && media[0];
@@ -125,5 +125,4 @@ registerComponent("ShopGridItems", ShopGridItems, [
 
 export default compose(
   // SortableItem("shopGridItem"),
-  wrapComponent
-)(ShopGridItems);
+  wrapComponent)(ShopGridItems);

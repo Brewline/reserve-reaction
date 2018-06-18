@@ -57,24 +57,22 @@ export default class About extends Component {
 
           <div className="features">
             <div className="row">
-              {_.map(FEATURES, (feature, index) => {
-                return (
-                  <div
-                    className="col-sm-12 col-md-6 media"
-                    key={index}
-                  >
-                    <div className="media-left">
-                      <i className={`icon fa fa-4x pull-left fa-${feature.icon}`} />
-                    </div>
-                    <div className="media-body">
-                      <h4 className="media-heading">{feature.title}</h4>
-                      <p>
-                        {feature.description}
-                      </p>
-                    </div>
+              {_.map(FEATURES, (feature, index) => (
+                <div
+                  className="col-sm-12 col-md-6 media"
+                  key={index}
+                >
+                  <div className="media-left">
+                    <i className={`icon fa fa-4x pull-left fa-${feature.icon}`} />
                   </div>
-                )
-              })}
+                  <div className="media-body">
+                    <h4 className="media-heading">{feature.title}</h4>
+                    <p>
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -99,10 +97,10 @@ export default class About extends Component {
       <div className="button-with-annotation">
         <Button
           className={{
-            btn: true,
+            "btn": true,
             "btn-primary": true,
             "btn-lg": true,
-            flat: false
+            "flat": false
           }}
           onClick={this.props.onNextStep}
         >

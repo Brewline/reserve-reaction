@@ -3,7 +3,7 @@ import { composeWithTracker, registerComponent } from "@reactioncommerce/reactio
 // import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
 
-import About from './about-component';
+import About from "./about-component";
 
 function composer(props, onData) {
   onData(null, props);

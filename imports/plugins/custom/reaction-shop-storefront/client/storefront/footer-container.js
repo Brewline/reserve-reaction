@@ -3,7 +3,7 @@ import { Reaction } from "/client/api";
 import { Router } from "/client/modules/router";
 import { Media } from "/imports/plugins/core/files/client";
 
-import Footer from './footer-component';
+import Footer from "./footer-component";
 
 function composer(props, onData) {
   let primaryShop;

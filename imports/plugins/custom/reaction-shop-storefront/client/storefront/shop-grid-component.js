@@ -69,14 +69,12 @@ class ShopGrid extends Component {
 
   renderShopGridItems(shops) {
     if (Array.isArray(shops)) {
-      return shops.map((shop, index) => {
-        return (
-          <Components.ShopGridItems
-            {...this.props}
-            shop={shop} key={index} index={index}
-          />
-        );
-      });
+      return shops.map((shop, index) => (
+        <Components.ShopGridItems
+          {...this.props}
+          shop={shop} key={index} index={index}
+        />
+      ));
     }
     return (
       <div className="row">
@@ -90,8 +88,8 @@ class ShopGrid extends Component {
   }
 
   render() {
-          // <Components.DragDropProvider>
-          // </Components.DragDropProvider>
+    // <Components.DragDropProvider>
+    // </Components.DragDropProvider>
     return (
       <div className="container-main">
         <div className="product-grid">

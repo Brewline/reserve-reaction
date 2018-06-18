@@ -1,12 +1,12 @@
 Accounts.oauth.tryConnectAfterPopupClosed = function (credentialToken, callback) {
-  var credentialSecret = Package["oauth"].Oauth._retrieveCredentialSecret(credentialToken) || null;
-  var options = {
+  let credentialSecret = Package.oauth.Oauth._retrieveCredentialSecret(credentialToken) || null;
+  let options = {
     oauth: {
-      credentialToken: credentialToken,
-      credentialSecret: credentialSecret
+      credentialToken,
+      credentialSecret
     }
   };
-  Meteor.call("addLoginService", options, function (error) {
+  Meteor.call("addLoginService", options, (error) => {
     if (callback) {
       callback(error);
     }
@@ -25,7 +25,7 @@ Accounts.oauth.connectCredentialRequestCompleteHandler = function (callback) {
   };
 };
 
-var capitalize = function (word) {
+let capitalize = function (word) {
   return word[0].toUpperCase() + word.slice(1);
 };
 
@@ -36,10 +36,10 @@ Meteor.connectWith = function (service, options, callback) {
     options = null;
   }
 
-  var connectCredentialRequestCompleteCallback =
+  let connectCredentialRequestCompleteCallback =
     Accounts.oauth.connectCredentialRequestCompleteHandler(callback);
 
-  var Service = service;
+  let Service = service;
   if (typeof service === "string") {
     Service = Package[service][capitalize(service)];
   }

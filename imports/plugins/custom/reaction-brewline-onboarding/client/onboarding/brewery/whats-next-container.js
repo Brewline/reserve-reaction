@@ -4,7 +4,7 @@ import { composeWithTracker, registerComponent } from "@reactioncommerce/reactio
 import { Reaction, Router } from "/client/api";
 import { Products } from "/lib/collections";
 
-import WhatsNext from './whats-next-component';
+import WhatsNext from "./whats-next-component";
 
 function composer(props, onData) {
   let shop, product;
@@ -29,9 +29,9 @@ function composer(props, onData) {
     // if (product) {
     //   Router.go("product", { handle: product._id });
     // } else {
-      Router.go("index");
+    Router.go("index");
     // }
-  }
+  };
 
   onData(null, {
     ...props,

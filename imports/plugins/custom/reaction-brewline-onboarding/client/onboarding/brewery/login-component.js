@@ -12,10 +12,10 @@ export default class Login extends Component {
 
         <Button
           className={{
-            btn: true,
+            "btn": true,
             "btn-primary": true,
             "btn-lg": true,
-            flat: false
+            "flat": false
           }}
           onClick={this.props.onNextStep}
         >
@@ -39,10 +39,10 @@ export default class Login extends Component {
 
         <Button
           className={{
-            btn: true,
+            "btn": true,
             "btn-primary": true,
             "btn-lg": true,
-            flat: false
+            "flat": false
           }}
           onClick={this.props.onLogin}
         >

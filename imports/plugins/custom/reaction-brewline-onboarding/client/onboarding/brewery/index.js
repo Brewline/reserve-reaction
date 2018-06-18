@@ -21,7 +21,6 @@ export { OnboardingNavBar } from "./onboarding-navbar-container";
 // "user_link": "https://untappd.com/brewery/765"
 
 
-
 // let brewery, breweryId;
 // if (user.account_type === "brewery" && user.brewery_details) {
 //      breweryId = user.brewery_details.brewery_id;

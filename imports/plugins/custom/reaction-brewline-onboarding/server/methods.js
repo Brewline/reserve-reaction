@@ -27,7 +27,7 @@ function saveUntappdShop(untappdShop) {
 
   const shop = Shops.findOne({ name: shopData.name });
 
-  hackRestoreAddressBook(shop, shopData)
+  hackRestoreAddressBook(shop, shopData);
 
   setShopImage(shop, untappdShop);
 
@@ -89,10 +89,10 @@ Meteor.methods({
     //   throw new Meteor.Error(403, "Access Denied");
     // }
 
-    const { ServiceConfiguration } = Package['service-configuration'];
+    const { ServiceConfiguration } = Package["service-configuration"];
 
     const config =
-      ServiceConfiguration.configurations.findOne({ service: 'untappd' });
+      ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
     if (!config) {
       throw new ServiceConfiguration.ConfigError();

@@ -2,8 +2,8 @@ import Untappd from "node-untappd";
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { Reaction, Logger } from "/server/api";
-import { getApiInfo } from "./api";
 import { connectorsRoles } from "../../lib/roles";
+import { getApiInfo } from "./api";
 
 /**
  * @file Untappd connector wrapper for api calls for products

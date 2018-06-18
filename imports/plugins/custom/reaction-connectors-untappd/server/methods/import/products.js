@@ -43,7 +43,7 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     createdAt: new Date(),
     description: untappdProduct.beer_description,
     handle: untappdProduct.beer_slug,
-    hashtags: hashtags,
+    hashtags,
     isDeleted: false,
     isVisible: true,
     metafields: [],
@@ -51,7 +51,7 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     price: { range: "0" },
     productType: untappdProduct.beer_style,
     requiresShipping: false,
-    shopId: shopId,
+    shopId,
     template: "productDetailSimple",
     title: untappdProduct.beer_name,
     type: "simple",
@@ -95,11 +95,11 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
  */
 function createReactionVariantFromUntappdVariant(untappdVariant, variant, index, ancestors, shopId) {
   const reactionVariant = {
-    ancestors: ancestors,
+    ancestors,
     barcode: untappdVariant.barcode,
     compareAtPrice: untappdVariant.compare_at_price,
     // height: 0,
-    index: index,
+    index,
     inventoryManagement: true,
     inventoryQuantity: 0,
     inventoryPolicy: true, // do not allow backorder
@@ -110,7 +110,7 @@ function createReactionVariantFromUntappdVariant(untappdVariant, variant, index,
     optionTitle: variant,
     price: { range: "0" },
     requiresShipping: false,
-    shopId: shopId,
+    shopId,
     // sku: untappdVariant.sku,
     taxable: true,
     taxCode: "0000",
@@ -202,7 +202,7 @@ function saveProduct(untappdProduct) {
       const normalizedTag = {
         name: tag,
         slug: Reaction.getSlug(tag),
-        shopId: shopId,
+        shopId,
         isTopLevel: false,
         updatedAt: new Date(),
         createdAt: new Date()
@@ -238,7 +238,7 @@ function saveProduct(untappdProduct) {
       ownerId: Meteor.userId(),
       productId: reactionProductId,
       variantId: reactionProductId,
-      shopId: shopId,
+      shopId,
       priority: 0,
       toGrid: 1
     });
@@ -248,15 +248,15 @@ function saveProduct(untappdProduct) {
 
   // Create one Variant: Can Release: <Date>
   // Create Options:
-    // 4 Pack Cans (16oz) - 11.99
-    // 6 Pack Cans (12oz) - 11.99
-    // 6 Pack Bottles (12oz) - 11.99
-    // Bomber - 7.99
-    // 750ml - 9.99
-    // Growler Refill - 14.99
-    // Case (24) Cans - 47.99
-    // Case (24) Bottles - 47.99
-    // Case (12) Bombers - 79.99
+  // 4 Pack Cans (16oz) - 11.99
+  // 6 Pack Cans (12oz) - 11.99
+  // 6 Pack Bottles (12oz) - 11.99
+  // Bomber - 7.99
+  // 750ml - 9.99
+  // Growler Refill - 14.99
+  // Case (24) Cans - 47.99
+  // Case (24) Bottles - 47.99
+  // Case (12) Bombers - 79.99
 
   Logger.debug(`Importing ${untappdProduct.beer_name} default variants`);
 
@@ -308,7 +308,7 @@ function saveProduct(untappdProduct) {
         ownerId: Meteor.userId(),
         productId: reactionProductId,
         variantId: reactionOptionId,
-        shopId: shopId,
+        shopId,
         priority: 1,
         toGrid: 0
       });
@@ -337,7 +337,7 @@ function saveProduct(untappdProduct) {
   }
   Products.update(
     { _id: reactionProductId },
-    { $set: { price: price } },
+    { $set: { price } },
     { selector: { type: "simple" }, publish: true }
   );
   Logger.debug(`Product ${untappdProduct.beer_name} added`);
@@ -363,10 +363,10 @@ export const methods = {
       }
 
       const ServiceConfiguration =
-        Package['service-configuration'].ServiceConfiguration;
+        Package["service-configuration"].ServiceConfiguration;
 
       const config =
-        ServiceConfiguration.configurations.findOne({ service: 'untappd' });
+        ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
       if (!config) {
         throw new ServiceConfiguration.ConfigError();
@@ -383,7 +383,7 @@ export const methods = {
 
       const result = await new Promise((resolve, reject) => {
         try {
-          untappd.beerInfo(Meteor.bindEnvironment(function (error, data) {
+          untappd.beerInfo(Meteor.bindEnvironment((error, data) => {
             if (error) {
               reject(error);
             } else {
@@ -421,10 +421,10 @@ export const methods = {
     }
 
     const ServiceConfiguration =
-      Package['service-configuration'].ServiceConfiguration;
+      Package["service-configuration"].ServiceConfiguration;
 
     const config =
-      ServiceConfiguration.configurations.findOne({ service: 'untappd' });
+      ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
     if (!config) {
       throw new ServiceConfiguration.ConfigError();
@@ -437,7 +437,7 @@ export const methods = {
     // untappd.setAccessToken(accessToken);
 
     // in case you need to add additional options
-    const opts = Object.assign({}, { ... options });
+    const opts = Object.assign({}, { ...options });
 
     const result = await new Promise((resolve, reject) => {
       try {

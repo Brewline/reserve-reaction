@@ -1,12 +1,12 @@
 import { Hooks, Logger, Reaction } from "/server/api";
 import { Shops } from "/lib/collections";
 
-import "./collections" // TODO: move to ../lib/collections
-import "./methods"
+import "./collections"; // TODO: move to ../lib/collections
+import "./methods";
 
 function addRolesToVisitors() {
   // Add the about permission to all default roles since it's available to all
-  Logger.info("::: Adding onboarding route permissions to default roles")
+  Logger.info("::: Adding onboarding route permissions to default roles");
 
   const shopId = Reaction.getShopId();
 

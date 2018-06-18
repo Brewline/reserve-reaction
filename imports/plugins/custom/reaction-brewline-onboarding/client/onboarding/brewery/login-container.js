@@ -7,7 +7,7 @@ import {
 import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
 
-import Login from './login-component';
+import Login from "./login-component";
 
 function composer(props, onData) {
   const onLogin = () => {

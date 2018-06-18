@@ -1,11 +1,11 @@
-import React, { Component } from "react";
+import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 import { Media } from "/imports/plugins/core/files/client";
 import { Router } from "/client/modules/router";
 
-import ShopStorefront from './shop-storefront-component';
+import ShopStorefront from "./shop-storefront-component";
 
 function composer(props, onData) {
   let shop;

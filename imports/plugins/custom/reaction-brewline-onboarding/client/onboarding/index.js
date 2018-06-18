@@ -70,18 +70,18 @@ function workflowSteps() {
   // use the router to determine the "current" package
   const pkg = Packages.findOne({ shopId, "registry.name": name }) || {};
   // get the workflow from the package (which could have a few workflows)
-  const workflow = _.find(pkg.registry, r => r.name === name);
+  const workflow = _.find(pkg.registry, (r) => r.name === name);
   // get the steps correspondingn to this workflow
   return steps = _.chain(pkg.layout)
-    .filter(l => !!l.template)
-    .filter(l => l.workflow === workflow.workflow)
+    .filter((l) => !!l.template)
+    .filter((l) => l.workflow === workflow.workflow)
     .value();
 }
 
 function currentStep(steps = workflowSteps()) {
   const routeStep = Router.getParam("step");
 
-  const step = _.find(steps, s => s.path === routeStep);
+  const step = _.find(steps, (s) => s.path === routeStep);
 
   return step || steps[0];
 }
@@ -91,8 +91,8 @@ function thisAndPreviousSteps(steps = workflowSteps()) {
 
   // find all steps which come before it
   return _.chain(steps)
-    .filter(s => s.position <= step.position)
-    .map(s => s.template)
+    .filter((s) => s.position <= step.position)
+    .map((s) => s.template)
     .value();
 }
 
@@ -101,7 +101,7 @@ function nextStep(steps = workflowSteps()) {
 
   return _.chain(steps)
     .sortBy("position")
-    .find(s => s.position > step.position)
+    .find((s) => s.position > step.position)
     .value();
 }
 
@@ -122,7 +122,7 @@ function handleWorkflowChange(template) {
     ({ path } = steps[steps.length - 1]);
     Router.go("brewlineOnboardingBrewery", { step: path });
   }
-};
+}
 
 function composer(props, onData) {
   let workflowStep;
@@ -142,7 +142,7 @@ function composer(props, onData) {
 
       workflowStep = _.chain(steps)
         .sortBy("position")
-        .find(s => !_.includes(completedWorkflowSteps, s.template))
+        .find((s) => !_.includes(completedWorkflowSteps, s.template))
         .value();
     }
 
@@ -166,7 +166,6 @@ registerComponent(
 );
 
 export default composeWithTracker(composer)(Onboarding);
-
 
 
 import { Template } from "meteor/templating";

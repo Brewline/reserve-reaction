@@ -49,7 +49,7 @@ Meteor.publish("UntappdProducts", function (sort = {}) {
       { "workflow.status": "active" },
       { _id: Reaction.getPrimaryShopId() }
     ]
-  }).fetch().map(activeShop => activeShop._id);
+  }).fetch().map((activeShop) => activeShop._id);
 
   // Init default selector - Everyone can see products that fit this selector
   const selector = {
@@ -73,8 +73,8 @@ Meteor.publish("UntappdProducts", function (sort = {}) {
 
     // Get _ids of top-level products
     const productIds = Products.find(selector, {
-      sort: sort
-    }).map(product => product._id);
+      sort
+    }).map((product) => product._id);
 
     let newSelector = selector;
 
@@ -196,7 +196,7 @@ Meteor.publish("UntappdProducts", function (sort = {}) {
     }
     // Revision control is disabled, but is admin
     const productCursor = Products.find(newSelector, {
-      sort: sort
+      sort
     });
     const mediaProductIds = productCursor.fetch().map((p) => p._id);
     const mediaCursor = findProductMedia(this, mediaProductIds);
@@ -210,8 +210,8 @@ Meteor.publish("UntappdProducts", function (sort = {}) {
   // This is where the publication begins for non-admin users
   // Get _ids of top-level products
   const productIds = Products.find(selector, {
-    sort: sort
-  }).map(product => product._id);
+    sort
+  }).map((product) => product._id);
 
   let newSelector = { ...selector };
 

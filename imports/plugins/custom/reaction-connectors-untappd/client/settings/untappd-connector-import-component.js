@@ -8,7 +8,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
 
-import UntappdConnectorProduct from "./untappd-connector-product-container"
+import UntappdConnectorProduct from "./untappd-connector-product-container";
 
 export default class UntappdConnectorImport extends Component {
   // static propTypes = {

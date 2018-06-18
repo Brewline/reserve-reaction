@@ -4,11 +4,11 @@ import "./index.less";
 import classnames from "classnames";
 import React from "react";
 import { getComponent, registerComponent } from "@reactioncommerce/reaction-components";
-import { CoreLayout } from "../../../core/layout/client";
 
 // TODO: replace shell Blaze Template w/React
 import Blaze from "meteor/gadicc:blaze-react-component";
 import { Template } from "meteor/templating";
+import { CoreLayout } from "../../../core/layout/client";
 
 class OnboardingLayout extends CoreLayout {
   render() {
