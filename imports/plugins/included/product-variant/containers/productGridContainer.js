@@ -39,7 +39,13 @@ const wrapComponent = (Comp) => (
       const { products } = this;
 
       if (_.isEmpty(selectedProducts)) {
-        return Reaction.hideActionView();
+        const actionView = Reaction.getActionView();
+
+        if (actionView.template === "productSettings") {
+          Reaction.hideActionView();
+        }
+
+        return;
       }
 
       // Save the selected items to the Session
