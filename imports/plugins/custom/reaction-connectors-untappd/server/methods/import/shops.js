@@ -1,14 +1,12 @@
 /* eslint camelcase: 0 */
 import _ from "lodash";
-import moment from "moment";
 import UntappdClient from "node-untappd";
 import { Job } from "/imports/plugins/core/job-collection/lib";
+import { methods as RegistryMethods } from "/server/methods/core/registry";
 import { Meteor } from "meteor/meteor";
-import { Logger } from "/server/api";
+import { Logger, Reaction } from "/server/api";
 import { check, Match } from "meteor/check";
-import { Reaction } from "/server/api";
 import { Shops, Jobs } from "/lib/collections";
-import { getApiInfo } from "../api/api";
 import { connectorsRoles } from "../../lib/roles";
 import { importShopImages } from "../../jobs/image-import";
 
@@ -141,7 +139,7 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
  * (default: Mongo GridFS)
  * @private
  * @method saveImage
- * @param  {string}  shopId
+ * @param  {string}  shopId the shop's id
  * @param  {string}  url url of the image to save
  * @param  {object}  metadata metadata to save with the image
  * @param  {string}  [brandAssetType] when set, this image will be set as the
@@ -185,6 +183,7 @@ export function hackRestoreAddressBook(shop, shopData) {
   });
 }
 
+const SHOPIFY_REGISTRY_NAME = "shopify";
 function saveShop(untappdShop) {
   if (untappdShopExists(untappdShop.brewery_id)) {
     const msg = `Shop (${untappdShop.brewery_name}) already exists`;
@@ -207,6 +206,11 @@ function saveShop(untappdShop) {
 
   setShopImage(shop, untappdShop);
 
+  RegistryMethods["registry/update"](shop._id, SHOPIFY_REGISTRY_NAME, {
+    property: "enabled",
+    value: false
+  });
+
   Logger.debug(`Shop ${untappdShop.brewery_name} added`);
 
   return shop;
@@ -214,8 +218,7 @@ function saveShop(untappdShop) {
 
 export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
   try {
-    const ServiceConfiguration =
-      Package["service-configuration"].ServiceConfiguration;
+    const { ServiceConfiguration } = Package["service-configuration"];
 
     const config =
       ServiceConfiguration.configurations.findOne({ service: "untappd" });
@@ -268,7 +271,7 @@ export const methods = {
    *
    * @async
    * @method connectors/untappd/import/shops
-   * @param {string} untappdShopId untappd's shop id
+   * @param {string} untappdShopId Untappd shop id
    * @returns {object} A shop
    */
   async "connectors/untappd/import/shops"(untappdShopId) {
@@ -292,8 +295,7 @@ export const methods = {
   async "connectors/untappd/search/shops"(options) {
     check(options, Match.Maybe(Object));
 
-    const ServiceConfiguration =
-      Package["service-configuration"].ServiceConfiguration;
+    const { ServiceConfiguration } = Package["service-configuration"];
 
     const config =
       ServiceConfiguration.configurations.findOne({ service: "untappd" });

@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
-import { compose } from "recompose";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
@@ -9,7 +8,7 @@ import { Reaction } from "/client/api";
 import Search from "./search-component";
 
 const ACCOUNT_TYPE_BREWERY = "brewery";
-const ACCOUNT_TYPE_USER = "user";
+// const ACCOUNT_TYPE_USER = "user";
 
 class SearchContainer extends Component {
   state = {
@@ -32,7 +31,7 @@ class SearchContainer extends Component {
   }
 
   addShop = (untappdShopId) => {
-    const msg = `Importing ${this.getShopName(untappdShopId, "your shop")}`;
+    const msg = `Importing ${this.getShopName(untappdShopId, "your shop")} from Untappd...`;
     Alerts.toast(msg, "info");
     Meteor.call("onboarding/createUntappdShop", untappdShopId, (err, shop) => {
       if (err) {

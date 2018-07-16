@@ -1,5 +1,5 @@
 import { FileRecord } from "@reactioncommerce/file-collections";
-import { Jobs } from "/lib/collections";
+import { Jobs, Shops } from "/lib/collections";
 import { Media } from "/imports/plugins/core/files/server";
 import fetch from "node-fetch";
 
@@ -12,7 +12,7 @@ async function addMediaFromUrl({ url, metadata }) {
   return Media.insert(fileRecord);
 }
 
-// TODO: rename to processimportProductImagesJobs
+// TODO: rename to processImportProductImagesJobs
 export const importProductImages = () => {
   Jobs.processJobs("connectors/untappd/import/product/image", {
     pollInterval: 60 * 60 * 1000, // Retry failed images after an hour
@@ -50,7 +50,7 @@ export const importShopImages = () => {
       // TODO: ensure it's not already set?
       if (media) {
         const { shopId } = data;
-        Collections.Shops.update({
+        Shops.update({
           _id: shopId
         }, {
           $push: {

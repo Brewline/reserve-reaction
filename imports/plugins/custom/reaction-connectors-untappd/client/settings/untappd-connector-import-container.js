@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
-import { Products } from "/lib/collections";
-import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
 import "./connect-with";
 import UntappdConnectorImport from "./untappd-connector-import-component";
@@ -38,13 +36,7 @@ class UntappdConnectorImportContainer extends Component {
     Meteor.call("connectors/untappd/search/products", { q }, (err, res) => {
       if (err) {
         // TODO: correct wording
-        return ReactionAlerts.add(
-          err.reason,
-          "danger",
-          Object.assign({}, this.state.alertOptions, {
-            i18nKey: "admin.settings.createGroupError"
-          })
-        );
+        return Alerts.toast(err.reason, "error");
       }
 
       this.setState({ searchResults: res.response.beers.items });

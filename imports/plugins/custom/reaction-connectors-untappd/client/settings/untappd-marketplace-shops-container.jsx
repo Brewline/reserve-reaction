@@ -4,11 +4,9 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
-import { Products } from "/lib/collections";
-import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
-import './connect-with';
-import UntappdMarketplaceShops from './untappd-marketplace-shops-component';
+import "./connect-with";
+import UntappdMarketplaceShops from "./untappd-marketplace-shops-component";
 
 class UntappdMarketplaceShopsContainer extends Component {
   constructor(props) {
@@ -17,7 +15,7 @@ class UntappdMarketplaceShopsContainer extends Component {
     this.fetchAccessToken = this.fetchAccessToken.bind(this);
     this.fetchSearchResults = this.fetchSearchResults.bind(this);
 
-    //// initial state
+    // initial state
     const alertId = "untappd-marketplace-shops-search";
 
     this.state = {
@@ -40,13 +38,7 @@ class UntappdMarketplaceShopsContainer extends Component {
     Meteor.call("connectors/untappd/search/shops", { q }, (err, res) => {
       if (err) {
         // TODO: correct wording
-        return ReactionAlerts.add(
-          err.reason,
-          "danger",
-          Object.assign({}, this.state.alertOptions, {
-            i18nKey: "admin.settings.createGroupError"
-          })
-        );
+        return Alerts.toast(err.reason, "error");
       }
 
       this.setState({ searchResults: res.response.brewery.items });
@@ -70,9 +62,9 @@ function composer(props, onData) {
   const subscription = Reaction.Subscriptions.Packages;
 
   if (subscription.ready()) {
-    socialSettings.hasAccessToken = true
-    socialSettings.searchTerm = ""
-    socialSettings.products = []
+    socialSettings.hasAccessToken = true;
+    socialSettings.searchTerm = "";
+    socialSettings.products = [];
   }
 
   onData(null, socialSettings);

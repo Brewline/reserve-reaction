@@ -1,4 +1,5 @@
 import { Reaction } from "/server/api";
+import { BrowserPolicy } from "meteor/browser-policy-common";
 
 let breweryStep = 0;
 

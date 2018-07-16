@@ -1,5 +1,4 @@
 import { Meteor } from "meteor/meteor";
-import React, { Component } from "react";
 import {
   composeWithTracker,
   registerComponent

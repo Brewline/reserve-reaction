@@ -9,8 +9,9 @@ import { Components } from "@reactioncommerce/reaction-components";
 
 class ShopGrid extends Component {
   static propTypes = {
+    onNewShopClick: PropTypes.func,
     shops: PropTypes.array,
-    showAddShop: PropTypes.bool
+    shouldShowAddShop: PropTypes.bool
   }
 
   renderAddShopGridItem() {

@@ -27,7 +27,7 @@ function composer(props, onData) {
     merchantShops = Reaction.getMerchantShops();
 
     if (isPrimaryShop && (!merchantShops || !merchantShops.length)) {
-      Router.go("brewlineOnboardingBrewery");
+      return Router.go("brewlineOnboardingBrewery");
     }
   }
 
@@ -37,17 +37,15 @@ function composer(props, onData) {
       _.find(shop.brandAssets, (asset) => asset.type === "navbarBrandImage");
 
     if (brandAsset && brandAsset.mediaId) {
-      brandMedia = Media.findOneLocal(brandAsset.mediaId);
+      brandMedia = brandAsset && Media.findOneLocal(brandAsset.mediaId);
     }
   }
 
   onData(null, { shop, brandMedia, merchantShops });
 }
 
-registerComponent(
-  "ShopStorefront",
-  ShopStorefront,
-  composeWithTracker(composer)
-);
+const trackedComponent = composeWithTracker(composer);
 
-export default composeWithTracker(composer)(ShopStorefront);
+registerComponent("ShopStorefront", ShopStorefront, trackedComponent);
+
+export default trackedComponent(ShopStorefront);

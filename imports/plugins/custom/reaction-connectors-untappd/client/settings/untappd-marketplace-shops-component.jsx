@@ -2,9 +2,10 @@
 
 import _ from "lodash";
 import React, { Component } from "react";
-import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
+// import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
+import { List, ListItem } from "/imports/plugins/core/ui/client/components";
 
-import UntappdMarketplaceShop from "./untappd-marketplace-shop-container"
+import UntappdMarketplaceShop from "./untappd-marketplace-shop-container";
 
 export default class UntappdMarketplaceShops extends Component {
   // static propTypes = {
@@ -53,7 +54,7 @@ export default class UntappdMarketplaceShops extends Component {
             <input type="text" placeholder="search" ref={(i) => { this.qInput = i; }} />
 
             <button type="submit" className="btn btn-default">
-              <i className="fa fa-search"></i>
+              <i className="fa fa-search" />
               <span data-i18n="admin.untappdConnectSettings.startImport">
                 Search
               </span>

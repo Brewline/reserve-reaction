@@ -332,6 +332,19 @@
       "import/resolver": "meteor"
     },
     "rules": {
+      "consistent-return": [
+        "off"
+      ],
+      "id-length": [
+        "off"
+      ],
+      "no-unused-vars": [
+        "error",
+        { "argsIgnorePattern": "^_" }
+      ],
+      "require-jsdoc": [
+        "off"
+      ],
       "valid-jsdoc": [
         1,
         {

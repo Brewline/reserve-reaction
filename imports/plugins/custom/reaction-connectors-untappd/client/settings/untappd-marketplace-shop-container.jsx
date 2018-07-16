@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { Reaction } from "/client/api";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
-import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
 
-import UntappdMarketplaceShop from './untappd-marketplace-shop-component';
+import UntappdMarketplaceShop from "./untappd-marketplace-shop-component";
 
 class UntappdMarketplaceShopContainer extends Component {
   constructor(props) {
@@ -12,7 +11,7 @@ class UntappdMarketplaceShopContainer extends Component {
 
     this.addShop = this.addShop.bind(this);
 
-    //// initial state
+    // initial state
     const alertId = "connectors-untappd-add-shop";
 
     this.state = {
@@ -24,20 +23,30 @@ class UntappdMarketplaceShopContainer extends Component {
     };
   }
 
+  getShopName(defaultValue) {
+    const {
+      brewery: {
+        brewery_name: breweryName
+      }
+    } = this.props;
+
+    return breweryName || defaultValue;
+  }
+
   addShop(untappdShopId) {
+    const msg = `Importing ${this.getShopName("your shop")} from Untappd...`;
+    Alerts.toast(msg, "info");
+
     Meteor.call("connectors/untappd/import/shops", untappdShopId, (err, shop) => {
       if (err) {
         // TODO: correct wording
-        return ReactionAlerts.add(
-          err.reason,
-          "danger",
-          Object.assign({}, this.state.alertOptions, {
-            i18nKey: "admin.settings.createGroupError"
-          })
-        );
-      } else {
-        Reaction.setShopId(shop._id);
+        return Alerts.toast(err.reason, "error");
       }
+
+      // TODO: correct wording
+      Alerts.toast(`${this.getShopName("Shop")} created`, "success");
+
+      Reaction.setShopId(shop._id);
     });
   }
 

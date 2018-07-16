@@ -1,5 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import { Shop } from "/lib/collections/schemas/shops";
+import { Shop } from "/lib/collections/schemas";
 import { registerSchema } from "@reactioncommerce/schemas";
 
 /**

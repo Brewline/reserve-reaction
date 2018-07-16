@@ -1,6 +1,7 @@
+import { Meteor } from "meteor/meteor";
+import _ from "lodash";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
-import { Router } from "/client/modules/router";
 import { Media } from "/imports/plugins/core/files/client";
 
 import Footer from "./footer-component";

@@ -1,10 +1,11 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import _ from "lodash";
 import { Button } from "/imports/plugins/core/ui/client/components";
 
 const FEATURES = [{
   icon: "at",
-  title: "Customer Information",
+  title: "Customer Engagement",
   description: "Get the name and email address of every customer"
 }, {
   icon: "exclamation-triangle",
@@ -29,6 +30,10 @@ const FEATURES = [{
 }];
 
 export default class About extends Component {
+  static propTypes = {
+    onNextStep: PropTypes.func
+  };
+
   renderHero() {
     return (
       <div className="hero-wrapper">

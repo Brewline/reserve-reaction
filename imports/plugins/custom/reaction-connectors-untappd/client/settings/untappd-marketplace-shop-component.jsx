@@ -1,20 +1,31 @@
 import React, { Component } from "react";
-import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
+import PropTypes from "prop-types";
 
-// TOOD: wrap this component
+import { a11yOnEnter } from "./a11yHelpers";
+
+// TODO: wrap this component
 export default class UntappdMarketplaceShopComponent extends Component {
-  constructor(props) {
-    super(props);
-
-    this.handleAddShop = this.handleAddShop.bind(this);
+  static propTypes = {
+    brewery: PropTypes.shape({
+      brewery_id: PropTypes.oneOfType([ // eslint-disable-line camelcase
+        PropTypes.string,
+        PropTypes.number
+      ])
+    }),
+    onAddShop: PropTypes.func.isRequired
   }
 
-  handleAddShop() {
+  handleAddShop = () => {
     this.props.onAddShop(this.props.brewery.brewery_id);
   }
 
   render() {
-    const { brewery } = this.props;
+    const {
+      brewery: {
+        brewery_label: breweryLabel,
+        brewery_name: breweryName
+      }
+    } = this.props;
 
     return (
       <div
@@ -23,18 +34,22 @@ export default class UntappdMarketplaceShopComponent extends Component {
           clear: "both",
           overflow: "hidden"
         }}
+        role="button"
+        tabIndex={0}
         onClick={this.handleAddShop}
+        onKeyDown={a11yOnEnter(this.handleAddShop)}
       >
         <img
-          src={brewery.brewery_label}
+          src={breweryLabel}
           style={{
             float: "left",
             marginRight: "5px",
             maxWidth: "100px",
             maxHeight: "100px"
           }}
+          alt={breweryName}
         />
-        <h4>{brewery.brewery_name}</h4>
+        <h4>{breweryName}</h4>
       </div>
     );
   }

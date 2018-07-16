@@ -1,12 +1,64 @@
 import _ from "lodash";
+import shallowEqual from "shallowequal";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Reaction } from "/client/api";
 import { Components } from "@reactioncommerce/reaction-components";
 
+function literalComparison(a, b, key) {
+  if (!key) { return; } // the entire object is passed through the customizer function. a null key allows us to ignore it
+  if (Array.isArray(a) && Array.isArray(b)) { return true; }
+  if (_.isObject(a) && _.isObject(b)) { return true; }
+}
+
+export function simpleShopComparison(shopA, shopB) {
+  if (shopA === shopB) { return true; }
+  if (!shopA || !shopB) { return false; }
+
+  const { id: idA, updatedAt: updatedAtA } = shopA;
+  const { id: idB, updatedAt: updatedAtB } = shopB;
+
+  return idA === idB && updatedAtA === updatedAtB;
+}
+
+export function shouldComponentUpdate(props, nextProps) {
+  if (!props) { return !nextProps; }
+
+  const {
+    shop = {},
+    merchantShops = []
+  } = props;
+
+  const {
+    shop: nextShop = {},
+    merchantShops: nextMerchantShops = []
+  } = nextProps;
+
+  if (!shallowEqual(shop, nextShop, literalComparison)) { return true; }
+
+  if (simpleShopComparison(shop, nextShop)) { return true; }
+
+  if (!merchantShops && !nextMerchantShops) { return false; }
+  if (merchantShops && !nextMerchantShops) { return true; }
+  if (!merchantShops && nextMerchantShops) { return true; }
+  if (merchantShops.length !== nextMerchantShops.length) { return true; }
+
+  for (let i = 0; i < merchantShops.length; i += 1) {
+    if (!shallowEqual(merchantShops[i], nextMerchantShops[i], literalComparison)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export class PrimaryShopStorefront extends Component {
   // require shop
   // allow for merchantShops
+  static propTypes = {
+    merchantShops: PropTypes.array,
+    shop: PropTypes.object.isRequired
+  };
 
   renderHero() {
     const { shop } = this.props;
@@ -34,11 +86,13 @@ export class PrimaryShopStorefront extends Component {
   }
 
   renderMarketplace() {
-    return <Components.ShopGrid
-      shops={this.props.merchantShops}
-      onNewShopClick={this.handleNewShopClick}
-      onShopClick={this.handleShopClick}
-    />;
+    return (
+      <Components.ShopGrid
+        shops={this.props.merchantShops}
+        onNewShopClick={this.handleNewShopClick}
+        onShopClick={this.handleShopClick}
+      />
+    );
   }
 
   render() {
@@ -175,12 +229,41 @@ export class MarketplaceShopStorefront extends Component {
     ].filter((o) => o);
   }
 
+  renderInactiveBanner() {
+    let className;
+    let message;
+    const { shop } = this.props;
+    const { active, status: shopStatus, workflow = {} } = shop;
+    const { status } = workflow;
+
+    if (active && shopStatus === "active" && status === "active") { return; }
+
+    switch (status) {
+      case "disabled":
+        className = "danger";
+        message = "This shop has been disabled. Please contact us to activate.";
+        break;
+      case "new": // falls-through
+      default:
+        className = "info";
+        message = "Please contact us to activate your shop.";
+    }
+
+    return (
+      <div className={`shop-banner ${className}`}>
+        {message}
+      </div>
+    );
+  }
+
   render() {
     const { shop } = this.props;
 
     // use ReactionLayout?
     return (
       <div>
+        {this.renderInactiveBanner()}
+
         <div className="shop-storefront rui items flex-nowrap">
           <div className="shop-storefront__brand rui item static start axis vertical">
             {this.renderBrand()}
@@ -211,8 +294,14 @@ export class MarketplaceShopStorefront extends Component {
 }
 
 export default class ShopStorefront extends Component {
-  // static propTypes = {
-  //   shop: PropTypes.object
+  static propTypes = {
+    shop: PropTypes.object
+  }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   // return fnShouldUpdate(this.props, nextProps) || !shallowEqual(this.state, nextState);
+  //   console.log("ShopStorefront#shouldComponentUpdate:", shouldComponentUpdate(this.props, nextProps));
+  //   return shouldComponentUpdate(this.props, nextProps);
   // }
 
   isPrimaryShop() {

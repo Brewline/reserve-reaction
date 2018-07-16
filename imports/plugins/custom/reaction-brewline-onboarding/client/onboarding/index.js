@@ -30,7 +30,7 @@ class Onboarding extends Component {
   getTemplateName() {
     if (!this.props.workflowStep) { return; }
 
-    let { template } = this.props.workflowStep;
+    const { template } = this.props.workflowStep;
 
     return template;
   }
@@ -40,11 +40,11 @@ class Onboarding extends Component {
 
     if (!template) { return; }
 
-    const Component = Components[template];
+    const TemplateComponent = Components[template];
 
-    if (!Component) { return; }
+    if (!TemplateComponent) { return; }
 
-    return <Component onNextStep={this.handleClick} />;
+    return <TemplateComponent onNextStep={this.handleClick} />;
   }
 
   render() {
@@ -71,8 +71,8 @@ function workflowSteps() {
   const pkg = Packages.findOne({ shopId, "registry.name": name }) || {};
   // get the workflow from the package (which could have a few workflows)
   const workflow = _.find(pkg.registry, (r) => r.name === name);
-  // get the steps correspondingn to this workflow
-  return steps = _.chain(pkg.layout)
+  // get the steps corresponding to this workflow
+  return _.chain(pkg.layout)
     .filter((l) => !!l.template)
     .filter((l) => l.workflow === workflow.workflow)
     .value();
@@ -168,5 +168,4 @@ registerComponent(
 export default composeWithTracker(composer)(Onboarding);
 
 
-import { Template } from "meteor/templating";
 // import { Components } from "@reactioncommerce/reaction-components";

@@ -1,5 +1,4 @@
 import { Meteor } from "meteor/meteor";
-import React, { Component } from "react";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction, Router } from "/client/api";
 import { Products } from "/lib/collections";
@@ -7,9 +6,10 @@ import { Products } from "/lib/collections";
 import WhatsNext from "./whats-next-component";
 
 function composer(props, onData) {
-  let shop, product;
+  let shop;
+  let product;
 
-  // use PrimaryShop as a proxy for the non-existant "Shop"
+  // use PrimaryShop as a proxy for the non-existent "Shop"
   const shopSubscription = Meteor.subscribe("PrimaryShop");
   const productsSubscription = Meteor.subscribe("Products");
 

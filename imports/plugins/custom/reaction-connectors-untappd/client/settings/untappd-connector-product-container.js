@@ -1,48 +1,39 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
-import { default as ReactionAlerts } from "/imports/plugins/core/layout/client/templates/layout/alerts/inlineAlerts";
+import { Reaction } from "/client/api";
 
 import UntappdConnectorProduct from "./untappd-connector-product-component";
 
 class UntappdConnectorProductContainer extends Component {
-  constructor(props) {
-    super(props);
-
-    this.addProduct = this.addProduct.bind(this);
-
-    // // initial state
-    const alertId = "connectors-untappd-add-product";
-
-    this.state = {
-      alertOptions: {
-        placement: alertId,
-        id: alertId,
-        autoHide: 4000
+  getProductName(defaultValue) {
+    const {
+      product: {
+        beer: {
+          beer_name: beerName
+        }
       }
-    };
+    } = this.props;
+
+    return beerName || defaultValue;
   }
 
-  addProduct(productId) {
-    Meteor.call("connectors/untappd/import/products", productId, (err, res) => {
+  addProduct = (productId) => {
+    const msg = `Importing ${this.getProductName("Product")} from Untappd...`;
+    Alerts.toast(msg, "info");
+
+    Meteor.call("connectors/untappd/import/products", productId, (err, _res) => {
       if (err) {
         // TODO: correct wording
-        return ReactionAlerts.add(
-          err.reason,
-          "danger",
-          Object.assign({}, this.state.alertOptions, {
-            i18nKey: "admin.settings.createGroupError"
-          })
-        );
+        return Alerts.toast(err.reason, "error");
       }
+
+      // this is a HACK to trigger a re-render of the ProductGrid is somehow
+      // not reactive to this update.
+      Reaction.hideActionView();
+
       // TODO: correct wording
-      return ReactionAlerts.add(
-        "Product Added to Shop. Processing Images...",
-        "success",
-        Object.assign({}, this.state.alertOptions, {
-          i18nKey: "admin.settings.createGroupError"
-        })
-      );
+      Alerts.toast(`${this.getProductName("Product")} Added to Shop. Processing Images...`, "success");
     });
   }
 

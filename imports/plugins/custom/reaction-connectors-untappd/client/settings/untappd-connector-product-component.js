@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
+
+import { a11yOnEnter } from "./a11yHelpers";
 
 // TOOD: wrap this component
 export default class UntappdConnectorProductComponent extends Component {
@@ -23,9 +24,13 @@ export default class UntappdConnectorProductComponent extends Component {
           clear: "both",
           overflow: "hidden"
         }}
+        role="button"
+        tabIndex={0}
         onClick={this.addProduct}
+        onKeyDown={a11yOnEnter(this.addProduct)}
       >
         <img
+          alt={product.beer.beer_name}
           src={product.beer.beer_label}
           style={{
             float: "left",
@@ -43,4 +48,3 @@ export default class UntappdConnectorProductComponent extends Component {
     );
   }
 }
-

@@ -1,7 +1,15 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Reaction } from "/client/api";
 
 export default class Footer extends Component {
+  static propTypes = {
+    primaryShop: PropTypes.shape({
+      name: PropTypes.string
+    }),
+    primaryShopMedia: PropTypes.object
+  }
+
   handleGoToPrimaryShop = (event) => {
     const { primaryShop = {} } = this.props;
     const { _id: shopId } = primaryShop;

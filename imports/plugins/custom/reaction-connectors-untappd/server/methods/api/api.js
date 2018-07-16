@@ -8,7 +8,7 @@ import { Reaction } from "/server/api";
 
 /**
  * @method getApiInfo
- * @summary - get Untappd Api Key, Password and Domain from the Untappd Connect package with the supplied shopId or alternatly the active shopId. should only be used from authenticated methods within the reaction-connectors-untappd plugin
+ * @summary - get Untappd Api Key, Password and Domain from the Untappd Connect package with the supplied shopId or alternatively the active shopId. should only be used from authenticated methods within the reaction-connectors-untappd plugin
  * @private
  * @param  {string} [shopId=Reaction.getShopId()] Optional shopId to get the API info for. Defaults to current shop.
  * @return {object} Untappd API connection information
@@ -23,7 +23,7 @@ export function getApiInfo(shopId = Reaction.getShopId()) {
     throw new Meteor.Error("server-error", `No untappd package found for shop ${Reaction.getShopId()}`);
   }
 
-  const settings = untappdPkg.settings;
+  const { settings } = untappdPkg;
 
   return {
     apiKey: settings.apiKey,

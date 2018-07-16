@@ -4,11 +4,9 @@ import moment from "moment";
 import UntappdClient from "node-untappd";
 import { Job } from "/imports/plugins/core/job-collection/lib";
 import { Meteor } from "meteor/meteor";
-import { Logger } from "/server/api";
+import { Reaction, Logger } from "/server/api";
 import { check, Match } from "meteor/check";
-import { Reaction } from "/server/api";
 import { Products, Jobs, Tags } from "/lib/collections";
-import { getApiInfo } from "../api/api";
 import { connectorsRoles } from "../../lib/roles";
 import { importProductImages } from "../../jobs/image-import";
 
@@ -29,10 +27,9 @@ import { importProductImages } from "../../jobs/image-import";
  * Transforms a Untappd product into a Reaction product.
  * @private
  * @method createReactionProductFromUntappdProduct
- * @param  {object} options Options object
- * @param  {object} options.untappdProduct the Untappd product object
- * @param  {string} options.shopId The shopId we're importing for
- * @param  {array} options.hashtags An array of hashtag strings that should be attached to this product.
+ * @param  {object} untappdProduct the Untappd product object
+ * @param  {string} shopId The shopId we're importing for
+ * @param  {array} hashtags An array of hashtag strings that should be attached to this product.
  * @return {object} An object that fits the `Product` schema
  *
  * @todo consider abstracting private Untappd import helpers into a helpers file
@@ -278,6 +275,7 @@ function saveProduct(untappdProduct) {
     { title: "4 Pack Cans (16oz)", price: "11.99", inventoryLimit: 6 },
     { title: "6 Pack Cans (12oz)", price: "11.99", inventoryLimit: 4 },
     { title: "6 Pack Bottles (12oz)", price: "11.99", inventoryLimit: 4 },
+    { title: "Crowler (32oz)", price: "11.99", inventoryLimit: 3 },
     { title: "Bomber (22oz)", price: "7.99", inventoryLimit: 12 },
     { title: "750ml", price: "9.99", inventoryLimit: 6 },
     { title: "Growler Refill", price: "14.99" },
@@ -302,9 +300,9 @@ function saveProduct(untappdProduct) {
 
     // I would *much* rather add a reference to the Product's image, but "make
     // it work, then make it better!"
-    const labelUrl = untappdProduct.beer_label_hd || untappdProduct.beer_label;
-    if (labelUrl) {
-      saveImage(labelUrl, {
+    const variantLabelUrl = untappdProduct.beer_label_hd || untappdProduct.beer_label;
+    if (variantLabelUrl) {
+      saveImage(variantLabelUrl, {
         ownerId: Meteor.userId(),
         productId: reactionProductId,
         variantId: reactionOptionId,
@@ -351,7 +349,7 @@ export const methods = {
    *
    * @async
    * @method connectors/untappd/import/products
-   * @param {object} options An object of options for the untappd API call. Available options here: https://help.untappd.com/api/reference/product#index
+   * @param {string} productId the UntappdId for a Product
    * @returns {array} An array of the Reaction product _ids (including variants and options) that were created.
    */
   async "connectors/untappd/import/products"(productId) {
@@ -362,8 +360,7 @@ export const methods = {
         throw new Meteor.Error(403, "Access Denied");
       }
 
-      const ServiceConfiguration =
-        Package["service-configuration"].ServiceConfiguration;
+      const { ServiceConfiguration } = Package["service-configuration"];
 
       const config =
         ServiceConfiguration.configurations.findOne({ service: "untappd" });
@@ -420,8 +417,7 @@ export const methods = {
       throw new Meteor.Error(403, "Access Denied");
     }
 
-    const ServiceConfiguration =
-      Package["service-configuration"].ServiceConfiguration;
+    const { ServiceConfiguration } = Package["service-configuration"];
 
     const config =
       ServiceConfiguration.configurations.findOne({ service: "untappd" });
