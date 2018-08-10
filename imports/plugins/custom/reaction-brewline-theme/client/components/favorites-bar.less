@@ -1,0 +1,49 @@
+// override these variables
+@favorites-bar-header-background-color: #3f83b7;
+@favorites-bar-header-foreground-color: white;
+@favorites-bar-list-background-color: #fefefe;
+@favorites-bar-list-foreground-color: #333;
+
+.favorites-bar {
+  margin: -10px 0 0 0;
+  width: 100%;
+
+  &__header {
+    background-color: @favorites-bar-header-background-color;
+    color: @favorites-bar-header-foreground-color;
+    padding: 8px;
+    line-height: 1.5;
+    cursor: pointer;
+  };
+
+  &__transition-group {
+    border-style: solid;
+    border-color: @favorites-bar-header-background-color;
+    border-width: 0 1px 1px 1px;
+    padding: 0;
+  };
+
+  &__list {
+    background-color: @favorites-bar-list-background-color;
+    color: @favorites-bar-list-foreground-color;
+    padding: 5px 10px;
+    width: 100%;
+  }
+
+  &__item {
+    padding: 5px 0;
+
+    &__name {
+      margin: 0 0 0 5px;
+      min-height: 1em;
+    }
+
+    &__label {
+      &,
+      img {
+        max-width: 32px;
+        max-height: 32px;
+      }
+    }
+  }
+}

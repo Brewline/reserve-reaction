@@ -51,8 +51,6 @@ class ProductsContainer extends Component {
 
 
 function composer(props, onData) {
-  let searchResults;
-
   // get brewery beers
   Meteor.call("onboarding/breweryBeerList", (error, searchResults) => {
     if (error) {

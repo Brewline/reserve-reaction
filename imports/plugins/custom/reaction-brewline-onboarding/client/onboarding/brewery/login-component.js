@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import _ from "lodash";
+import { VelocityComponent } from "velocity-react";
 import { Button } from "/imports/plugins/core/ui/client/components";
 
 export default class Login extends Component {
@@ -11,13 +12,14 @@ export default class Login extends Component {
         </p>
 
         <Button
+          bezelStyle="solid"
           className={{
             "btn": true,
-            "btn-primary": true,
             "btn-lg": true,
-            "flat": false
+            "btn-success": true
           }}
           onClick={this.props.onNextStep}
+          primary={true}
         >
           Next step
         </Button>
@@ -37,17 +39,20 @@ export default class Login extends Component {
           automatically.
         </p>
 
-        <Button
-          className={{
-            "btn": true,
-            "btn-primary": true,
-            "btn-lg": true,
-            "flat": false
-          }}
-          onClick={this.props.onLogin}
-        >
-          Login with Untappd
-        </Button>
+        <VelocityComponent animation="callout.shake" runOnMount={true}>
+          <Button
+            bezelStyle="solid"
+            className={{
+              "btn": true,
+              "btn-lg": true,
+              "btn-success": true
+            }}
+            onClick={this.props.onLogin}
+            primary={true}
+          >
+            Login with Untappd
+          </Button>
+        </VelocityComponent>
       </div>
     );
   }
@@ -62,7 +67,7 @@ export default class Login extends Component {
     }
 
     return (
-      <div className="brewline-onboarding__about">
+      <div className="onboarding__step brewline-onboarding__login">
         <h1>Create an account on Brewline</h1>
 
         {content}

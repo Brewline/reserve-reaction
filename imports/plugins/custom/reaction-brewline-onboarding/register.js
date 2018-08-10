@@ -2,27 +2,61 @@ import { Reaction } from "/server/api";
 import { BrowserPolicy } from "meteor/browser-policy-common";
 
 let breweryStep = 0;
+let customerStep = 0;
+
+const onboardingWorkflow = "onboarding";
+const breweryWorkflow = "onboardingBrewery";
+const customerWorkflow = "onboardingCustomer";
 
 Reaction.registerPackage({
   label: "Brewline Onboarding",
   name: "reaction-brewline-onboarding",
   autoEnable: true,
   registry: [{
+    name: "brewlineOnboarding",
+    layout: "onboardingLayout",
+    route: "/welcome",
+    template: "BrewlineOnboarding",
+    workflow: onboardingWorkflow
+  }, {
     name: "brewlineOnboardingBrewery",
     layout: "onboardingLayout",
     route: "/welcome/brewery/:step?",
     template: "BrewlineOnboarding",
-    workflow: "onboardingBrewery"
+    workflow: breweryWorkflow
   }, {
-    name: "brewlineOnboardingConsumer",
+    name: "brewlineOnboardingCustomer",
     layout: "onboardingLayout",
     route: "/welcome/customer/:step?",
     template: "BrewlineOnboarding",
-    workflow: "onboardingCustomer"
+    workflow: customerWorkflow
   }],
   layout: [{
     layout: "onboardingLayout",
-    workflow: "onboardingBrewery",
+    workflow: onboardingWorkflow,
+    collection: "Accounts",
+    theme: "default",
+    enabled: true,
+    structure: {
+      template: "brewlineOnboarding",
+      layoutHeader: "OnboardingNavBar",
+      layoutFooter: "Footer",
+      notFound: "notFound",
+      dashboardControls: "",
+      adminControlsFooter: "",
+      dashboardHeaderControls: ""
+    }
+  }, {
+    template: "OnboardingAbout",
+    path: "about",
+    label: "About Brewline",
+    workflow: onboardingWorkflow,
+    container: "brewline-onboarding-main",
+    // audience: ["guest", "anonymous"],
+    position: 1
+  }, {
+    layout: "onboardingLayout",
+    workflow: breweryWorkflow,
     collection: "Accounts",
     theme: "default",
     enabled: true,
@@ -38,8 +72,8 @@ Reaction.registerPackage({
   }, {
     template: "OnboardingBreweryAbout",
     path: "about",
-    label: "Find your Brewery",
-    workflow: "onboardingBrewery",
+    label: "About Brewline",
+    workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
     position: String(++breweryStep)
@@ -47,7 +81,7 @@ Reaction.registerPackage({
     template: "OnboardingBreweryLogin",
     path: "login",
     label: "Login",
-    workflow: "onboardingBrewery",
+    workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
     position: String(++breweryStep)
@@ -55,7 +89,7 @@ Reaction.registerPackage({
     template: "OnboardingBrewerySearch",
     path: "search",
     label: "Find your Brewery",
-    workflow: "onboardingBrewery",
+    workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
     position: String(++breweryStep)
@@ -63,7 +97,7 @@ Reaction.registerPackage({
     template: "OnboardingBreweryProducts",
     path: "products",
     label: "Choose Products",
-    workflow: "onboardingBrewery",
+    workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
     position: String(++breweryStep)
@@ -71,10 +105,49 @@ Reaction.registerPackage({
     template: "OnboardingBreweryWhatsNext",
     path: "whats-next",
     label: "What's Next?",
-    workflow: "onboardingBrewery",
+    workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
     position: String(++breweryStep)
+  }, {
+    layout: "onboardingLayout",
+    workflow: customerWorkflow,
+    collection: "Accounts",
+    theme: "default",
+    enabled: true,
+    structure: {
+      template: "brewlineOnboarding",
+      layoutHeader: "OnboardingNavBar",
+      layoutFooter: "Footer",
+      notFound: "notFound",
+      dashboardControls: "",
+      adminControlsFooter: "",
+      dashboardHeaderControls: ""
+    }
+  }, {
+    template: "OnboardingCustomerAbout",
+    path: "about",
+    label: "About Brewline",
+    workflow: customerWorkflow,
+    container: "brewline-onboarding-main",
+    // audience: ["guest", "anonymous"],
+    position: String(++customerStep)
+  }, {
+    template: "OnboardingCustomerSearch",
+    path: "search",
+    label: "Find your Favorite Brewery",
+    workflow: customerWorkflow,
+    container: "brewline-onboarding-main",
+    // audience: ["guest", "anonymous"],
+    position: String(++customerStep)
+  }, {
+    template: "OnboardingCustomerThankYou",
+    path: "thank-you",
+    label: "Thank You!",
+    workflow: customerWorkflow,
+    container: "brewline-onboarding-main",
+    // audience: ["guest", "anonymous"],
+    position: String(++customerStep)
   }]
 });
 

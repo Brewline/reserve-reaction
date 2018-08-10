@@ -22,7 +22,9 @@
           ],
           "alias": {
             "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib",
-            "@brewline/untappd-connector": "./imports/plugins/custom/reaction-connectors-untappd"
+            "@brewline/untappd-connector": "./imports/plugins/custom/reaction-connectors-untappd",
+            "@brewline/theme": "./imports/plugins/custom/reaction-brewline-theme",
+            "@brewline/watchlist": "./imports/plugins/custom/reaction-watchlist"
           }
         }
       ]

@@ -1,5 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import { Address } from "/lib/collections";
+// import { Address } from "/lib/collections";
 import { registerSchema } from "@reactioncommerce/schemas";
 
 /**

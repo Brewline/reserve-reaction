@@ -1,0 +1,34 @@
+@import url(//fonts.googleapis.com/css?family=Libre+Baskerville:400,700|Libre+Franklin:400,400i,500,700,800);
+
+@import "./components/loading-crossfade-component";
+@import "./components/favorites-bar";
+
+// override some reaction defaults
+
+@font-family-sans-serif: "Libre Franklin", "Helvetica Neue", helvetica, arial, sans-serif;
+@font-family-serif: "Futura", Georgia, "Times New Roman", Times, serif;
+
+@btn-success-color: @rui-success-bg;
+@btn-success-bg: @rui-success-text;
+@btn-success-border: @rui-success-text; // not sure
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: @font-family-serif;
+  font-weight: bold;
+}
+
+button,
+.btn,
+.rui.btn {
+  letter-spacing: 1;
+  font-weight: normal;
+}
+
+// Brewline styles
+
+.btn-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

@@ -1,9 +1,9 @@
 import UntappdClient from "node-untappd";
 import { Meteor } from "meteor/meteor";
-import { Roles } from "meteor/alanning:roles";
 import { check, Match } from "meteor/check";
 import { Accounts, Shops } from "/lib/collections";
 import { Logger, Reaction } from "/server/api";
+import { saveWatchlistItem } from "@brewline/watchlist/server/methods/watchlist";
 
 import {
   createReactionShopDataFromUntappdShop,
@@ -36,6 +36,21 @@ function saveUntappdShop(untappdShop) {
   return shop;
 }
 
+function addUntappdShopToWaitlist(untappdShop) {
+  const userId = Meteor.userId();
+  const shopId = Reaction.getPrimaryShopId();
+  const itemId = String(untappdShop.brewery_id);
+  const displayName = untappdShop.brewery_name;
+  const label = untappdShop.brewery_label;
+  const watchlistItem = {
+    itemMetadata: untappdShop,
+    displayName,
+    label
+  };
+
+  return saveWatchlistItem(userId, shopId, "Breweries", itemId, watchlistItem);
+}
+
 Meteor.methods({
   "onboarding/updateWorkflow"(currentStatus, completedStatuses = []) {
     check(currentStatus, String);
@@ -65,6 +80,13 @@ Meteor.methods({
     // this.unblock();
 
     return importUntappdShop(untappdShopId, saveUntappdShop);
+  },
+
+  "onboarding/addUntappdShopToWaitlist"(untappdShopId) {
+    check(untappdShopId, Number);
+    // this.unblock();
+
+    return importUntappdShop(untappdShopId, addUntappdShopToWaitlist);
   },
 
   async "onboarding/breweryBeerList"(untappdBreweryId) {
