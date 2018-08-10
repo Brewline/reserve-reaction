@@ -27,7 +27,7 @@ function composer(props, onData) {
     merchantShops = Reaction.getMerchantShops();
 
     if (isPrimaryShop && (!merchantShops || !merchantShops.length)) {
-      return Router.go("brewlineOnboardingBrewery");
+      return Router.go("brewlineOnboarding");
     }
   }
 

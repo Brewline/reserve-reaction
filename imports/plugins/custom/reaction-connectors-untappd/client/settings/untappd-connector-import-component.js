@@ -1,4 +1,4 @@
-// TOOD: Create Container Class
+// TODO: Create Container Class
 // pass accessToken to Component
 // swap login button for "import" when accessToken is present
 // list beers
@@ -6,7 +6,7 @@
 
 import _ from "lodash";
 import React, { Component } from "react";
-import { Button, List, ListItem } from "/imports/plugins/core/ui/client/components";
+import { List, ListItem } from "/imports/plugins/core/ui/client/components";
 
 import UntappdConnectorProduct from "./untappd-connector-product-container";
 
@@ -57,7 +57,7 @@ export default class UntappdConnectorImport extends Component {
             <input type="text" placeholder="search" ref={(i) => { this.qInput = i; }} />
 
             <button type="submit" className="btn btn-default">
-              <i className="fa fa-search"></i>
+              <i className="fa fa-search" />
               <span data-i18n="admin.untappdConnectSettings.startImport">
                 Search
               </span>

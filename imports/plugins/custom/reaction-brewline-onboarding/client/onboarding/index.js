@@ -1,10 +1,13 @@
-import "./brewery";
-// import "./consumer";
+export { OnboardingNavBar } from "./onboarding-navbar-container";
 
+import "./brewery";
+import "./customer";
+import "./about-container";
 
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Reaction } from "/client/api";
 import { Accounts, Packages } from "/lib/collections";
 import {
@@ -17,6 +20,14 @@ import { Router } from "/client/modules/router";
 // HOC to provide templates and user state
 // export default class Onboarding extends Component {
 class Onboarding extends Component {
+  static propTypes = {
+    onWorkflowChange: PropTypes.func,
+    workflowStep: PropTypes.shape({
+      workflow: PropTypes.string,
+      template: PropTypes.string
+    })
+  };
+
   handleClick = () => {
     if (!this.props.onWorkflowChange) { return; }
 
@@ -112,15 +123,17 @@ function handleWorkflowChange(template) {
 
   Meteor.call("onboarding/updateWorkflow", template, statuses);
 
+  const { name: registryName } = Router.current().route;
+
   if (path) {
-    Router.go("brewlineOnboardingBrewery", { step: path });
+    Router.go(registryName, { step: path });
   } else if (!statuses || !statuses.length) {
     // if statuses is empty, start the onboarding
-    Router.go("brewlineOnboardingBrewery");
+    Router.go(registryName);
   } else {
     // looks like you're done... go to last step
     ({ path } = steps[steps.length - 1]);
-    Router.go("brewlineOnboardingBrewery", { step: path });
+    Router.go(registryName, { step: path });
   }
 }
 
@@ -138,7 +151,7 @@ function composer(props, onData) {
       const account = Accounts.findOne({ userId: Meteor.userId() });
       // get the current step this user is on
       const completedWorkflowSteps =
-        account && account.onboarding && account.onboarding.workflow || [];
+        (account && account.onboarding && account.onboarding.workflow) || [];
 
       workflowStep = _.chain(steps)
         .sortBy("position")
@@ -166,6 +179,3 @@ registerComponent(
 );
 
 export default composeWithTracker(composer)(Onboarding);
-
-
-// import { Components } from "@reactioncommerce/reaction-components";

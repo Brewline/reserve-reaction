@@ -3,7 +3,6 @@ export { Login as OnboardingBreweryLogin } from "./login-container";
 export { Search as OnboardingBrewerySearch } from "./search-container";
 export { Products as OnboardingBreweryProducts } from "./products-container";
 export { WhatsNext as OnboardingBreweryWhatsNext } from "./whats-next-container";
-export { OnboardingNavBar } from "./onboarding-navbar-container";
 
 // "user": {
 // "uid": 112491,

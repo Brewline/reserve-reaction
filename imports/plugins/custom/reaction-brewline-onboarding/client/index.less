@@ -1,16 +1,19 @@
 @import "../../../included/default-theme/client/styles/variables.less";
+@import "./flexbox.less";
 
 @bgColor1: rgba(46,73,182,1);
 @bgColor2: rgba(42,67,167,1);
 
-body.app-brewlineOnboardingBrewery {
+body.app-brewlineOnboarding,
+body.app-brewlineOnboardingBrewery,
+body.app-brewlineOnboardingCustomer {
 	#reactionAppContainer > .reaction-toolbar,
 	.rui.toolbar.admin-shortcut-bar,
 	.reaction-navigation-footer {
 		display: none;
 	}
 
-	background-position: center center;
+	background-position: center top;
 	background-repeat: repeat;
 
 	@bgImage: 'https://brewline.s3.amazonaws.com/uploads/2018/03/brewline-bg-pattern-1.png';
@@ -26,6 +29,11 @@ body.app-brewlineOnboardingBrewery {
 	main {
 		background-color: transparent;
 	}
+
+	// override the default Divider style
+	.rui.separator.labeled .label {
+		color: white;
+	}
 }
 
 .onboarding-container {
@@ -37,26 +45,38 @@ body.app-brewlineOnboardingBrewery {
 	.panel-search-results__list {
 		color: @text-color;
 	}
+
+	.favorites-bar {
+		&__header {
+			background-color: @rui-warning;
+			color: @text-color;
+		};
+
+		&__transition-group {
+			border-color: @rui-warning;
+		};
+	}
 }
 
-.max-width-container() {
-	max-width: 600px;
+.max-width-container(@width: 600px) {
+	max-width: @width;
 	margin: 0 auto;
 }
 
 .onboarding__steps-container {
-	.max-width-container;
+	width: 100%;
 
-	padding: 20px;
+	.alert-container,
+	.onboarding__step {
+		.max-width-container;
+	}
 
-	&.onboarding-brewery-about {
-		width: 100%;
-		max-width: 100%;
-		padding: 0;
+	.onboarding__step {
+		padding: 20px;
 	}
 }
 
-.onboarding-brewery-about {
+.brewline-onboarding__about {
 	.features {
 		.media {
 			margin-top: 10px; // override :first-child no margin
@@ -66,9 +86,7 @@ body.app-brewlineOnboardingBrewery {
 		}
 	}
 
-	.hero-wrapper,
 	.cta-wrapper {
-		padding: 20px;
 		min-height: 300px;
 	}
 
@@ -95,11 +113,16 @@ body.app-brewlineOnboardingBrewery {
 		margin-top: 20px;
 		margin-bottom: 20px;
 		background-color: white;
+		border-radius: 5px;
 		color: @text-color;
 	}
 }
 
 .navbar--onboarding {
+	&.rui.navbar { // extra specificity
+		border-bottom: 1px solid @bgColor1;
+	}
+
 	.navbar-content {
 		display: flex;
 		justify-content: space-between;
@@ -121,12 +144,201 @@ body.app-brewlineOnboardingBrewery {
 }
 
 .button-with-annotation {
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
 	text-align: center;
+
+	.annotation {
+		display: block;
+	}
 }
 
 .admin-controls-content label {
 	color: inherit; // override color setting
+}
+
+.teasers-container {
+	background: @black02;
+	color: @text-color;
+	padding: 40px 0;
+	width: 100%;
+
+	@media @mobile {
+		padding: 20px;
+	}
+}
+
+.teasers {
+	width: 1000px;
+	margin: 0 auto;
+
+	@media @mobile {
+		width: 100%;
+	}
+
+	.divider {
+		margin-left: auto;
+		margin-right: auto;
+		border-color: @text-color;
+
+		hr {
+			border-color: @text-color;
+		}
+
+		&.rui.separator.labeled .label {
+			color: @text-color;
+			font-style: italic;
+			text-transform: none;
+		}
+	}
+}
+
+.teaser {
+	display: flex;
+	flex-direction: row;
+
+	@media @mobile {
+		width: 100%;
+		flex-direction: column;
+	}
+
+	& + & {
+		margin-top: 20px;
+	}
+
+	&.best-customers {
+		.teaser-question {
+			margin-left: 20px;
+		}
+
+		.teaser-answers {
+			order: -1;
+		}
+
+		@media @mobile {
+			.teaser-question {
+				margin-left: 0;
+			}
+
+			.teaser-answers {
+				order: 1;
+			}
+		}
+	}
+
+	&.every-customer {
+		.teaser-question {
+			margin-right: 20px;
+		}
+
+		@media @mobile {
+			.teaser-question {
+				margin-right: 0;
+			}
+		}
+	}
+
+	&-question {
+		color: @gray;
+		flex: 3;
+		font-size: @font-size-h4;
+		line-height: @font-size-h2;
+		text-align: center;
+
+		@media @mobile {
+			padding: 0 0 20px 0;
+		}
+
+		.primary {
+			// color: @gray-darker;
+			color: @bgColor1;
+			display: block;
+			font-size: @font-size-h2;
+			font-weight: bold;
+		}
+
+		.secondary {
+			color: @gray-dark;
+			display: block;
+			font-size: @font-size-h3;
+			font-style: italic;
+		}
+	}
+
+	&-answers {
+		background: @black10;
+		border-radius: 5px;
+		// color: @white;
+		flex: 2;
+		min-height: 4 * @font-size-h2;
+		padding: 10px;
+	}
+
+	&-answer {
+		border-left: 5px solid currentColor;
+		font-size: @font-size-h4;
+		padding-left: 20px;
+	}
+}
+
+.call-to-action-group {
+	@media @mobile {
+		flex-direction: column;
+	}
+
+	.call-to-action {
+		background-color: @white;
+		border-radius: 5px;
+		color: @text-color;
+		margin: 10px;
+		padding: 10px;
+
+		& > * {
+			margin-top: 0;
+		}
+	}
+}
+
+.watchlist-container {
+	background-color: @white;
+	border-radius: 5px;
+	color: @text-color;
+	font-size: @font-size-h4;
+}
+
+.brewery-with-social {
+	.flex;
+	.align-items(center);
+
+	& > * {
+		.flex(1);
+	}
+
+	.sharing-options {
+		.justify-content(flex-end);
+	}
+
+	padding: 10px;
+
+	@media @tablet {
+		display: block; // override `.flex`
+	}
+
+	&.row-1 {
+		background-color: @black05;
+	}
+
+	.nudge {
+		font-size: @font-size-small;
+	}
+
+	.rui.btn {
+		font-size: @font-size-h3;
+
+		&.facebook-share {
+			color: #3B5998; // Facebook blue
+		}
+
+		&.twitter-share {
+			color: #0084b4; // Twitter blue
+		}
+	}
 }

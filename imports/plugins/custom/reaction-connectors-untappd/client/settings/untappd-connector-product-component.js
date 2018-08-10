@@ -1,16 +1,20 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
-import { a11yOnEnter } from "./a11yHelpers";
+import { a11yOnEnter } from "@brewline/theme/client/lib";
 
-// TOOD: wrap this component
+// TODO: wrap this component
 export default class UntappdConnectorProductComponent extends Component {
-  constructor(props) {
-    super(props);
+  static propTypes = {
+    onAddProduct: PropTypes.func.isRequired,
+    product: PropTypes.shape({
+      beer: PropTypes.shape({
+        bid: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+      })
+    })
+  };
 
-    this.addProduct = this.addProduct.bind(this);
-  }
-
-  addProduct() {
+  addProduct = () => {
     this.props.onAddProduct(this.props.product.beer.bid);
   }
 

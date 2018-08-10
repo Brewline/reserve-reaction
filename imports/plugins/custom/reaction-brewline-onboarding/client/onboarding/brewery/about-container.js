@@ -1,4 +1,3 @@
-import React, { Component } from "react";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 // import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";

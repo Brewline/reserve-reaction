@@ -14,7 +14,7 @@ function addRolesToVisitors() {
     $addToSet: {
       defaultVisitorRole: [
         "brewlineOnboardingBrewery",
-        "brewlineOnboardingConsumer"
+        "brewlineOnboardingCustomer"
       ]
     }
   });
@@ -23,7 +23,7 @@ function addRolesToVisitors() {
     $addToSet: {
       defaultRoles: [
         "brewlineOnboardingBrewery",
-        "brewlineOnboardingConsumer"
+        "brewlineOnboardingCustomer"
       ]
     }
   });

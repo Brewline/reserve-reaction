@@ -45,7 +45,7 @@ export default class Products extends Component {
 
   render() {
     return (
-      <div>
+      <div className="onboarding__step brewline-onboarding__products">
         <h1>Set up your Beer Release</h1>
 
         <p>
