@@ -2,6 +2,7 @@ import _ from "lodash";
 import React, { PureComponent } from "react";
 import PropTypes from "prop-types";
 import { Components } from "@reactioncommerce/reaction-components";
+import { Packages } from "/lib/collections";
 import { SocialButtons } from "/imports/plugins/included/social/client/components";
 
 export default class ThankYou extends PureComponent {
@@ -21,22 +22,29 @@ export default class ThankYou extends PureComponent {
     // const { twitter, facebook, instagram } = contact;
     const { twitter, facebook } = contact;
 
+    const socialPackage = Packages.findOne({
+      name: "reaction-social"
+    });
+    const socialSettings = _.get(socialPackage, "settings.public");
+
     const apps = {};
 
     if (facebook) {
       const handle = facebook.replace(/^.*\.facebook\.com\//i, "");
       apps.facebook = {
+        ...(_.get(socialSettings, "apps.facebook", {})),
         description: `@${handle} do you do can releases online? have you heard of @brewlineHQ?`
       };
     }
 
     if (twitter) {
       apps.twitter = {
+        ...(_.get(socialSettings, "apps.twitter", {})),
         description: `.@${twitter} do you do can releases online? have you heard of @brewlineHQ?`
       };
     }
 
-    const socialSettings = {
+    const shareSettings = {
       description: "Reserve Online. Skip the Line. Brewline.",
       title: "Online Can Release Reservations by Brewline",
       url: "https://reserve.brewline.io/welcome/brewery",
@@ -52,7 +60,7 @@ export default class ThankYou extends PureComponent {
 
         <div className="sharing-options flex align-items-center">
           <span className="nudge">Please share:</span>
-          <SocialButtons {...socialSettings} />
+          <SocialButtons {...shareSettings} />
         </div>
       </div>
     );
