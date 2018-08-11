@@ -1,6 +1,6 @@
 // TODO: move to brewline-watchlist
 
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import {
   VelocityComponent,
@@ -11,7 +11,7 @@ import { Components } from "@reactioncommerce/reaction-components";
 import { a11yOnEnter } from "../lib";
 import LoadingCrossfadeComponent from "./loading-crossfade-component";
 
-export default class FavoritesBar extends PureComponent {
+export default class FavoritesBar extends Component {
   static propTypes = {
     favorites: PropTypes.arrayOf(PropTypes.shape({
       displayName: PropTypes.string,

@@ -79,7 +79,7 @@ function composer(props, onData) {
   if (shopSubscription.ready()) {
     const shop = Reaction.getShop();
 
-    if (shop.UntappdId) {
+    if (shop && shop.UntappdId) {
       currentBrewery = shop;
     }
   }
