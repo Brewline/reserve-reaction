@@ -11,13 +11,17 @@
       <div class="rect3"></div>
       <div class="rect4"></div>
       <div class="rect5"></div>
+      <div class="rect6"></div>
+      <div class="rect7"></div>
+      <div class="rect8"></div>
+      <div class="rect9"></div>
     </div>
     <span>Loading...</span>
   </div>
 
   <style>
     /* TODO: be sure that's a valid body attribute */
-    body[data-gr-c-s-loaded] .preloader-wrapper {
+    body[data-ready] .preloader-wrapper {
       display: none;
     }
 
@@ -26,47 +30,73 @@
       top: 33%;
       left: 50%;
       margin-left: -25px; /* 1/2 the animation width */
+      text-align: center;
     }
 
     .preloader {
-      width: 50px;
-      height: 40px;
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      width: 62px; /* 9 * 6px + (9-1) * 1px */
+      height: 60px;
       font-size: 10px;
+      letter-spacing: 0;
     }
 
     .preloader > span {
-      color: #333;
+      color: #708090;
     }
 
     .preloader > div {
-      background-color: #333;
+      background-color: #708090;
       height: 100%;
       width: 6px;
       display: inline-block;
 
-      -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
-      animation: sk-stretchdelay 1.2s infinite ease-in-out;
+      -webkit-animation: sk-stretchdelay 2.0s infinite ease-in-out;
+      animation: sk-stretchdelay 2.0s infinite ease-in-out;
     }
 
     .preloader .rect2 {
-      -webkit-animation-delay: -1.1s;
-      animation-delay: -1.1s;
+      -webkit-animation-delay: -1.9s;
+      animation-delay: -1.9s;
     }
 
     .preloader .rect3 {
-      -webkit-animation-delay: -1.0s;
-      animation-delay: -1.0s;
+      -webkit-animation-delay: -1.8s;
+      animation-delay: -1.8s;
     }
 
     .preloader .rect4 {
-      -webkit-animation-delay: -0.9s;
-      animation-delay: -0.9s;
+      background-color: #f57924;
+      -webkit-animation-delay: -1.7s;
+      animation-delay: -1.7s;
     }
 
     .preloader .rect5 {
-      -webkit-animation-delay: -0.8s;
-      animation-delay: -0.8s;
+      background-color: #78db20;
+      -webkit-animation-delay: -1.6s;
+      animation-delay: -1.6s;
+    }
+
+    .preloader .rect6 {
+      background-color: #2a43a7;
+      -webkit-animation-delay: -1.5s;
+      animation-delay: -1.5s;
+    }
+
+    .preloader .rect7 {
+      -webkit-animation-delay: -1.4s;
+      animation-delay: -1.4s;
+    }
+
+    .preloader .rect8 {
+      -webkit-animation-delay: -1.3s;
+      animation-delay: -1.3s;
+    }
+
+    .preloader .rect9 {
+      -webkit-animation-delay: -1.2s;
+      animation-delay: -1.2s;
     }
 
     @-webkit-keyframes sk-stretchdelay {
@@ -78,9 +108,12 @@
       0%, 40%, 100% {
         transform: scaleY(0.4);
         -webkit-transform: scaleY(0.4);
-      }  20% {
+        opacity: 0.6;
+      }
+      20% {
         transform: scaleY(1.0);
         -webkit-transform: scaleY(1.0);
+        opacity: 1.0;
       }
     }
   </style>
