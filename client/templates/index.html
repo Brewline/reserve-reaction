@@ -3,4 +3,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <noscript><div style="padding: 40px; font-size: 200%; text-align: center;">This site requires JavaScript. Please enable it in your browser settings.</div></noscript>
   <script type="text/javascript">window.prerenderReady = false;</script>
+
+  <div class="preloader-wrapper">
+    <div class="preloader">
+      <div class="rect1"></div>
+      <div class="rect2"></div>
+      <div class="rect3"></div>
+      <div class="rect4"></div>
+      <div class="rect5"></div>
+    </div>
+    <span>Loading...</span>
+  </div>
+
+  <style>
+    /* TODO: be sure that's a valid body attribute */
+    body[data-gr-c-s-loaded] .preloader-wrapper {
+      display: none;
+    }
+
+    .preloader-wrapper {
+      position: absolute;
+      top: 33%;
+      left: 50%;
+      margin-left: -25px; /* 1/2 the animation width */
+    }
+
+    .preloader {
+      width: 50px;
+      height: 40px;
+      text-align: center;
+      font-size: 10px;
+    }
+
+    .preloader > span {
+      color: #333;
+    }
+
+    .preloader > div {
+      background-color: #333;
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+
+      -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+      animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .preloader .rect2 {
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+
+    .preloader .rect3 {
+      -webkit-animation-delay: -1.0s;
+      animation-delay: -1.0s;
+    }
+
+    .preloader .rect4 {
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+
+    .preloader .rect5 {
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+
+    @-webkit-keyframes sk-stretchdelay {
+      0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+      20% { -webkit-transform: scaleY(1.0) }
+    }
+
+    @keyframes sk-stretchdelay {
+      0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+      }  20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+      }
+    }
+  </style>
 </head>
