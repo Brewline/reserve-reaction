@@ -22,9 +22,7 @@ export default class ThankYou extends PureComponent {
     // const { twitter, facebook, instagram } = contact;
     const { twitter, facebook } = contact;
 
-    const socialPackage = Packages.findOne({
-      name: "reaction-social"
-    });
+    const socialPackage = Packages.findOne({ name: "reaction-social" });
     const socialSettings = _.get(socialPackage, "settings.public");
 
     const apps = {};
