@@ -395,6 +395,10 @@ export default {
       shopId = this.getShopIdByDomain();
     }
 
+    if (!shopId) {
+      shopId = this.getPrimaryShopId();
+    }
+
     // store the value for faster responses
     ConnectionDataStore.set("shopId", shopId);
 
