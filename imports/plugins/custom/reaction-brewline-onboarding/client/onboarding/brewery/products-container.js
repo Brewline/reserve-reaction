@@ -1,5 +1,7 @@
+import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import ReactGA from "react-ga";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 // import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
@@ -9,8 +11,19 @@ import Products from "./products-component";
 
 class ProductsContainer extends Component {
   state = {
-    searchResults: null
+    searchResults: []
   };
+
+  getProduct(untappdShopId) {
+    if (!_.get(this.state, "searchResults.length")) { return {}; }
+
+    const brewery = _.find(
+      this.state.searchResults,
+      (r) => _.get(r, "brewery.brewery_id") === untappdShopId
+    );
+
+    return brewery || {};
+  }
 
   fetchSearchResults = (q) => {
     Meteor.call("connectors/untappd/search/products", { q }, (err, res) => {
@@ -20,17 +33,31 @@ class ProductsContainer extends Component {
       }
 
       this.setState({ searchResults: res.response.beers.items });
+
+      ReactGA.event({
+        category: "Search",
+        action: "Beer Search",
+        label: q
+      });
     });
   }
 
   addProduct = (productId) => {
-    Meteor.call("connectors/untappd/import/products", productId, (err, res) => {
+    const untappdProduct = this.getProduct(productId);
+    const { beer } = untappdProduct;
+    const displayName = beer.beer_name;
+
+    Meteor.call("connectors/untappd/import/products", productId, (err, _res) => {
       if (err) {
         // TODO: correct wording
         Alerts.toast(err.reason, "error");
       } else {
         // TODO: correct wording
         Alerts.toast("Product Added to Shop. Processing Images...", "success");
+
+        analytics.track("Product Created", {
+          eventName: displayName
+        });
 
         this.props.onNextStep();
       }

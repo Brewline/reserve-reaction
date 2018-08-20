@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import ReactGA from "react-ga";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
@@ -55,6 +56,12 @@ class SearchContainer extends Component {
       }
 
       this.setState({ searchResults: res.response.brewery.items });
+
+      ReactGA.event({
+        category: "Search",
+        action: "My Brewery Search",
+        label: q
+      });
     });
   }
 
