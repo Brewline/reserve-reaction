@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import ReactGA from "react-ga";
 import PropTypes from "prop-types";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 
@@ -47,6 +48,12 @@ class SearchContainer extends Component {
       }
 
       this.requestBreweryContactInfo(brewery);
+
+      ReactGA.event({
+        category: "Favorites",
+        action: "Add Brewery",
+        label: displayName
+      });
     });
   }
 
@@ -86,6 +93,12 @@ class SearchContainer extends Component {
       }
 
       this.setState({ searchResults: _.get(res, "response.brewery.items", []) });
+
+      ReactGA.event({
+        category: "Search",
+        action: "Brewery Search",
+        label: q
+      });
     });
   }
 
