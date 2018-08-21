@@ -6,7 +6,7 @@ import { methods as RegistryMethods } from "/server/methods/core/registry";
 import { Meteor } from "meteor/meteor";
 import { Logger, Reaction } from "/server/api";
 import { check, Match } from "meteor/check";
-import { Shops, Jobs } from "/lib/collections";
+import { Shops, Jobs, Packages } from "/lib/collections";
 import { connectorsRoles } from "../../lib/roles";
 import { importShopImages } from "../../jobs/image-import";
 
@@ -183,6 +183,52 @@ export function hackRestoreAddressBook(shop, shopData) {
   });
 }
 
+export function updateShopSocialPackage(shop) {
+  if (!_.get(shop, "UntappdResource.contact")) { return false; }
+  const shopSocialSettings = shop.UntappdResource.contact;
+  const { twitter, facebook, instagram } = shopSocialSettings;
+
+  const apps = {};
+
+  // we could loop here, but where sometimes we have a URL and other times a
+  // a handle, let's do it manually
+  apps.twitter = {
+    username: `@${twitter}`,
+    profilePage: `https://twitter.com/${twitter}`,
+    enabled: !!twitter
+  };
+
+  const facebookHandle = facebook.replace(/^.*\.facebook\.com\//i, "");
+  apps.facebook = {
+    username: facebookHandle,
+    profilePage: facebook,
+    enabled: !!facebook
+  };
+
+  apps.instagram = {
+    username: `@${instagram}`,
+    profilePage: `https://www.instagram.com/${instagram}/`,
+    enabled: !!instagram
+  };
+
+  const { brewery_page_url: breweryPageUrl } = shop.UntappdResource;
+  const untappdHandle = breweryPageUrl.replace(/^\//i, "");
+  apps.untappd = {
+    username: untappdHandle,
+    profilePage: `https://untappd.com${breweryPageUrl}`,
+    enabled: !!instagram
+  };
+
+  Packages.update({
+    name: "reaction-social",
+    shopId: shop._id
+  }, {
+    $set: {
+      "settings.public.apps": apps
+    }
+  });
+}
+
 const SHOPIFY_REGISTRY_NAME = "shopify";
 function saveShop(untappdShop) {
   if (untappdShopExists(untappdShop.brewery_id)) {
@@ -203,6 +249,7 @@ function saveShop(untappdShop) {
   const shop = Shops.findOne({ name: shopData.name });
 
   hackRestoreAddressBook(shop, shopData);
+  updateShopSocialPackage(shop);
 
   setShopImage(shop, untappdShop);
 

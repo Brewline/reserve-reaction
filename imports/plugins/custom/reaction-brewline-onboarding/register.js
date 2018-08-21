@@ -17,19 +17,28 @@ Reaction.registerPackage({
     layout: "onboardingLayout",
     route: "/welcome",
     template: "BrewlineOnboarding",
-    workflow: onboardingWorkflow
+    workflow: onboardingWorkflow,
+    meta: {
+      title: "Welcome to Brewline"
+    }
   }, {
     name: "brewlineOnboardingBrewery",
     layout: "onboardingLayout",
     route: "/welcome/brewery/:step?",
     template: "BrewlineOnboarding",
-    workflow: breweryWorkflow
+    workflow: breweryWorkflow,
+    meta: {
+      title: "Welcome Brewers - Brewline"
+    }
   }, {
     name: "brewlineOnboardingCustomer",
     layout: "onboardingLayout",
     route: "/welcome/customer/:step?",
     template: "BrewlineOnboarding",
-    workflow: customerWorkflow
+    workflow: customerWorkflow,
+    meta: {
+      title: "Welcome Beer Drinkers - Brewline"
+    }
   }],
   layout: [{
     layout: "onboardingLayout",
@@ -76,10 +85,7 @@ Reaction.registerPackage({
     workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++breweryStep),
-    meta: {
-      title: "Welcome Brewers - About Brewline"
-    }
+    position: String(++breweryStep)
   }, {
     template: "OnboardingBreweryLogin",
     path: "login",
@@ -87,10 +93,7 @@ Reaction.registerPackage({
     workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++breweryStep),
-    meta: {
-      title: "Welcome Brewers - Login"
-    }
+    position: String(++breweryStep)
   }, {
     template: "OnboardingBrewerySearch",
     path: "search",
@@ -98,10 +101,7 @@ Reaction.registerPackage({
     workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++breweryStep),
-    meta: {
-      title: "Welcome Brewers - Search"
-    }
+    position: String(++breweryStep)
   }, {
     template: "OnboardingBreweryProducts",
     path: "products",
@@ -109,10 +109,7 @@ Reaction.registerPackage({
     workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++breweryStep),
-    meta: {
-      title: "Welcome Brewers - Find Your Beers"
-    }
+    position: String(++breweryStep)
   }, {
     template: "OnboardingBreweryWhatsNext",
     path: "whats-next",
@@ -120,10 +117,7 @@ Reaction.registerPackage({
     workflow: breweryWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++breweryStep),
-    meta: {
-      title: "Welcome Brewers - What You Can Expect"
-    }
+    position: String(++breweryStep)
   }, {
     layout: "onboardingLayout",
     workflow: customerWorkflow,
@@ -146,10 +140,7 @@ Reaction.registerPackage({
     workflow: customerWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++customerStep),
-    meta: {
-      title: "Welcome Beer Drinkers - About Brewline"
-    }
+    position: String(++customerStep)
   }, {
     template: "OnboardingCustomerSearch",
     path: "search",
@@ -157,10 +148,7 @@ Reaction.registerPackage({
     workflow: customerWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++customerStep),
-    meta: {
-      title: "Welcome Beer Drinkers - Favorite Brewers"
-    }
+    position: String(++customerStep)
   }, {
     template: "OnboardingCustomerThankYou",
     path: "thank-you",
@@ -168,10 +156,7 @@ Reaction.registerPackage({
     workflow: customerWorkflow,
     container: "brewline-onboarding-main",
     // audience: ["guest", "anonymous"],
-    position: String(++customerStep),
-    meta: {
-      title: "Welcome Beer Drinkers - Thank You"
-    }
+    position: String(++customerStep)
   }]
 });
 

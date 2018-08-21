@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import ReactGA from "react-ga";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 // import { Reaction } from "/client/api";
@@ -10,6 +11,10 @@ import Products from "./products-component";
 
 
 class ProductsContainer extends Component {
+  propTypes = {
+    onNextStep: PropTypes.func.isRequired
+  };
+
   state = {
     searchResults: []
   };
@@ -55,21 +60,29 @@ class ProductsContainer extends Component {
         // TODO: correct wording
         Alerts.toast("Product Added to Shop. Processing Images...", "success");
 
-        analytics.track("Product Created", {
-          eventName: displayName
-        });
-
         this.props.onNextStep();
+
+        ReactGA.event({
+          category: "Resources",
+          action: "Create Product",
+          label: displayName
+        });
       }
     });
   }
 
   render() {
+    let { searchResults } = this.state;
+
+    if (!searchResults || !searchResults.length) {
+      ({ searchResults } = this.props);
+    }
+
     return (
       <Products
         {...this.props}
         onSearch={this.fetchSearchResults}
-        searchResults={this.state.searchResults || this.props.searchResults}
+        searchResults={searchResults}
         onAddProduct={this.addProduct}
       />
     );
