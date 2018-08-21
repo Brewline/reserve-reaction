@@ -10,7 +10,8 @@ import {
   hackRestoreAddressBook,
   importUntappdShop,
   setShopImage,
-  untappdShopExists
+  untappdShopExists,
+  updateShopSocialPackage
 } from "@brewline/untappd-connector/server/methods/import/shops";
 
 function saveUntappdShop(untappdShop) {
@@ -28,6 +29,7 @@ function saveUntappdShop(untappdShop) {
   const shop = Shops.findOne({ name: shopData.name });
 
   hackRestoreAddressBook(shop, shopData);
+  updateShopSocialPackage(shop);
 
   setShopImage(shop, untappdShop);
 

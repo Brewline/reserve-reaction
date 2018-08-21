@@ -32,7 +32,8 @@ class SearchContainer extends Component {
   }
 
   addShop = (untappdShopId) => {
-    const msg = `Importing ${this.getShopName(untappdShopId, "your shop")} from Untappd...`;
+    const displayName = this.getShopName(untappdShopId, "your shop");
+    const msg = `Importing ${displayName} from Untappd...`;
     Alerts.toast(msg, "info");
     Meteor.call("onboarding/createUntappdShop", untappdShopId, (err, shop) => {
       if (err) {
@@ -45,6 +46,12 @@ class SearchContainer extends Component {
       Reaction.setShopId(shop._id);
 
       this.props.onNextStep();
+
+      ReactGA.event({
+        category: "Resources",
+        action: "Create Shop",
+        label: displayName
+      });
     });
   }
 
