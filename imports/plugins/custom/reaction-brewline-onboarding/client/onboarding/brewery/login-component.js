@@ -1,9 +1,16 @@
-import React, { Component } from "react";
 import _ from "lodash";
+import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { VelocityComponent } from "velocity-react";
 import { Button } from "/imports/plugins/core/ui/client/components";
 
 export default class Login extends Component {
+  static propTypes = {
+    loggedInUser: PropTypes.object,
+    onLogin: PropTypes.func.isRequired,
+    onNextStep: PropTypes.func.isRequired
+  };
+
   renderLoggedIn() {
     return (
       <div>
@@ -53,6 +60,23 @@ export default class Login extends Component {
             Login with Untappd
           </Button>
         </VelocityComponent>
+
+        <p>
+          We use information from Untappd to 1) create your account (using
+          your email), 2) create your shop, 3) import the beers that you choose.
+          We chose Untappd for your convenience and as a way to verify Brewery
+          ownership.
+        </p>
+
+        <p>
+          We do not post, toast, or otherwise change content on your behalf.
+        </p>
+
+        {/* TODO: Allow for non-Untappd login
+        <p>
+          Prefer to set up your account manually?
+        </p>
+        */}
       </div>
     );
   }
