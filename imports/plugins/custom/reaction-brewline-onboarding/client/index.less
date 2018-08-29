@@ -34,6 +34,9 @@ body.app-brewlineOnboardingCustomer {
 	.rui.separator.labeled .label {
 		color: white;
 	}
+	.modal .rui.separator.labeled .label {
+		color: @text-color;
+	}
 }
 
 .onboarding-container {
@@ -41,6 +44,10 @@ body.app-brewlineOnboardingCustomer {
 	justify-content: center;
 
 	color: white;
+
+	.modal {
+		color: @text-color;
+	}
 
 	.panel-search-results__list {
 		color: @text-color;
@@ -112,7 +119,7 @@ body.app-brewlineOnboardingCustomer {
 		padding: 20px;
 		margin-top: 20px;
 		margin-bottom: 20px;
-		background-color: white;
+		background-color: @body-bg;
 		border-radius: 5px;
 		color: @text-color;
 	}
@@ -302,6 +309,7 @@ body.app-brewlineOnboardingCustomer {
 	border-radius: 5px;
 	color: @text-color;
 	font-size: @font-size-h4;
+	overflow: hidden; // to keep border radii on child elements
 }
 
 .brewery-with-social {
@@ -340,5 +348,13 @@ body.app-brewlineOnboardingCustomer {
 		&.twitter-share {
 			color: #0084b4; // Twitter blue
 		}
+	}
+}
+
+.brewery-favorite-summary {
+	text-align: center;
+
+	.brewery-count {
+		font-size: @font-size-h1;
 	}
 }

@@ -7,7 +7,7 @@ import { Reaction, Logger } from "/server/api";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { WatchlistItems as WatchlistItemsCollection } from "../../lib/collections";
 
-describe.only("Watchlist methods", () => {
+describe("Watchlist methods", () => {
   const sandbox = sinon.sandbox.create();
   let userId;
   let shopId;

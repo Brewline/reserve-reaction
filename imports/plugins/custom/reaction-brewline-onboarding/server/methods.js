@@ -4,6 +4,7 @@ import { check, Match } from "meteor/check";
 import { Accounts, Shops } from "/lib/collections";
 import { Logger, Reaction } from "/server/api";
 import { saveWatchlistItem } from "@brewline/watchlist/server/methods/watchlist";
+import { WatchlistItems } from "@brewline/watchlist/lib/collections";
 
 import {
   createReactionShopDataFromUntappdShop,
@@ -51,6 +52,27 @@ function addUntappdShopToWaitlist(untappdShop) {
   };
 
   return saveWatchlistItem(userId, shopId, "Breweries", itemId, watchlistItem);
+}
+
+export function transferFavorites(previousUserId, currentUserId = Meteor.userId()) {
+  check(previousUserId, String);
+  check(currentUserId, String);
+
+  if (previousUserId === currentUserId) { return; } // should this raise?
+
+  const msg =
+    `Transferring WatchlistItems from '${previousUserId}' to '${currentUserId}'`;
+  Logger.warn(msg);
+
+  return WatchlistItems.update({
+    userId: previousUserId
+  }, {
+    $set: {
+      userId: currentUserId
+    }
+  }, {
+    multi: true
+  });
 }
 
 Meteor.methods({
@@ -148,5 +170,12 @@ Meteor.methods({
     });
 
     return result;
+  },
+
+  "onboarding/transferFavorites"(previousUserId) {
+    check(previousUserId, String);
+    // this.unblock();
+
+    return transferFavorites(previousUserId, Meteor.userId());
   }
 });
