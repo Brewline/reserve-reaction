@@ -129,11 +129,36 @@ Meteor.methods({
 
     return saveWatchlistItem(userId, shopId, watchlist, itemId, data);
   },
+
   "watchlist/remove"(watchlist, _idOrItemId) {
-    return removeWatchlistItem(Meteor.userId(), Reaction.getShopId(), watchlist, _idOrItemId);
+    const userId = Meteor.userId();
+    const shopId = Reaction.getShopId();
+
+    return removeWatchlistItem(userId, shopId, watchlist, _idOrItemId);
+  },
+
+  "watchlist/global/save"(watchlist, itemId, data) {
+    const userId = Meteor.userId();
+    const shopId = Reaction.getPrimaryShopId();
+
+    return saveWatchlistItem(userId, shopId, watchlist, itemId, data);
+  },
+
+  "watchlist/global/remove"(watchlist, _idOrItemId) {
+    const userId = Meteor.userId();
+    const shopId = Reaction.getPrimaryShopId();
+
+    return removeWatchlistItem(userId, shopId, watchlist, _idOrItemId);
   }
 });
 
-Meteor.publish("WatchlistItems", (watchlist, filters = {}, options = {}) => (
-  listWatchlistItems(Meteor.userId(), Reaction.getShopId(), watchlist, filters, options)
-));
+Meteor.publish("WatchlistItems", (watchlist, filters = {}, options = {}) => {
+  const userId = Meteor.userId();
+  const shopId = Reaction.getShopId();
+
+  if (!userId || !shopId) {
+    return this.ready();
+  }
+
+  listWatchlistItems(userId, shopId, watchlist, filters, options);
+});

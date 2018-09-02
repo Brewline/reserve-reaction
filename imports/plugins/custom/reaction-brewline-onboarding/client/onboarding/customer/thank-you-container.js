@@ -1,8 +1,8 @@
+import ReactGA from "react-ga";
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import ReactGA from "react-ga";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 import { WatchlistItems } from "@brewline/watchlist/lib/collections";
@@ -33,6 +33,10 @@ class ThankYouContainer extends Component {
     this.preLoginUserId = Meteor.userId();
     // capture onLoginHandler so we can cancel it later
     this.onLoginHandler = Accounts.onLogin(() => {
+      if (this.onLoginHandler && this.onLoginHandler.stop) {
+        this.onLoginHandler.stop();
+      }
+
       if (!this.preLoginUserId) { return; }
       if (Meteor.userId() === this.preLoginUserId) { return; }
 

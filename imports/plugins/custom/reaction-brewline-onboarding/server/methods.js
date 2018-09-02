@@ -128,7 +128,7 @@ Meteor.methods({
     }
 
     if (!breweryId) {
-      throw new Meteor.Error(404, "Brewery not found");
+      throw new Meteor.Error(404, "Unable to get beer list from Untappd");
     }
 
     // if (!Reaction.hasPermission(connectorsRoles)) {
@@ -137,6 +137,7 @@ Meteor.methods({
 
     const { ServiceConfiguration } = Package["service-configuration"];
 
+    // TODO: add `shopId: Reaction.getPrimaryShop()` to query?
     const config =
       ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
