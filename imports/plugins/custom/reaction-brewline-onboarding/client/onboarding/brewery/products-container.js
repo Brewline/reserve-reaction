@@ -92,6 +92,7 @@ class ProductsContainer extends Component {
 
 function composer(props, onData) {
   // get brewery beers
+  // TODO: move onboarding/breweryBeerList to untappd plugin
   Meteor.call("onboarding/breweryBeerList", (error, searchResults) => {
     if (error) {
       onData(null, {

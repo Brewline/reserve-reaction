@@ -1,7 +1,14 @@
 import ReactGA from "react-ga";
+import SimpleSchema from "simpl-schema";
 import { Meteor } from "meteor/meteor";
 import { Router } from "/client/api";
 import { Accounts } from "meteor/accounts-base";
+import {
+  SocialProvider,
+  SocialPackageConfig
+} from "/lib/collections/schemas";
+
+import SocialSettings from "@reactioncommerce/reaction-included/social/client/components/settings";
 
 import "./favicon";
 
@@ -12,6 +19,39 @@ function addBodyClass() {
 
   addBodyClass.oneAndDone = true;
 }
+
+const AdditionalSocialPackages = new SimpleSchema({
+  "settings": SocialPackageConfig._schema.settings,
+  "settings.public": SocialPackageConfig._schema["settings.public"],
+  "settings.public.apps": SocialPackageConfig._schema["settings.public.apps"],
+  "settings.public.apps.instagram": {
+    type: SocialProvider,
+    optional: true,
+    defaultValue: {}
+  },
+  "settings.public.apps.untappd": {
+    type: SocialProvider,
+    optional: true,
+    defaultValue: {}
+  }
+});
+
+SocialPackageConfig.extend(AdditionalSocialPackages);
+
+SocialSettings.addProvider({
+  name: "instagram",
+  icon: "fa fa-instagram",
+  fields: ["profilePage"]
+});
+
+SocialSettings.addProvider({
+  name: "untappd",
+  icon: "fa fa-untappd",
+  fields: ["profilePage"]
+});
+
+SocialSettings.disableProvider("pinterest");
+SocialSettings.disableProvider("googleplus");
 
 // function logSomeContext(context) {
 //   console.log("The current route details...");

@@ -2,14 +2,41 @@ import _ from "lodash";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { VelocityComponent } from "velocity-react";
-import { Button } from "/imports/plugins/core/ui/client/components";
+import { Components } from "@reactioncommerce/reaction-components";
+import { Modal } from "@brewline/theme/client/components";
 
 export default class Login extends Component {
   static propTypes = {
     loggedInUser: PropTypes.object,
+    onCloseSignUpModal: PropTypes.func,
     onLogin: PropTypes.func.isRequired,
-    onNextStep: PropTypes.func.isRequired
+    onNextStep: PropTypes.func.isRequired,
+    onOpenSignUpModal: PropTypes.func
   };
+
+  state = {
+    shouldShowAuthModal: false
+  };
+
+  handleClickSignUp = () => {
+    const { onOpenSignUpModal } = this.props;
+
+    this.setState({ shouldShowAuthModal: true });
+
+    if (!onOpenSignUpModal) { return; }
+
+    onOpenSignUpModal();
+  }
+
+  handleRequestClose = () => {
+    const { onCloseSignUpModal } = this.props;
+
+    this.setState({ shouldShowAuthModal: false });
+
+    if (!onCloseSignUpModal) { return; }
+
+    onCloseSignUpModal();
+  }
 
   renderLoggedIn() {
     return (
@@ -18,7 +45,7 @@ export default class Login extends Component {
           Great! You&rsquo;re already logged in.
         </p>
 
-        <Button
+        <Components.Button
           bezelStyle="solid"
           className={{
             "btn": true,
@@ -29,7 +56,7 @@ export default class Login extends Component {
           primary={true}
         >
           Next step
-        </Button>
+        </Components.Button>
       </div>
     );
   }
@@ -47,7 +74,7 @@ export default class Login extends Component {
         </p>
 
         <VelocityComponent animation="callout.shake" runOnMount={true}>
-          <Button
+          <Components.Button
             bezelStyle="solid"
             className={{
               "btn": true,
@@ -58,8 +85,10 @@ export default class Login extends Component {
             primary={true}
           >
             Login with Untappd
-          </Button>
+          </Components.Button>
         </VelocityComponent>
+
+        <Components.Divider />
 
         <p>
           We use information from Untappd to 1) create your account (using
@@ -72,11 +101,28 @@ export default class Login extends Component {
           We do not post, toast, or otherwise change content on your behalf.
         </p>
 
-        {/* TODO: Allow for non-Untappd login
         <p>
-          Prefer to set up your account manually?
+          <Components.Button
+            className={{
+              "btn": false,
+              "btn-default": false
+            }}
+            label="Prefer to set up your account manually? click here."
+            i18nKeyLabel="onboarding.manualShopCreationCta"
+            data-event-category="accounts"
+            onClick={this.handleClickSignUp}
+          />
         </p>
-        */}
+
+        <Modal
+          isOpen={this.state.shouldShowAuthModal}
+          onRequestClose={this.handleRequestClose}
+          size="sm"
+        >
+          <Components.Login
+            loginFormCurrentView="loginFormSignUpView"
+          />
+        </Modal>
       </div>
     );
   }

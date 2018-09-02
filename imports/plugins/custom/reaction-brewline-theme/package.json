@@ -18,7 +18,8 @@
             "./"
           ],
           "alias": {
-            "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib"
+            "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib",
+            "@reactioncommerce/reaction-included": "./imports/plugins/included"
           }
         }
       ]

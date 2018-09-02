@@ -16,7 +16,7 @@ export default class Modal extends Component {
 
   static defaultProps = {
     isOpen: false,
-    uniqueId: Random.id()
+    get uniqueId() { return Random.id(); }
   };
 
   handleRequestClose = (e) => {

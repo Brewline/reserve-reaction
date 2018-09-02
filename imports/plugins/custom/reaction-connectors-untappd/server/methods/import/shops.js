@@ -2,7 +2,7 @@
 import _ from "lodash";
 import UntappdClient from "node-untappd";
 import { Job } from "/imports/plugins/core/job-collection/lib";
-import { methods as RegistryMethods } from "/server/methods/core/registry";
+// import { methods as RegistryMethods } from "/server/methods/core/registry";
 import { Meteor } from "meteor/meteor";
 import { Logger, Reaction } from "/server/api";
 import { check, Match } from "meteor/check";
@@ -202,7 +202,7 @@ export function updateShopSocialPackage(shop) {
   apps.facebook = {
     username: facebookHandle,
     profilePage: facebook,
-    enabled: !!facebook
+    enabled: !!facebookHandle
   };
 
   apps.instagram = {
@@ -229,8 +229,7 @@ export function updateShopSocialPackage(shop) {
   });
 }
 
-const SHOPIFY_REGISTRY_NAME = "shopify";
-function saveShop(untappdShop) {
+function saveShop(untappdShop, ownerEmailAddress) {
   if (untappdShopExists(untappdShop.brewery_id)) {
     const msg = `Shop (${untappdShop.brewery_name}) already exists`;
     Logger.warn(msg);
@@ -240,7 +239,7 @@ function saveShop(untappdShop) {
   // Setup reaction product
   const shopData = createReactionShopDataFromUntappdShop(untappdShop);
   const ownerData = {
-    email: `${shopData.slug}@brewline.io`,
+    email: ownerEmailAddress || `${shopData.slug}@brewline.io`,
     name: shopData.name
   };
 
@@ -253,17 +252,12 @@ function saveShop(untappdShop) {
 
   setShopImage(shop, untappdShop);
 
-  RegistryMethods["registry/update"](shop._id, SHOPIFY_REGISTRY_NAME, {
-    property: "enabled",
-    value: false
-  });
-
   Logger.debug(`Shop ${untappdShop.brewery_name} added`);
 
   return shop;
 }
 
-export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
+export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop, ...fnSaveShopArgs) {
   try {
     const { ServiceConfiguration } = Package["service-configuration"];
 
@@ -278,7 +272,6 @@ export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
     const untappd = new UntappdClient(debug);
     untappd.setClientId(config.clientId);
     untappd.setClientSecret(config.secret);
-    // untappd.setAccessToken(accessToken);
 
     // in case you need to add additional options
     const opts = { BREWERY_ID: untappdShopId };
@@ -291,7 +284,7 @@ export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop) {
           if (error) {
             reject(error);
           } else {
-            const shop = fnSaveShop(data.response.brewery);
+            const shop = fnSaveShop(data.response.brewery, ...fnSaveShopArgs);
 
             result.shop = shop;
 
@@ -319,23 +312,26 @@ export const methods = {
    * @async
    * @method connectors/untappd/import/shops
    * @param {string} untappdShopId Untappd shop id
+   * @param {string} ownerEmailAddress User who will be the owner and will
+   * receive the welcome email
    * @returns {object} A shop
    */
-  async "connectors/untappd/import/shops"(untappdShopId) {
+  async "connectors/untappd/import/shops"(untappdShopId, ownerEmailAddress) {
     check(untappdShopId, Match.Maybe(Number));
+    check(ownerEmailAddress, Match.Maybe(String));
 
     if (!Reaction.hasPermission(connectorsRoles)) {
       throw new Meteor.Error(403, "Access Denied");
     }
 
-    return importUntappdShop(untappdShopId);
+    return importUntappdShop(untappdShopId, saveShop, ownerEmailAddress);
   },
 
   /**
    * Searches shops from Untappd
    *
    * @async
-   * @method connectors/untappd/import/shops
+   * @method connectors/untappd/search/shops
    * @param {object} options An object of options for the untappd API call. Available options here: https://help.untappd.com/api/reference/product#index
    * @returns {array} An array of the Reaction product _ids (including variants and options) that were created.
    */

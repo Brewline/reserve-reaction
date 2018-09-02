@@ -7,32 +7,11 @@ import "./connect-with";
 import UntappdConnectorImport from "./untappd-connector-import-component";
 
 class UntappdConnectorImportContainer extends Component {
-  constructor(props) {
-    super(props);
+  static propTypes = UntappdConnectorImport.propTypes;
 
-    this.fetchAccessToken = this.fetchAccessToken.bind(this);
-    this.fetchSearchResults = this.fetchSearchResults.bind(this);
+  state = {};
 
-    // // initial state
-    const alertId = "connectors-untappd-search";
-
-    this.state = {
-      alertOptions: {
-        placement: alertId,
-        id: alertId,
-        autoHide: 4000
-      },
-      searchResults: []
-    };
-  }
-
-  fetchAccessToken() {
-    Meteor.connectWithUntappd(null, function () {
-      console.log("Logged In w/Untappd", arguments);
-    });
-  }
-
-  fetchSearchResults(q) {
+  fetchSearchResults = (q) => {
     Meteor.call("connectors/untappd/search/products", { q }, (err, res) => {
       if (err) {
         // TODO: correct wording
@@ -47,25 +26,31 @@ class UntappdConnectorImportContainer extends Component {
     return (
       <UntappdConnectorImport
         {...this.props}
-        onGetAccessToken={this.fetchAccessToken}
         onSearch={this.fetchSearchResults}
-        searchResults={this.state.searchResults}
+        searchResults={this.state.searchResults || this.props.searchResults}
       />
     );
   }
 }
 
 function composer(props, onData) {
-  const socialSettings = {};
-  const subscription = Reaction.Subscriptions.Packages;
+  const shop = Reaction.getShop();
+  const { UntappdId: untappdId } = shop;
 
-  if (subscription.ready()) {
-    socialSettings.hasAccessToken = true;
-    socialSettings.searchTerm = "";
-    socialSettings.products = [];
-  }
+  if (!untappdId) { return; }
 
-  onData(null, socialSettings);
+  Meteor.call("onboarding/breweryBeerList", (error, searchResults) => {
+    if (error) {
+      return Alerts.toast(error.reason, "error");
+    }
+
+    if (searchResults) {
+      onData(null, {
+        ...props,
+        searchResults
+      });
+    }
+  });
 }
 
 registerComponent(

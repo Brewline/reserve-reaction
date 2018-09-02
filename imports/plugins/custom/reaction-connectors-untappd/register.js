@@ -14,7 +14,7 @@ Reaction.registerPackage({
     webhooks: []
   },
   registry: [{
-    label: "Untappd Connect Settings",
+    label: "Import Beers from Untappd",
     name: "settings/connectors/untappd",
     icon: "fa fa-exchange",
     route: "/dashboard/connectors/untappd",
