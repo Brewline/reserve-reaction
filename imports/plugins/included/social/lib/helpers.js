@@ -1,11 +1,13 @@
 import { Packages } from "/lib/collections";
 import merge from "lodash/merge";
+import { Reaction } from "/client/api";
 
 export function createSocialSettings(options) {
   let socialSettings;
 
   const socialPackage = Packages.findOne({
-    name: "reaction-social"
+    name: "reaction-social",
+    shopId: Reaction.getShopId()
   });
 
   if (socialPackage) {
