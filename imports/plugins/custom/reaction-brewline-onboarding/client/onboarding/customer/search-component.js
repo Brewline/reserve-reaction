@@ -84,7 +84,6 @@ export default class Search extends Component {
             />
           </div>
 
-
           <Button
             bezelStyle="solid"
             className={{

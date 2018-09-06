@@ -12,7 +12,8 @@ import Products from "./products-component";
 
 class ProductsContainer extends Component {
   propTypes = {
-    onNextStep: PropTypes.func.isRequired
+    onNextStep: PropTypes.func.isRequired,
+    searchResults: PropTypes.arrayOf(PropTypes.object)
   };
 
   state = {
@@ -20,11 +21,22 @@ class ProductsContainer extends Component {
   };
 
   getProduct(untappdShopId) {
-    if (!_.get(this.state, "searchResults.length")) { return {}; }
+    let searchResults;
+
+    const { searchResults: propsResults } = this.props;
+    const { searchResults: stateResults } = this.state;
+
+    if (propsResults && propsResults.length) {
+      searchResults = propsResults;
+    } else if (stateResults && stateResults.length) {
+      searchResults = stateResults;
+    } else {
+      return {};
+    }
 
     const brewery = _.find(
-      this.state.searchResults,
-      (r) => _.get(r, "brewery.brewery_id") === untappdShopId
+      searchResults,
+      (r) => _.get(r, "beer.bid") === untappdShopId
     );
 
     return brewery || {};

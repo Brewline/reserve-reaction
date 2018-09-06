@@ -193,7 +193,7 @@ export function updateShopSocialPackage(shop) {
   // we could loop here, but where sometimes we have a URL and other times a
   // a handle, let's do it manually
   apps.twitter = {
-    username: `@${twitter}`,
+    username: twitter,
     profilePage: `https://twitter.com/${twitter}`,
     enabled: !!twitter
   };
@@ -206,7 +206,7 @@ export function updateShopSocialPackage(shop) {
   };
 
   apps.instagram = {
-    username: `@${instagram}`,
+    username: instagram,
     profilePage: `https://www.instagram.com/${instagram}/`,
     enabled: !!instagram
   };

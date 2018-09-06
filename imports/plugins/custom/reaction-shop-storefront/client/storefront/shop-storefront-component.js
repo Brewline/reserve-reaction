@@ -160,16 +160,9 @@ export class MarketplaceShopStorefront extends Component {
 
     if (!slug) { return; }
 
-    return (
-      <a
-        href={`https://untappd.com/${slug}`}
-        target="_blank"
-        className="btn btn-link"
-      >
-        Untappd
-      </a>
-    );
-    // return this.linkedIcon(, "untappd");
+    const url = `https://untappd.com/${slug}`;
+
+    return this.linkedIcon(url, "untappd");
   }
 
   instagramOption() {
@@ -264,7 +257,7 @@ export class MarketplaceShopStorefront extends Component {
       <div>
         {this.renderInactiveBanner()}
 
-        <div className="shop-storefront rui items flex-nowrap">
+        <div className="shop-storefront rui items">
           <div className="shop-storefront__brand rui item static start axis vertical">
             {this.renderBrand()}
           </div>
@@ -274,7 +267,7 @@ export class MarketplaceShopStorefront extends Component {
             <p>{this.urlOption()}</p>
             <p>{shop.description}</p>
 
-            <ul className="storefront-social flex-wrap">
+            <ul className="storefront-social flex-wrap justify-content-flex-start">
               {this.socialOptions().map((b, i) => <li key={i}>{b}</li>)}
             </ul>
           </div>

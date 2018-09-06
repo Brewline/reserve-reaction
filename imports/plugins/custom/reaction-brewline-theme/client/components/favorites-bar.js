@@ -39,14 +39,14 @@ export default class FavoritesBar extends Component {
     if (this.state.expanded) {
       this.setState({
         expanded: false,
-        favorites: null
+        uiDisplayFavorites: false
       });
 
       window.clearTimeout(this.favoriteTimeout);
     } else {
       this.setState({
         expanded: true,
-        favorites: null
+        uiDisplayFavorites: false
       });
 
       this.favoriteTimeout =
@@ -55,10 +55,8 @@ export default class FavoritesBar extends Component {
   };
 
   loadFavorites = () => {
-    const { favorites } = this.props;
-
     this.setState({
-      favorites
+      uiDisplayFavorites: true
     });
   };
 
@@ -125,10 +123,15 @@ export default class FavoritesBar extends Component {
       return this.renderNoFavorites();
     }
 
-    const favoriteItems =
-      this.state.favorites || Array(...Array(favorites.length));
-
-    const key = this.state.favorites !== null ? "favorites" : "loading";
+    let key;
+    let favoriteItems;
+    if (this.state.uiDisplayFavorites) {
+      favoriteItems = favorites;
+      key = "favorites";
+    } else {
+      favoriteItems = Array(...Array(favorites.length));
+      key = "loading";
+    }
 
     return (
       <LoadingCrossfadeComponent duration={this.state.duration * 0.75} key="content">

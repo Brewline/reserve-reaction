@@ -3,10 +3,10 @@ ul.storefront-social {
 	padding-left: 0;
 	list-style-type: none;
 
-	justify-content: flex-end;
-	@media (min-width: @screen-md-min) {
-		justify-content: space-between;
-	}
+	justify-content: flex-start;
+	// @media (min-width: @screen-md-min) {
+	// 	justify-content: space-between;
+	// }
 
 	li {
 		margin: 10px 10px 0 0;
@@ -26,6 +26,14 @@ ul.storefront-social {
 // }
 
 .shop-storefront {
+	box-lines: multiple;
+	flex-wrap: wrap;
+
+	@media (min-width: @screen-md-min) {
+		box-lines: single;
+		flex-wrap: nowrap;
+	}
+
 	.shop-storefront__brand {
 		background-color: white;
 	}
