@@ -33,18 +33,18 @@ export default class ThankYou extends PureComponent {
 
     const apps = {};
 
+    if (twitter) {
+      apps.twitter = {
+        ...(_.get(socialSettings, "apps.twitter", {})),
+        description: `.@${twitter} do you do can releases online? have you heard of @brewlineHQ?`
+      };
+    }
+
     if (facebook) {
       const handle = facebook.replace(/^.*\.facebook\.com\//i, "");
       apps.facebook = {
         ...(_.get(socialSettings, "apps.facebook", {})),
         description: `@${handle} do you do can releases online? have you heard of @brewlineHQ?`
-      };
-    }
-
-    if (twitter) {
-      apps.twitter = {
-        ...(_.get(socialSettings, "apps.twitter", {})),
-        description: `.@${twitter} do you do can releases online? have you heard of @brewlineHQ?`
       };
     }
 

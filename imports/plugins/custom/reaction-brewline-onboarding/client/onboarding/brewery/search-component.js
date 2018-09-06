@@ -4,13 +4,17 @@ import { Components } from "@reactioncommerce/reaction-components";
 import { Button } from "/imports/plugins/core/ui/client/components";
 
 import UntappdMarketplaceShop from "@brewline/untappd-connector/client/settings/untappd-marketplace-shop-component";
+import PropTypes from "prop-types";
 
 export default class Search extends Component {
-  componentWillMount() {
-    if (!this.props.userBrewery || !this.props.onNextStep) { return; }
-
-    this.props.onNextStep();
-  }
+  static propTypes = {
+    currentBrewery: PropTypes.object,
+    onAddShop: PropTypes.func.isRequired,
+    onNextStep: PropTypes.func.isRequired,
+    onSearch: PropTypes.func.isRequired,
+    searchResults: PropTypes.arrayOf(PropTypes.object),
+    userBrewery: PropTypes.object
+  };
 
   handleSearch = (e) => {
     e.preventDefault();

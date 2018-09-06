@@ -160,5 +160,5 @@ Meteor.publish("WatchlistItems", (watchlist, filters = {}, options = {}) => {
     return this.ready();
   }
 
-  listWatchlistItems(userId, shopId, watchlist, filters, options);
+  return listWatchlistItems(userId, shopId, watchlist, filters, options);
 });

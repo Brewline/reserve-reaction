@@ -42,7 +42,7 @@ export default class Login extends Component {
     return (
       <div>
         <p>
-          Great! You&rsquo;re already logged in.
+          Great! You are logged in.
         </p>
 
         <Components.Button

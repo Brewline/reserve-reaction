@@ -99,8 +99,7 @@ class UntappdMarketplaceShopContainer extends Component {
             <Components.Button
               bezelStyle="solid"
               className={{
-                "btn": true,
-                "btn-lg": true
+                btn: true
               }}
               label="Use this email"
               onClick={this.addShop}

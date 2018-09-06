@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import ReactGA from "react-ga";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
@@ -12,6 +13,10 @@ const ACCOUNT_TYPE_BREWERY = "brewery";
 // const ACCOUNT_TYPE_USER = "user";
 
 class SearchContainer extends Component {
+  static propTypes = {
+    onNextStep: PropTypes.func
+  };
+
   state = {
     searchResults: []
   };
@@ -88,6 +93,18 @@ function composer(props, onData) {
   let userBrewery;
   let currentBrewery;
   const user = Meteor.user();
+
+  // this is wrong... it was written assuming user is returned from Untappd
+  // this user is a Meteor user and doesn't know what `account_type` is
+  if (user && user.account_type === ACCOUNT_TYPE_BREWERY) {
+    userBrewery = user.brewery_details;
+
+    if (userBrewery) {
+      props.onNextStep();
+      return;
+    }
+  }
+
   const shopSubscription = Meteor.subscribe("PrimaryShop");
 
   if (shopSubscription.ready()) {
@@ -98,20 +115,13 @@ function composer(props, onData) {
     }
   }
 
-  if (user && user.account_type === ACCOUNT_TYPE_BREWERY) {
-    userBrewery = user.brewery_details;
-  }
-
-  if (userBrewery || currentBrewery) {
-    onData(null, {
-      ...props,
-      userBrewery,
-      currentBrewery
-    });
-  } else {
-    // avoid a re-paint by passing the original instance of props... maybe?
-    onData(null, props);
-  }
+  // if (currentBrewery) {
+  onData(null, {
+    ...props,
+    userBrewery,
+    currentBrewery
+  });
+  // }
 }
 
 registerComponent(
