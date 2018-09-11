@@ -61,8 +61,8 @@ class ProductsContainer extends Component {
 
   addProduct = (productId) => {
     const untappdProduct = this.getProduct(productId);
-    const { beer } = untappdProduct;
-    const displayName = beer.beer_name;
+    const { beer = {} } = untappdProduct;
+    const displayName = beer.beer_name || "???";
 
     Meteor.call("connectors/untappd/import/products", productId, (err, _res) => {
       if (err) {

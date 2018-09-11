@@ -4,7 +4,7 @@ ul.storefront-social {
 	list-style-type: none;
 
 	justify-content: flex-start;
-	// @media (min-width: @screen-md-min) {
+	// @media @mobile {
 	// 	justify-content: space-between;
 	// }
 
@@ -26,17 +26,29 @@ ul.storefront-social {
 // }
 
 .shop-storefront {
-	box-lines: multiple;
-	flex-wrap: wrap;
+	display: flex;
+	box-lines: single;
+	box-orient: horizontal;
+	flex-direction: row;
+	flex-wrap: nowrap;
 
-	@media (min-width: @screen-md-min) {
-		box-lines: single;
-		flex-wrap: nowrap;
+	@media @mobile {
+		box-lines: multiple;
+		box-orient: vertical;
+		flex-direction: column;
+		flex-wrap: wrap;
+
+		&,
+		.shop-storefront__content {
+			align-items: center;
+			justify-content: center;
+		}
 	}
 
-	.shop-storefront__brand {
-		background-color: white;
-	}
+	// this was here for a reason, but not sure what that was!
+	// .shop-storefront__brand {
+	// 	background-color: white;
+	// }
 
 	.logo {
 		margin-top: 8px; // idk... just felt right

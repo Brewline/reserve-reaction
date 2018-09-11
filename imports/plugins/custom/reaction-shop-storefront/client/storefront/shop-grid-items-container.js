@@ -8,10 +8,8 @@ import PropTypes from "prop-types";
 import _ from "lodash";
 import { compose } from "recompose";
 import { registerComponent } from "@reactioncommerce/reaction-components";
-import { Session } from "meteor/session";
 import { Reaction } from "/client/api";
 import { Media } from "/imports/plugins/core/files/client";
-import { SortableItem } from "/imports/plugins/core/ui/client/containers";
 import ShopGridItems from "./shop-grid-items-component";
 
 const wrapComponent = (Comp) => (
@@ -26,10 +24,10 @@ const wrapComponent = (Comp) => (
 
     shopPath = () => {
       if (this.props.shop) {
-        let handle = this.props.shop.handle;
+        let { handle } = this.props.shop;
 
         if (this.props.shop.__published) {
-          handle = this.props.shop.__published.handle;
+          ({ handle } = this.props.shop.__published);
         }
 
         return Reaction.Router.pathFor("shop", {
@@ -119,10 +117,7 @@ const wrapComponent = (Comp) => (
 );
 
 registerComponent("ShopGridItems", ShopGridItems, [
-  // SortableItem("shopGridItem"),
   wrapComponent
 ]);
 
-export default compose(
-  // SortableItem("shopGridItem"),
-  wrapComponent)(ShopGridItems);
+export default compose(wrapComponent)(ShopGridItems);
