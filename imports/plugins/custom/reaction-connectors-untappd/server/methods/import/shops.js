@@ -51,7 +51,7 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
     addressBook.push({
       fullName: `${untappdShop.brewery_name} HQ`,
       address1: untappdShop.location.brewery_address || "123 Brew Ln.",
-      city: untappdShop.location.brewery_city,
+      city: untappdShop.location.brewery_city || "Brewline",
       company: untappdShop.brewery_name,
       region: untappdShop.location.brewery_state,
       country: "US", // I know, I know
