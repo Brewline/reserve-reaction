@@ -91,8 +91,14 @@ export default class Login extends Component {
         <Components.Divider />
 
         <p>
-          We use information from Untappd to 1) create your account (using
-          your email), 2) create your shop, 3) import the beers that you choose.
+          We use information from Untappd to
+        </p>
+        <ol>
+          <li>create your account (using your email)</li>
+          <li>create your shop (using name, description, website, etc.)</li>
+          <li>import the beers that you choose</li>
+        </ol>
+        <p>
           We chose Untappd for your convenience and as a way to verify Brewery
           ownership.
         </p>
@@ -103,9 +109,11 @@ export default class Login extends Component {
 
         <p>
           <Components.Button
+            tagName="a"
             className={{
               "btn": false,
-              "btn-default": false
+              "btn-default": false,
+              "link": true
             }}
             label="Prefer to set up your account manually? click here."
             i18nKeyLabel="onboarding.manualShopCreationCta"
