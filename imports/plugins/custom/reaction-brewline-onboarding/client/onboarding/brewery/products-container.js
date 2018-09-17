@@ -9,9 +9,8 @@ import { composeWithTracker, registerComponent } from "@reactioncommerce/reactio
 
 import Products from "./products-component";
 
-
 class ProductsContainer extends Component {
-  propTypes = {
+  static propTypes = {
     onNextStep: PropTypes.func.isRequired,
     searchResults: PropTypes.arrayOf(PropTypes.object)
   };

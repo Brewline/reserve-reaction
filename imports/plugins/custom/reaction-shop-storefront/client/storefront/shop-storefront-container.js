@@ -24,7 +24,7 @@ function composer(props, onData) {
     primaryShopId = Reaction.getPrimaryShopId();
     shop = Reaction.getShop();
     merchantShops = Reaction.getMerchantShops();
-    isPrimaryShop = primaryShopId === shop._id;
+    isPrimaryShop = shop && primaryShopId === shop._id;
 
     if (isPrimaryShop === true) {
       const userAccountShopId = userAccount && userAccount.shopId;

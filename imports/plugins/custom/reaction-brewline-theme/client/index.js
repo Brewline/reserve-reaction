@@ -1,7 +1,7 @@
 import ReactGA from "react-ga";
 import SimpleSchema from "simpl-schema";
 import { Meteor } from "meteor/meteor";
-import { Router } from "/client/api";
+import { Reaction, Router } from "/client/api";
 import { Accounts } from "meteor/accounts-base";
 import {
   SocialProvider,
@@ -82,6 +82,11 @@ ReactGA.initialize(BREWLINE_TRACKING_ID);
 // on page load & transition
 Router.Hooks.onEnter(() => {
   ReactGA.pageview(window.location.pathname + window.location.search);
+
+  const shop = Reaction.getShop();
+  ReactGA.set({
+    dimension1: shop ? shop.name : "Unknown Shop"
+  });
 });
 
 // update userId on login
