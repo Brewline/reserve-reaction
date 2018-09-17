@@ -53,9 +53,17 @@ class OnboardingNavBar extends Component {
     return (
       <div className="rui navbar navbar--onboarding">
         <div className="navbar-content">
-          {this.renderBrand()}
-          {this.renderWelcomeMessage()}
-          {this.renderContactUs()}
+          <div className="navbar-item justify-content-align-left">
+            {this.renderBrand()}
+          </div>
+
+          <div className="navbar-item title justify-content-center">
+            {this.renderWelcomeMessage()}
+          </div>
+
+          <div className="navbar-item justify-content-flex-end">
+            {this.renderContactUs()}
+          </div>
         </div>
       </div>
     );

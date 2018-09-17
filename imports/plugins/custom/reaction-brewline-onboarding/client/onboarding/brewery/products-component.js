@@ -6,7 +6,7 @@ import { Components } from "@reactioncommerce/reaction-components";
 import UntappdConnectorProduct from "@brewline/untappd-connector/client/settings/untappd-connector-product-component";
 
 export default class Products extends Component {
-  propTypes = {
+  static propTypes = {
     onAddProduct: PropTypes.func.isRequired,
     searchResults: PropTypes.arrayOf(PropTypes.object)
   };

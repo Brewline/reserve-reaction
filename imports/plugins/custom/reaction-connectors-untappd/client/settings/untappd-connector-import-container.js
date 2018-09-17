@@ -37,6 +37,8 @@ function composer(props, onData) {
   const shop = Reaction.getShop();
   const { UntappdId: untappdId } = shop;
 
+  onData(null, props);
+
   if (!untappdId) { return; }
 
   Meteor.call("onboarding/breweryBeerList", (error, searchResults) => {

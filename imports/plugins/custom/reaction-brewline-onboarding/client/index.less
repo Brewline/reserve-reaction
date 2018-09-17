@@ -140,8 +140,18 @@ body.app-brewlineOnboardingCustomer {
 		align-items: center;
 		width: 100%;
 
+		.navbar-item {
+			display: flex;
+			flex: 1;
+
+			&.title {
+				flex: 2;
+			}
+		}
+
 		.title {
 			margin-top: 10px;
+			text-align: center;
 
 			@media only screen and (max-width: @screen-sm-max) {
 				display: none;
