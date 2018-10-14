@@ -5,10 +5,8 @@
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Components } from "@reactioncommerce/reaction-components";
-import { formatPriceString } from "/client/api";
 
-class ShopGridItems extends Component {
+export default class ShopGridItems extends Component {
   static propTypes = {
     canEdit: PropTypes.bool,
     // connectDragSource: PropTypes.func,
@@ -16,9 +14,9 @@ class ShopGridItems extends Component {
     isMediumWeight: PropTypes.func,
     media: PropTypes.func,
     onClick: PropTypes.func,
-    shopPath: PropTypes.func,
     positions: PropTypes.func,
     shop: PropTypes.object,
+    shopPath: PropTypes.func,
     weightClass: PropTypes.func
   }
 
@@ -38,7 +36,8 @@ class ShopGridItems extends Component {
 
   renderMedia() {
     const media = this.props.media();
-    let backgroundImageUrl, mediaClassName;
+    let backgroundImageUrl;
+    let mediaClassName;
 
     if (!media) {
       mediaClassName = "placeholder-image";
@@ -49,9 +48,12 @@ class ShopGridItems extends Component {
     }
 
     return (
-      <span className={`product-image ${mediaClassName}`} style={{
-        backgroundImage: `url('${backgroundImageUrl}')`
-      }}/>
+      <span
+        className={`product-image ${mediaClassName}`}
+        style={{
+          backgroundImage: `url('${backgroundImageUrl}')`
+        }}
+      />
     );
   }
 
@@ -64,7 +66,7 @@ class ShopGridItems extends Component {
           data-event-action="shop-click"
           data-event-label="grid shop click"
           data-event-value={this.props.shop._id}
-          onDoubleClick={this.handleDoubleClick}
+          onDoubleClick={this.handleClick}
           onClick={this.handleClick}
         >
           <div className="overlay">
@@ -76,7 +78,7 @@ class ShopGridItems extends Component {
   }
 
   render() {
-    const shopItem = (
+    return (
       <li
         className={`product-grid-item ${this.props.weightClass()}`}
         data-id={this.props.shop._id}
@@ -102,17 +104,5 @@ class ShopGridItems extends Component {
         </div>
       </li>
     );
-
-    // if (this.props.canEdit) {
-    //   return (
-    //     this.props.connectDropTarget(
-    //       this.props.connectDragSource(shopItem)
-    //     )
-    //   );
-    // }
-
-    return shopItem;
   }
 }
-
-export default ShopGridItems;

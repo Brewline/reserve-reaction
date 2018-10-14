@@ -298,7 +298,9 @@ TextField.propTypes = {
   style: PropTypes.object,
   textFieldStyle: PropTypes.object,
   type: PropTypes.string,
-  validation: PropTypes.object,
+  validation: PropTypes.shape({
+    messages: PropTypes.object
+  }),
   value: PropTypes.any
 };
 

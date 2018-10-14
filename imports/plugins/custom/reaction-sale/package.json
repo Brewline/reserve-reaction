@@ -1,5 +1,5 @@
 {
-  "name": "reaction-shop-storefront",
+  "name": "reaction-sale",
   "version": "1.0.0",
   "description": "",
   "main": "register.js",
@@ -19,18 +19,9 @@
           ],
           "alias": {
             "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib",
-            "@brewline/sale": "./imports/plugins/custom/reaction-sale"
+            "@brewline/untappd/methods": "./imports/plugins/custom/reaction-connectors-untappd/server/methods",
+            "@brewline/theme": "./imports/plugins/custom/reaction-brewline-theme/client/components"
           }
-        }
-      ]
-    ],
-    "presets": [
-      "env",
-      "react",
-      [
-        "@babel/preset-stage-2",
-        {
-          "decoratorsLegacy": true
         }
       ]
     ]

@@ -363,8 +363,15 @@
       "jsx-a11y/label-has-for": [
         "error",
         {
-          "components": [ "Label" ],
-          "required": { "some": [ "nesting", "id" ] },
+          "components": [
+            "Label"
+          ],
+          "required": {
+            "some": [
+              "nesting",
+              "id"
+            ]
+          },
           "allowChildren": false
         }
       ]
