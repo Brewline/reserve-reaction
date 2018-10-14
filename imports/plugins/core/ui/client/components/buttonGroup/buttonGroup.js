@@ -3,21 +3,23 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import { registerComponent } from "@reactioncommerce/reaction-components";
 
-const ButtonGroup = () => {
+const ButtonGroup = ({ className, children }) => {
   const baseClassName = classnames({
     "rui": true,
-    "btn-group": true
+    "btn-group": true,
+    [className]: !!className
   });
 
   return (
     <div className={baseClassName}>
-      {this.props.children}
+      {children}
     </div>
   );
 };
 
 ButtonGroup.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string
 };
 
 registerComponent("ButtonGroup", ButtonGroup);

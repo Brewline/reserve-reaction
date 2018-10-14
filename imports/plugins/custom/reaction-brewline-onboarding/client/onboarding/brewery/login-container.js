@@ -32,6 +32,7 @@ function composer(props, onData) {
   };
 
   let onLoginHandler;
+  const eventHandlers = [];
   const onOpenSignUpModal = () => {
     ReactGA.event({
       category: "Auth",
@@ -46,12 +47,21 @@ function composer(props, onData) {
         action: "Brewery Onboarding Sign Up Complete"
       });
     });
+
+    [
+      "onCreateUser", "onLogin", "onLoginFailure", "onExternalLogin", "onLogout"
+    ].filter((h) => Accounts[h]).forEach((hook) => {
+      eventHandlers[hook] = Accounts[hook]((...args) => {
+        console.log(hook, ...args);
+      });
+    });
   };
 
   const onCloseSignUpModal = () => {
     if (onLoginHandler && onLoginHandler.stop) {
       onLoginHandler.stop();
     }
+    eventHandlers.forEach((h) => h.stop());
 
     ReactGA.event({
       category: "Auth",

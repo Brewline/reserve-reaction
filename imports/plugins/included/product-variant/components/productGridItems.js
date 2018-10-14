@@ -24,6 +24,10 @@ class ProductGridItems extends Component {
     }
   };
 
+  get pdpPath() {
+    return this.props.pdpPath();
+  }
+
   handleDoubleClick = (event) => {
     this.props.onDoubleClick(event);
   }
@@ -68,7 +72,7 @@ class ProductGridItems extends Component {
     return (
       <div className="grid-content">
         <a
-          href={this.props.pdpPath()}
+          href={this.pdpPath}
           data-event-category="grid"
           data-event-action="product-click"
           data-event-label="grid product click"
@@ -89,7 +93,7 @@ class ProductGridItems extends Component {
   }
 
   render() {
-    const { isSearch, isSelected, pdpPath, product } = this.props;
+    const { isSearch, isSelected, product } = this.props;
 
     const productItem = (
       <li
@@ -101,7 +105,7 @@ class ProductGridItems extends Component {
           <span className="product-grid-item-alerts" />
 
           <a className="product-grid-item-images"
-            href={pdpPath()}
+            href={this.pdpPath}
             data-event-category="grid"
             data-event-label="grid product click"
             data-event-value={product._id}

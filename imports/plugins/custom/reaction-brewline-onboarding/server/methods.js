@@ -1,3 +1,4 @@
+import _ from "lodash";
 import UntappdClient from "node-untappd";
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
@@ -117,10 +118,24 @@ Meteor.methods({
     return importUntappdShop(untappdShopId, addUntappdShopToWaitlist);
   },
 
-  async "onboarding/breweryBeerList"(untappdBreweryId) {
+  // both params are optional
+  async "onboarding/breweryBeerList"(pUntappdBreweryId, pFilters) {
     let breweryId;
+    let filters;
+    let untappdBreweryId;
 
-    check(untappdBreweryId, Match.Maybe(Number));
+    // since the first param is optional, pUntappdBreweryId could contain the
+    // desired filters
+    check(pUntappdBreweryId, Match.Maybe(Match.OneOf(Number, Object)));
+    check(pFilters, Match.Maybe(Object));
+
+    if (_.isObject(pUntappdBreweryId)) {
+      filters = pUntappdBreweryId;
+      untappdBreweryId = undefined;
+    } else {
+      filters = pFilters;
+      untappdBreweryId = pUntappdBreweryId;
+    }
 
     if (untappdBreweryId) {
       breweryId = untappdBreweryId;
@@ -155,7 +170,7 @@ Meteor.methods({
     untappd.setClientSecret(config.secret);
     // untappd.setAccessToken(accessToken);
 
-    const opts = { BREWERY_ID: breweryId };
+    const opts = { ...filters, BREWERY_ID: breweryId };
 
     const result = await new Promise((resolve, reject) => {
       try {

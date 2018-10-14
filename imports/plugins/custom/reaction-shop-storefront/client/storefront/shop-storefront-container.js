@@ -5,6 +5,7 @@ import { Accounts } from "/lib/collections";
 import { Reaction } from "/client/api";
 import { Media } from "/imports/plugins/core/files/client";
 import { Router } from "/client/modules/router";
+import { Sales } from "@brewline/sale/lib/collections";
 
 import ShopStorefront from "./shop-storefront-component";
 
@@ -13,6 +14,7 @@ function composer(props, onData) {
   let isPrimaryShop;
   let merchantShops;
   let primaryShopId;
+  let sales;
   let shop;
   let userAccount;
 
@@ -38,6 +40,10 @@ function composer(props, onData) {
     }
   }
 
+  if (Reaction.Subscriptions.Sales.ready()) {
+    sales = Sales.find({});
+  }
+
   if (shop && Array.isArray(shop.brandAssets)) {
     // it's strange to pluck 'navbarBrandImage', but it works
     const brandAsset =
@@ -48,7 +54,7 @@ function composer(props, onData) {
     }
   }
 
-  onData(null, { shop, brandMedia, merchantShops });
+  onData(null, { ...props, shop, sales, brandMedia, merchantShops });
 }
 
 const trackedComponent = composeWithTracker(composer);

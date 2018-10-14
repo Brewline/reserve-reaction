@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
+import { ReactionSale } from "@reaction/sale";
 import { Reaction, Router } from "/client/api";
 import { Products } from "/lib/collections";
 
@@ -25,12 +26,9 @@ function composer(props, onData) {
   }
 
   const done = () => {
-    // Go to product? might be confusing. let's go to shop in all cases.
-    // if (product) {
-    //   Router.go("product", { handle: product._id });
-    // } else {
-    Router.go("index");
-    // }
+    if (!ReactionSale.goToSelectedSale()) {
+      Router.go("index");
+    }
   };
 
   onData(null, {

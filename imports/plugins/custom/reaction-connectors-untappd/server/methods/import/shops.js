@@ -345,7 +345,8 @@ export const methods = {
       ServiceConfiguration.configurations.findOne({ service: "untappd" });
 
     if (!config) {
-      throw new ServiceConfiguration.ConfigError();
+      const configError = new ServiceConfiguration.ConfigError();
+      throw new Meteor.Error("Untappd is not configured. Please contact the administrator", configError);
     }
 
     const debug = false;

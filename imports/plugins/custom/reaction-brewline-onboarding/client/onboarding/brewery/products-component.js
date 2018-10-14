@@ -7,6 +7,7 @@ import UntappdConnectorProduct from "@brewline/untappd-connector/client/settings
 
 export default class Products extends Component {
   static propTypes = {
+    children: PropTypes.node,
     onAddProduct: PropTypes.func.isRequired,
     searchResults: PropTypes.arrayOf(PropTypes.object)
   };
@@ -50,16 +51,28 @@ export default class Products extends Component {
   }
 
   render() {
+    let content;
+    const { children } = this.props;
+
+    if (children) {
+      content = children;
+    } else {
+      content = (
+        <div>
+          <h1>Set up your Beer Release</h1>
+
+          <p>
+            Choose the beer you are selling.
+            If the beer you wish to release is not in this list, it can be added
+            manually later.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="onboarding__step brewline-onboarding__products">
-        <h1>Set up your Beer Release</h1>
-
-        <p>
-          Choose the beer you are selling.
-          If the beer you wish to release is not in this list, it can be added
-          manually later.
-        </p>
-
+        {content}
 
         {this.renderSearchResults()}
       </div>
