@@ -88,13 +88,15 @@ function composer(props, onData) {
   let products;
   const mediaArray = [];
   const saleIdOrSlug = Reaction.Router.getParam("idOrSlug");
+  // TODO: replace with Reaction.isPreview
   const viewSaleAs = Reaction.getUserPreferences("reaction-dashboard", "viewAs", "administrator");
 
   if (!saleIdOrSlug) {
     Router.go("sales");
   }
 
-  const productsSubscription = Meteor.subscribe("AllProducts");
+  const productsSubscription =
+    Meteor.subscribe("AllSaleProducts", saleIdOrSlug, !Reaction.isPreview());
   // Meteor.subscribe("SaleProducts", saleIdOrSlug);
 
   if (!Reaction.Subscriptions.Sales.ready()) { return; }
@@ -112,7 +114,7 @@ function composer(props, onData) {
 
   // Get the sale tags
   if (sale) {
-    Meteor.subscribe("SaleMedia", sale._id);
+    // Meteor.subscribe("SaleMedia", sale._id);
 
     // const selectedVariant = ReactionProduct.selectedVariant();
 
@@ -166,6 +168,7 @@ function composer(props, onData) {
     }
   }
 
+  // we may want to wait for the Media subscription to come back
   onData(null, {
     products,
     productsSubscription,

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Components, withMoment } from "@reactioncommerce/reaction-components";
+import { Components } from "@reactioncommerce/reaction-components";
 import { Reaction, Router } from "/client/api";
 
 // function splitDateAndTime(dateAndTime, ignoreDefaults = false) {
@@ -35,12 +35,11 @@ function convertToUtcDate(dateString) {
   return new Date(d.getTime() - offset);
 }
 
-class SaleFormComponent extends Component {
+export default class SaleFormComponent extends Component {
   static propTypes = {
     cancel: PropTypes.func,
     editSale: PropTypes.object,
     hasSale: PropTypes.bool,
-    moment: PropTypes.func,
     onSave: PropTypes.func,
     sale: PropTypes.shape({
       _id: PropTypes.string,
@@ -176,19 +175,32 @@ class SaleFormComponent extends Component {
   }
 
   splitDateAndTime(dateAndTime, ignoreDefaults = false) {
-    const { moment } = this.props;
+    let dateAndTimeString;
+    let date;
+    let time;
 
-    if (!moment) { return []; }
+    if (!dateAndTime) { return []; }
 
-    const mDate = moment(dateAndTime);
+    if (dateAndTime.toISOString) {
+      dateAndTimeString = dateAndTime.toISOString();
+    } else {
+      dateAndTimeString = dateAndTime;
+    }
 
-    let date = mDate.format("YYYY-MM-dd");
-    let time = mDate.format("HH:mm");
+    const matches = /(.*)T(.*)(:\d{2}.\d{3}Z)?$/.exec(dateAndTimeString);
+
+    if (matches) {
+      ([date, time] = matches);
+    }
 
     if (!date && !time && ignoreDefaults) { return []; }
 
     if (!date) {
-      date = moment().format("YYYY-MM-dd");
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = `0${d.getMonth()}`.slice(-2);
+      const dd = `0${d.getDay()}`.slice(-2);
+      date = `${yyyy}-${mm}-${dd}`;
     }
 
     if (!time) {
@@ -472,5 +484,3 @@ class SaleFormComponent extends Component {
     );
   }
 }
-
-export default withMoment(SaleFormComponent);

@@ -3,9 +3,9 @@ import PropTypes from "prop-types";
 import { Components } from "@reactioncommerce/reaction-components";
 import {
   Modal,
-  UntappdBreweryProductSearch,
-  UntappdProductComponent
+  UntappdBreweryProductSearch
 } from "@brewline/theme";
+import SaleAddProductForm from "./sale-add-product-form-component";
 
 const Tabs = {
   PRODUCTS: "PRODUCTS",
@@ -23,8 +23,7 @@ export default class SaleAddProduct extends Component {
 
   state = {
     selectedTab: Tabs.SEARCH,
-    shouldShowForm: false,
-    fields: {}
+    shouldShowForm: false
   };
 
   handleTabChange = (_event, selectedTab) => {
@@ -33,6 +32,14 @@ export default class SaleAddProduct extends Component {
     if (selectedTab === currentSelectedTab) { return; }
 
     this.setState({ selectedTab });
+  }
+
+  handleImportProductToSale = (optionData) => {
+    const { untappdProduct } = this.state;
+
+    this.setState({ shouldShowForm: false });
+
+    this.props.onImportProductToSale(untappdProduct, optionData);
   }
 
   renderProductsTabItem() {
@@ -69,6 +76,22 @@ export default class SaleAddProduct extends Component {
     );
   }
 
+  renderFormModal() {
+    const { untappdProduct } = this.state;
+    return (
+      <Modal
+        isOpen={this.state.shouldShowForm}
+        onRequestClose={this.handleCancel}
+        size="sm"
+      >
+        <SaleAddProductForm
+          onSubmit={this.handleImportProductToSale}
+          untappdProduct={untappdProduct}
+        />
+      </Modal>
+    );
+  }
+
   renderSearchFormAndResults() {
     return (
       <Fragment>
@@ -76,7 +99,7 @@ export default class SaleAddProduct extends Component {
           onClickProduct={this.handleImportProduct}
           shop={this.props.shop}
         />
-        {this.renderForm()}
+        {this.renderFormModal()}
       </Fragment>
     );
   }
@@ -125,135 +148,8 @@ export default class SaleAddProduct extends Component {
     this.setState({ shouldShowForm: false });
   }
 
-  renderPackagingOptions() {
-    const options = [{
-      title: "4 Pack (16oz. cans)",
-      className: "packaging-option option-4-pack-cans"
-    }, {
-      title: "6 Pack (12oz. cans)",
-      className: "packaging-option option-6-pack-cans"
-    }, {
-      title: "6 Pack (12oz. bottles)",
-      className: "packaging-option option-6-pack-bottles"
-    }];
-
-    const { fields: { title } } = this.state;
-
-    return (
-      <div className="rui form-group">
-        <label><span>Packaging</span></label>
-
-        <div className="radio-group flex">
-          {options.map((option, i) => {
-            const selected = option.title === title;
-            let { className = "" } = option;
-
-            if (selected) {
-              className += " selected";
-            }
-
-            return (
-              <div className="flex-1" key={i}>
-                <label className={className}>
-                  <input
-                    type="radio"
-                    onClick={(e) => this.handleFieldChange(e, option.title, "title")}
-                    selected={selected}
-                    value={option.title}
-                  />
-                </label>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
   handleImportProduct = (untappdProduct) => {
     this.setState({ untappdProduct, shouldShowForm: true });
-  }
-
-  handleFieldChange = (_event, value, name) => {
-    const { fields } = this.state;
-
-    fields[name] = value;
-
-    this.setState({ fields });
-  }
-
-  handleSubmit = () => {
-    const { untappdProduct, fields } = this.state;
-
-    // validation!
-
-    this.props.onImportProductToSale(untappdProduct, fields);
-  }
-
-  renderForm() {
-    const { fields, untappdProduct } = this.state;
-    const product = { beer: untappdProduct };
-
-    return (
-      <Modal
-        isOpen={this.state.shouldShowForm}
-        onRequestClose={this.handleCancel}
-        size="sm"
-      >
-        <h2>
-          <Components.Translation defaultValue="Add to Release" i18nKey="sale.addProductToSale" />
-        </h2>
-
-        <UntappdProductComponent
-          product={product}
-          onClickProduct={() => {}}
-        />
-
-        <form>
-          {this.renderPackagingOptions()}
-
-          <Components.TextField
-            i18nKeyLabel="product.price"
-            label="Price"
-            name="price"
-            onChange={this.handleFieldChange}
-            placeholder="price before platform fee"
-            type="number"
-            value={fields.price}
-          />
-
-          <Components.TextField
-            i18nKeyLabel="product.inventoryQuantity"
-            label="Quantity"
-            name="inventoryQuantity"
-            onChange={this.handleFieldChange}
-            placeholder="units available online"
-            type="number"
-            value={fields.inventoryQuantity}
-          />
-
-          <Components.TextField
-            i18nKeyLabel="product.inventoryLimit"
-            label="Limit"
-            name="inventoryLimit"
-            onChange={this.handleFieldChange}
-            placeholder="limit, in number of units"
-            type="number"
-            value={fields.inventoryLimit}
-          />
-
-          <Components.Button
-            bezelStyle="solid"
-            className={{
-              btn: true
-            }}
-            label="Add to Release"
-            onClick={this.handleSubmit}
-            primary={true}
-          />
-        </form>
-      </Modal>
-    );
   }
 
   render() {

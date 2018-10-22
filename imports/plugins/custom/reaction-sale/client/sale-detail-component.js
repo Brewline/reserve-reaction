@@ -111,7 +111,7 @@ class SaleDetail extends Component {
               loadMoreProducts={() => false}
               products={this.props.products}
               productsSubscription={this.props.productsSubscription}
-              ready={() => true}
+              ready={this.props.productsSubscription.ready}
               showNotFound={false}
             />
           </div>

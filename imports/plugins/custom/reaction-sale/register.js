@@ -11,7 +11,12 @@ Reaction.registerPackage({
     template: "saleDetail",
     workflow: "coreSalesWorkflow"
   }, {
-    route: "/can-release/list",
+    route: "/can-release/:idOrSlug/:productSlug",
+    name: "saleProduct",
+    template: "saleProductDetail",
+    workflow: "coreSalesWorkflow"
+  }, {
+    route: "/can-releases",
     name: "sales",
     label: "Can Releases",
     icon: "fa fa-beer",
@@ -23,11 +28,12 @@ Reaction.registerPackage({
     permissions: [{
       label: "Can Releases",
       permission: "createProduct" // createSale
-    }]
+    }],
+    workflow: "coreSalesGridWorkflow"
   }],
   layout: [{
     layout: "coreLayout",
-    workflow: "coreSaleWorkflow",
+    workflow: "coreSalesWorkflow",
     collection: "Sales",
     theme: "default",
     enabled: true,
@@ -43,7 +49,7 @@ Reaction.registerPackage({
     }
   }, {
     layout: "coreLayout",
-    workflow: "coreSaleGridWorkflow",
+    workflow: "coreSalesGridWorkflow",
     collection: "Sales",
     theme: "default",
     enabled: true,

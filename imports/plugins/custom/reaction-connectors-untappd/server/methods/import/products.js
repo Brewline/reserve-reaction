@@ -28,19 +28,17 @@ import { importProductImages } from "../../jobs/image-import";
  * @private
  * @method createReactionProductFromUntappdProduct
  * @param  {object} untappdProduct the Untappd product object
- * @param  {string} shopId The shopId we're importing for
- * @param  {array} hashtags An array of hashtag strings that should be attached to this product.
+ * @param  {object} productData override any default product data
  * @return {object} An object that fits the `Product` schema
  *
  * @todo consider abstracting private Untappd import helpers into a helpers file
  */
-function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtags) {
+function createReactionProductFromUntappdProduct(untappdProduct, productData = {}) {
   const reactionProduct = {
     ancestors: [],
     createdAt: new Date(),
     description: untappdProduct.beer_description,
     handle: untappdProduct.beer_slug,
-    hashtags,
     isDeleted: false,
     isVisible: true,
     metafields: [],
@@ -48,7 +46,6 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     price: { range: "0" },
     productType: untappdProduct.beer_style,
     requiresShipping: false,
-    shopId,
     template: "productDetailSimple",
     title: untappdProduct.beer_name,
     type: "simple",
@@ -60,7 +57,8 @@ function createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtag
     },
     skipRevision: true,
     UntappdId: untappdProduct.bid,
-    UntappdResource: untappdProduct
+    UntappdResource: untappdProduct,
+    ...productData
   };
 
   // TODO: anything useful here?
@@ -166,7 +164,7 @@ function saveImage(url, metadata) {
     }).save();
 }
 
-export function saveSimpleProduct(untappdProduct) {
+export function saveSimpleProduct(untappdProduct, productData = {}) {
   const shopId = Reaction.getShopId();
   const tagCache = createTagCache();
 
@@ -200,7 +198,11 @@ export function saveSimpleProduct(untappdProduct) {
 
   // Setup reaction product
   const reactionProduct =
-    createReactionProductFromUntappdProduct(untappdProduct, shopId, hashtags);
+    createReactionProductFromUntappdProduct(untappdProduct, {
+      hashtags,
+      shopId,
+      ...productData
+    });
 
   // Insert product, save id
   return Products.insert(
@@ -226,81 +228,74 @@ export function saveUntappdProductImage(untappdProduct, shopId, reactionProductI
   return true;
 }
 
-export function saveProduct(untappdProduct, variantData = null, optionsData = null) {
+const defaultOptions = [
+  { title: "4 Pack Cans (16oz)", price: "11.99", inventoryLimit: 6 },
+  { title: "6 Pack Cans (12oz)", price: "11.99", inventoryLimit: 4 },
+  { title: "6 Pack Bottles (12oz)", price: "11.99", inventoryLimit: 4 },
+  { title: "Crowler (32oz)", price: "11.99", inventoryLimit: 3 },
+  { title: "Bomber (22oz)", price: "7.99", inventoryLimit: 12 },
+  { title: "750ml", price: "9.99", inventoryLimit: 6 },
+  { title: "Growler Refill", price: "14.99" },
+  { title: "Case (24) Cans", price: "47.99", inventoryLimit: 1 },
+  { title: "Case (24) Bottles", price: "47.99", inventoryLimit: 1 },
+  { title: "Case (12) Bombers", price: "79.99", inventoryLimit: 1 }
+];
+
+export function saveUntappdProduct(untappdProduct, productData = {}, allowExisting = false) {
+  const shopId = Reaction.getShopId();
+
   const existingProduct =
     Products.findOne({ UntappdId: untappdProduct.bid }, { fields: { _id: 1 } });
 
   if (existingProduct) {
-    Logger.debug(`Product ${untappdProduct.beer_name} already exists`);
-    return false;
-  }
+    if (allowExisting) {
+      return existingProduct._id;
+    }
 
-  const ids = [];
-  const shopId = Reaction.getShopId();
+    const msg = `Product ${untappdProduct.beer_name} already exists`;
+    Logger.debug(msg);
+    throw new Meteor.Error(409, msg);
+  }
 
   Logger.debug(`Importing ${untappdProduct.beer_name}`);
 
-  // Insert product, save id
-  let reactionProductId;
-  if (existingProduct && existingProduct._id) {
-    reactionProductId = existingProduct._id;
-  } else {
-    reactionProductId = saveSimpleProduct(untappdProduct);
+  const reactionProductId = saveSimpleProduct(untappdProduct, productData);
 
-    if (!saveUntappdProductImage(untappdProduct, shopId, reactionProductId)) {
-      Logger.info(`Missing image for ${untappdProduct.beer_name}: hd: ${untappdProduct.beer_label_hd}/sd: ${untappdProduct.beer_label}`);
-    }
+  if (!saveUntappdProductImage(untappdProduct, shopId, reactionProductId)) {
+    Logger.info(`Missing image for ${untappdProduct.beer_name}: hd: ${untappdProduct.beer_label_hd}/sd: ${untappdProduct.beer_label}`);
   }
+
+  return reactionProductId;
+}
+
+export function saveProduct(reactionProductId, untappdProduct, variantData = null, options = defaultOptions) {
+  const ids = [];
+  const shopId = Reaction.getShopId();
 
   ids.push(reactionProductId);
 
   // create the default variant
   const reactionVariant = createReactionVariantFromUntappdVariant({
     price: 0,
-    title: `Can Release: ${moment().format("MMMM D, YYYY")}`,
+    title: `${moment().format("MMMM, YYYY")} Vintage`,
     index: 0,
     ancestors: [reactionProductId],
     ...variantData,
     shopId
   });
 
-  console.log("Creating Variant", reactionVariant);
-
   // insert the Reaction variant
   const reactionVariantId = Products.insert(reactionVariant, { publish: true });
   ids.push(reactionVariantId);
 
-  let optionsToCreate;
-  if (optionsData) {
-    optionsToCreate = optionsData;
-  } else {
-    Logger.debug(`Creating ${untappdProduct.beer_name} default options`);
-
-    // TODO: move to constant & method parameter default
-    optionsToCreate = [
-      { title: "4 Pack Cans (16oz)", price: "11.99", inventoryLimit: 6 },
-      { title: "6 Pack Cans (12oz)", price: "11.99", inventoryLimit: 4 },
-      { title: "6 Pack Bottles (12oz)", price: "11.99", inventoryLimit: 4 },
-      { title: "Crowler (32oz)", price: "11.99", inventoryLimit: 3 },
-      { title: "Bomber (22oz)", price: "7.99", inventoryLimit: 12 },
-      { title: "750ml", price: "9.99", inventoryLimit: 6 },
-      { title: "Growler Refill", price: "14.99" },
-      { title: "Case (24) Cans", price: "47.99", inventoryLimit: 1 },
-      { title: "Case (24) Bottles", price: "47.99", inventoryLimit: 1 },
-      { title: "Case (12) Bombers", price: "79.99", inventoryLimit: 1 }
-    ];
-  }
-
   const price = { min: null, max: null, range: "0.00" };
-  optionsToCreate.forEach((option, index) => {
+  options.forEach((option, index) => {
     const reactionOption = createReactionVariantFromUntappdVariant({
       ...option,
       index,
       ancestors: [reactionProductId, reactionVariantId],
       shopId
     });
-
-    console.log("Creating Option", reactionOption);
 
     const reactionOptionId =
       Products.insert(reactionOption, { type: "variant" });
@@ -351,7 +346,7 @@ export function saveProduct(untappdProduct, variantData = null, optionsData = nu
   return ids;
 }
 
-export async function saveProductFromUntappd(productId, variantData, options) {
+export async function saveProductFromUntappd(productId, productData, variantData, options, upsert = false) {
   const { ServiceConfiguration } = Package["service-configuration"];
 
   const config =
@@ -376,8 +371,23 @@ export async function saveProductFromUntappd(productId, variantData, options) {
         if (error) {
           reject(error);
         } else {
-          const productIds =
-            saveProduct(data.response.beer, variantData, options);
+          let reactionProductId;
+          try {
+            reactionProductId = saveUntappdProduct(
+              data.response.beer,
+              productData,
+              upsert
+            );
+          } catch (e) {
+            reject(e);
+          }
+
+          const productIds = saveProduct(
+            reactionProductId,
+            data.response.beer,
+            variantData,
+            options
+          );
 
           resolve(productIds);
         }

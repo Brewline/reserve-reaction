@@ -63,7 +63,13 @@ const wrapComponent = (Comp) => (
           action: "Add Product",
           label: displayName
         });
+
+        this.promptForPublish();
       });
+    }
+
+    promptForPublish() {
+      alert("Publish?");
     }
 
     render() {

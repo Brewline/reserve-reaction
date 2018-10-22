@@ -78,7 +78,7 @@ export function listSales(shopId, userId, filters = {}, options = {}) {
  * @param {String} shopId shop for which this item should be added
  * @param {String} saleIdOrSlug sale id or slug to find
  * @param {String} userId (optional) when user is an admin, show hidden sales
- * @returns {number} Number of products
+ * @returns {number} Sale object
  */
 export function getSale(shopId, saleIdOrSlug, userId) {
   check(shopId, String);
@@ -99,7 +99,7 @@ export function getSale(shopId, saleIdOrSlug, userId) {
     shopFilter.isVisible = true;
   }
 
-  return Sales.find(shopFilter);
+  return Sales.findOne(shopFilter);
 }
 
 /**
@@ -258,29 +258,4 @@ Meteor.publish("Sales", (filters = {}, options = {}) => {
   }
 
   return listSales(shopId, userId, filters, options);
-});
-
-Meteor.publish("Sale", (saleIdOrSlug, shopIdOrSlug) => {
-  let shop;
-  let shopId = Reaction.getShopId();
-  const userId = Meteor.userId();
-
-  if (!shopId) {
-    return this.ready();
-  }
-
-  if (shopIdOrSlug) {
-    shop = Shops.findOne({
-      $or: [
-        { _id: shopIdOrSlug },
-        { slug: shopIdOrSlug }
-      ]
-    });
-  }
-
-  if (shop) {
-    shopId = shop._id;
-  }
-
-  return getSale(shopId, saleIdOrSlug, userId);
 });

@@ -102,8 +102,7 @@ ReactionSale.selectedSale = function () {
 
 ReactionSale.getProducts = function () {
   const saleVariants = Products.find(
-    { saleId: ReactionSale.selectedSaleId() },
-    { saleId: { $ne: null } }, // just in case selectedSaleId is null
+    { saleId: ReactionSale.selectedSaleId() || null },
     { fields: { ancestors: 1 } }
   ).fetch();
 
