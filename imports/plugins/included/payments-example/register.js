@@ -1,11 +1,21 @@
 /* eslint camelcase: 0 */
-import { Reaction } from "/server/api";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
+import resolvers from "./server/no-meteor/resolvers";
+import schemas from "./server/no-meteor/schemas";
 
 Reaction.registerPackage({
   label: "ExamplePayment",
   name: "example-paymentmethod",
   icon: "fa fa-credit-card-alt",
   autoEnable: true,
+  graphQL: {
+    resolvers,
+    schemas
+  },
+  paymentMethods: [{
+    name: "iou_example",
+    displayName: "IOU Example"
+  }],
   settings: {
     "mode": false,
     "apiKey": "",
@@ -32,7 +42,7 @@ Reaction.registerPackage({
 
     // Payment form for checkout
     {
-      template: "examplePaymentForm",
+      template: "ExampleIOUPaymentForm",
       provides: ["paymentMethod"],
       icon: "fa fa-credit-card-alt"
     }

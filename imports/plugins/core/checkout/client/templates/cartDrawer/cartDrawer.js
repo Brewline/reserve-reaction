@@ -1,9 +1,8 @@
-import Swiper from "swiper";
 import { Components } from "@reactioncommerce/reaction-components";
-import { $ } from "meteor/jquery";
-import { Cart } from "/lib/collections";
+import Logger from "@reactioncommerce/logger";
 import { Session } from "meteor/session";
 import { Template } from "meteor/templating";
+import getCart from "/imports/plugins/core/cart/client/util/getCart";
 
 /**
  * cartDrawer helpers
@@ -18,11 +17,11 @@ Template.cartDrawer.helpers({
       return null;
     }
 
-    const storedCart = Cart.findOne();
+    const { cart } = getCart();
     let count = 0;
 
-    if (typeof storedCart === "object" && storedCart.items) {
-      for (const items of storedCart.items) {
+    if (cart && cart.items) {
+      for (const items of cart.items) {
         count += items.quantity;
       }
     }
@@ -45,23 +44,29 @@ Template.openCartDrawer.onRendered(() => {
    */
 
   let swiper;
-
-  $("#cart-drawer-container").fadeIn(() => {
-    if (!swiper) {
-      swiper = new Swiper(".cart-drawer-swiper-container", {
-        direction: "horizontal",
-        setWrapperSize: true,
-        loop: false,
-        grabCursor: true,
-        slidesPerView: "auto",
-        wrapperClass: "cart-drawer-swiper-wrapper",
-        slideClass: "cart-drawer-swiper-slide",
-        slideActiveClass: "cart-drawer-swiper-slide-active",
-        pagination: ".cart-drawer-pagination",
-        paginationClickable: true
+  document.querySelector("#cart-drawer-container").classList.add("opened");
+  if (!swiper) {
+    import("swiper")
+      .then((module) => {
+        const Swiper = module.default;
+        swiper = new Swiper(".cart-drawer-swiper-container", {
+          direction: "horizontal",
+          setWrapperSize: true,
+          loop: false,
+          grabCursor: true,
+          slidesPerView: "auto",
+          wrapperClass: "cart-drawer-swiper-wrapper",
+          slideClass: "cart-drawer-swiper-slide",
+          slideActiveClass: "cart-drawer-swiper-slide-active",
+          pagination: ".cart-drawer-pagination",
+          paginationClickable: true
+        });
+        return swiper;
+      })
+      .catch((error) => {
+        Logger.error(error.message, "Unable to load Swiper module");
       });
-    }
-  });
+  }
 });
 
 Template.openCartDrawer.helpers({
@@ -70,7 +75,7 @@ Template.openCartDrawer.helpers({
   }
 });
 
-Template.emptyCartDrawer.onRendered(() => $("#cart-drawer-container").fadeIn());
+Template.emptyCartDrawer.onRendered(() => document.querySelector("#cart-drawer-container").classList.add("opened"));
 
 Template.emptyCartDrawer.helpers({
   EmptyCartDrawer() {

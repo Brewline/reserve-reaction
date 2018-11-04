@@ -16,7 +16,7 @@ import { Components } from "@reactioncommerce/reaction-components";
  */
 function isOwnerOfProfile() {
   const targetUserId = Reaction.Router.getQueryParam("userId");
-  const loggedInUserId = Meteor.userId();
+  const loggedInUserId = Reaction.getUserId();
   return targetUserId === undefined || targetUserId === loggedInUserId;
 }
 
@@ -28,7 +28,7 @@ function isOwnerOfProfile() {
  * @return {Object} - the account of the identified user.
  */
 function getTargetAccount() {
-  const targetUserId = Reaction.Router.getQueryParam("userId") || Meteor.userId();
+  const targetUserId = Reaction.Router.getQueryParam("userId") || Reaction.getUserId();
   const account = Collections.Accounts.findOne(targetUserId);
 
   return account;
@@ -98,7 +98,7 @@ Template.accountProfile.helpers({
    * @ignore
    */
   ReactionAvatar() {
-    const account = Collections.Accounts.findOne({ _id: Meteor.userId() });
+    const account = Collections.Accounts.findOne({ _id: Reaction.getUserId() });
     if (account && account.profile && account.profile.picture) {
       const { picture } = account.profile;
       return {
@@ -145,11 +145,13 @@ Template.accountProfile.helpers({
    * @ignore
    */
   userOrders() {
-    const targetUserId = Reaction.Router.getQueryParam("userId") || Meteor.userId();
-    const orderSub = Meteor.subscribe("AccountOrders", targetUserId);
+    const targetUserId = Reaction.Router.getQueryParam("userId") || Reaction.getUserId();
+    const account = Collections.Accounts.findOne({ userId: targetUserId });
+    const accountId = (account && account._id) || targetUserId;
+    const orderSub = Meteor.subscribe("AccountOrders", accountId);
     if (orderSub.ready()) {
       return Collections.Orders.find({
-        userId: targetUserId
+        accountId
       }, {
         sort: {
           createdAt: -1
@@ -214,7 +216,7 @@ Template.accountProfile.helpers({
    */
   showMerchantSignup() {
     if (Reaction.Subscriptions && Reaction.Subscriptions.Account && Reaction.Subscriptions.Account.ready()) {
-      const account = Collections.Accounts.findOne({ _id: Meteor.userId() });
+      const account = Collections.Accounts.findOne({ _id: Reaction.getUserId() });
       const marketplaceEnabled = Reaction.marketplace && Reaction.marketplace.enabled === true;
       const allowMerchantSignup = Reaction.marketplace && Reaction.marketplace.allowMerchantSignup === true;
       // A user has the primaryShopId until a shop is created for them.

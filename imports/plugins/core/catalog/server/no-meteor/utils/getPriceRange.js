@@ -1,14 +1,15 @@
 import accounting from "accounting-js";
+import getDisplayPrice from "./getDisplayPrice";
 
 /**
  * A wrapper around accounting.formatMoney that handles minor differences between Reaction
  * API and accounting.js API.
  * @param {Number} price - A price (float)
  * @param {Object} [currencyInfo] - A currency object in Reaction schema
- * @returns Formatted currency string such as "$15.99". If `currencyInfo` is not provided,
+ * @returns {String} Formatted currency string such as "$15.99". If `currencyInfo` is not provided,
  *   returns `accounting.toFixed(price, 2)`.
  */
-function formatMoney(price, currencyInfo) {
+export function formatMoney(price, currencyInfo) {
   // Implementation of toFixed() that treats floats more like decimal values than binary,
   // fixing inconsistent precision rounding in JavaScript (where some .05 values round up,
   // while others round down):
@@ -22,7 +23,7 @@ function formatMoney(price, currencyInfo) {
 
   const currencyFormatSettings = { ...currencyInfo };
 
-  // Precision is mis-used in accounting js. Scale is the propery term for number
+  // Precision is mis-used in accounting js. Scale is the proper term for number
   // of decimal places. Let's adjust it here so accounting.js does not break.
   if (typeof currencyInfo.scale === "number") {
     currencyFormatSettings.precision = currencyInfo.scale;
@@ -41,10 +42,11 @@ function formatMoney(price, currencyInfo) {
  */
 export default function getPriceRange(prices, currencyInfo) {
   if (prices.length === 1) {
+    const price = prices[0];
     return {
-      range: formatMoney(prices[0], currencyInfo),
-      min: prices[0],
-      max: prices[0]
+      range: getDisplayPrice(price, price, currencyInfo),
+      min: price,
+      max: price
     };
   }
 
@@ -60,15 +62,8 @@ export default function getPriceRange(prices, currencyInfo) {
     }
   });
 
-  if (priceMin === priceMax) {
-    return {
-      range: formatMoney(priceMin, currencyInfo),
-      min: priceMin,
-      max: priceMax
-    };
-  }
   return {
-    range: `${formatMoney(priceMin, currencyInfo)} - ${formatMoney(priceMax, currencyInfo)}`,
+    range: getDisplayPrice(priceMin, priceMax, currencyInfo),
     min: priceMin,
     max: priceMax
   };

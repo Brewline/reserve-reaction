@@ -87,15 +87,20 @@ export const Address = new SimpleSchema({
   },
   "isCommercial": {
     label: "This is a commercial address.",
-    type: Boolean
+    type: Boolean,
+    defaultValue: false
   },
   "isBillingDefault": {
     label: "Make this your default billing address?",
-    type: Boolean
+    type: Boolean,
+    defaultValue: false,
+    optional: true
   },
   "isShippingDefault": {
     label: "Make this your default shipping address?",
-    type: Boolean
+    type: Boolean,
+    defaultValue: false,
+    optional: true
   },
   "failedValidation": {
     label: "Failed validation",
@@ -113,3 +118,32 @@ export const Address = new SimpleSchema({
 });
 
 registerSchema("Address", Address);
+
+
+const ErrorDetails = new SimpleSchema({
+  message: {
+    type: String
+  },
+  description: {
+    type: String,
+    optional: true
+  }
+});
+
+// Validate that whenever we return an error we return the same format
+export const ErrorObject = new SimpleSchema({
+  "type": {
+    type: String
+  },
+  "errorCode": {
+    type: Number
+  },
+  "errorDetails": {
+    type: Array,
+    optional: true
+  },
+  "errorDetails.$": {
+    type: ErrorDetails,
+    optional: true
+  }
+});

@@ -3,10 +3,9 @@ import faker from "faker";
 import { Factory } from "meteor/dburles:factory";
 import { expect } from "meteor/practicalmeteor:chai";
 import { sinon } from "meteor/practicalmeteor:sinon";
-import { Reaction } from "/server/api";
-import { getSlug } from "/lib/api";
-import { Products, OrderSearch } from "/lib/collections";
-import Fixtures from "/server/imports/fixtures";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
+import { Accounts, Products, OrderSearch } from "/lib/collections";
+import Fixtures from "/imports/plugins/core/core/server/fixtures";
 import {
   buildProductSearch,
   buildProductSearchRecord,
@@ -19,7 +18,7 @@ Fixtures();
 
 export function createProduct(isVisible = true, title) {
   const productTitle = title || faker.commerce.productName();
-  const productSlug = getSlug(productTitle);
+  const productSlug = Reaction.getSlug(productTitle);
   const product = {
     ancestors: [],
     shopId: Reaction.getShopId(),
@@ -46,7 +45,7 @@ export function createProduct(isVisible = true, title) {
         value: "Rubber"
       }
     ],
-    requiresShipping: true,
+    supportedFulfillmentTypes: ["shipping"],
     hashtags: [],
     isVisible,
     handle: productSlug,
@@ -129,20 +128,25 @@ describe("Account Search results", function () {
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
     account = createAccount();
+    Accounts.update({ _id: account._id }, {
+      $set: {
+        "emails.0.address": "matchemail@searchtest.com"
+      }
+    });
     // Passing forceIndex will run account search index even if
     // updated fields don't match a searchable field
     buildAccountSearchRecord(account._id, ["forceIndex"]);
   });
 
   afterEach(function () {
+    Accounts.remove({});
     sandbox.restore();
   });
 
   describe("account search", function () {
     it("should match accounts when searching by email", function () {
       sandbox.stub(Reaction, "hasPermission", () => true);
-      const email = account.emails[0].address;
-      const results = getResults.accounts(email);
+      const results = getResults.accounts("matchemail@searchtest.com");
       expect(results.count()).to.equal(1);
     });
 

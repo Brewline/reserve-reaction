@@ -7,7 +7,9 @@ import getPriceRange from "/imports/plugins/core/catalog/server/no-meteor/utils/
  * @param {Object} variant The variant from Products collection
  * @param {Object} variantPriceInfo The result of calling getPriceRange for this price or all child prices
  * @param {String} shopCurrencyCode The shop currency code for the shop to which this product belongs
+ * @param {Date} updatedAt The date to use for updatedAt
  * @private
+ * @returns {Object} The transformed variant/option document
  */
 function xformVariant(variant, variantPriceInfo, shopCurrencyCode, updatedAt) {
   return {
@@ -51,29 +53,11 @@ function xformVariant(variant, variantPriceInfo, shopCurrencyCode, updatedAt) {
 }
 
 /**
- * @method
- * @summary Converts the old positions object into the new positions object
- * @param {Object} positions The old positions object
- * @param {Object[]} tags Array of tag objects with `_id` and `slug` props
- * @private
- * @return {Object} The new positions object
+ * @param {Object} item The catalog item to transform
+ * @param {Object} shop The shop document
+ * @returns {Object} The converted item document
  */
-function xformPositions(positions, tags) {
-  const newPositions = {};
-  Object.keys(positions || {}).forEach((key) => {
-    let newKey;
-    const positionTag = tags.find((tag) => tag.slug === key || tag._id === key);
-    if (positionTag) {
-      newKey = positionTag._id;
-    } else {
-      newKey = "_default";
-    }
-    newPositions[newKey] = positions[key];
-  });
-  return newPositions;
-}
-
-export default function convertCatalogItem(item, shop, tags) {
+export default function convertCatalogItem(item, shop) {
   if (!shop) {
     Logger.info("Cannot update catalog item: shop not found");
     return false;
@@ -101,7 +85,7 @@ export default function convertCatalogItem(item, shop, tags) {
         }
       };
     })
-    .sort((a, b) => a.priority - b.priority);
+    .sort((itemA, itemB) => itemA.priority - itemB.priority);
 
   const primaryImage = catalogProductMedia.find(({ toGrid }) => toGrid === 1) || null;
 
@@ -170,7 +154,6 @@ export default function convertCatalogItem(item, shop, tags) {
     originCountry: item.originCountry,
     pageTitle: item.pageTitle,
     parcel: item.parcel,
-    positions: xformPositions(item.positions, tags),
     price: item.price,
     pricing: {
       [shop.currency]: {
@@ -184,7 +167,6 @@ export default function convertCatalogItem(item, shop, tags) {
     primaryImage,
     productId: item._id,
     productType: item.productType,
-    requiresShipping: !!item.requiresShipping,
     shopId: item.shopId,
     sku: item.sku,
     slug: item.handle,
@@ -194,6 +176,7 @@ export default function convertCatalogItem(item, shop, tags) {
       { service: "googleplus", message: item.googleplusMsg },
       { service: "pinterest", message: item.pinterestMsg }
     ],
+    supportedFulfillmentTypes: item.supportedFulfillmentTypes,
     tagIds: item.hashtags,
     taxCode: item.taxCode,
     taxDescription: item.taxDescription,

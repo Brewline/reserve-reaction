@@ -4,7 +4,9 @@ import { EJSON } from "meteor/ejson";
 import { Template } from "meteor/templating";
 import { ReactiveDict } from "meteor/reactive-dict";
 import { Reaction } from "/client/api";
-import { Cart } from "/lib/collections";
+import ReactionError from "@reactioncommerce/reaction-error";
+import Logger from "/client/modules/logger";
+import getCart from "/imports/plugins/core/cart/client/util/getCart";
 
 // Because we are duplicating shipment quotes across shipping records
 // we will get duplicate shipping quotes but we only want to diplay one
@@ -24,66 +26,43 @@ function uniqObjects(objs) {
 /**
  * @name cartShippingQuotes
  * @summary returns a list of all the shipping costs/quotations of each available shipping carrier like UPS, Fedex etc.
- * @param {Object} currentCart - The current cart that's about to be checked out.
  * @returns {Array} - an array of the quotations of multiple shipping carriers.
  * @private
  */
-function cartShippingQuotes(currentCart) {
-  const cart = currentCart || Cart.findOne();
+function cartShippingQuotes() {
+  const { cart } = getCart();
   const shipmentQuotes = [];
-  if (cart) {
-    if (cart.shipping) {
-      for (const shipping of cart.shipping) {
-        if (shipping.shipmentQuotes) {
-          for (const quote of shipping.shipmentQuotes) {
-            shipmentQuotes.push(quote);
-          }
+  if (cart && cart.shipping) {
+    for (const shipping of cart.shipping) {
+      if (shipping.shipmentQuotes) {
+        for (const quote of shipping.shipmentQuotes) {
+          shipmentQuotes.push(quote);
         }
       }
     }
   }
+
   return uniqObjects(shipmentQuotes);
 }
 
-function shippingMethodsQueryStatus(currentCart) {
-  const cart = currentCart || Cart.findOne();
+function shippingMethodsQueryStatus() {
+  const { cart } = getCart();
   let queryStatus;
   let failingShippingProvider;
 
-  if (cart) {
-    if (cart.shipping) {
-      for (const shipping of cart.shipping) {
-        const quotesQueryStatus = shipping.shipmentQuotesQueryStatus;
-        if (quotesQueryStatus) {
-          queryStatus = quotesQueryStatus.requestStatus;
-        }
-        if (queryStatus === "error") {
-          failingShippingProvider = quotesQueryStatus.shippingProvider;
-        }
+  if (cart && cart.shipping) {
+    for (const shipping of cart.shipping) {
+      const quotesQueryStatus = shipping.shipmentQuotesQueryStatus;
+      if (quotesQueryStatus) {
+        queryStatus = quotesQueryStatus.requestStatus;
+      }
+      if (queryStatus === "error") {
+        failingShippingProvider = quotesQueryStatus.shippingProvider;
       }
     }
   }
 
   return [queryStatus, failingShippingProvider];
-}
-
-/**
- * @name cartShipmentMethods
- * @summary gets current shipment methods.
- * @return {Array} - Returns multiple methods if more than one carrier has been chosen.
- * @ignore
- */
-function cartShipmentMethods() {
-  const cart = Cart.findOne();
-  const shipmentMethods = [];
-  if (cart) {
-    if (cart.shipping) {
-      for (const shipping of cart.shipping) {
-        shipmentMethods.push(shipping.shipmentMethod);
-      }
-    }
-  }
-  return shipmentMethods;
 }
 
 function enabledShipping() {
@@ -100,27 +79,19 @@ function enabledShipping() {
 }
 
 Template.coreCheckoutShipping.onCreated(function () {
+  this.subscribe("Shipping");
+
   this.autorun(() => {
-    this.subscribe("Shipping");
+    if (!this.subscriptionsReady()) return;
+
+    const isLoadingShippingMethods = shippingMethodsQueryStatus()[0] === "pending";
+    this.state.set("isLoadingShippingMethods", isLoadingShippingMethods);
   });
 
   this.state = new ReactiveDict();
   this.state.setDefault({
     isLoadingShippingMethods: true
   });
-
-  const enabled = enabledShipping();
-  const isEnabled = enabled.length;
-  const shippingOpts = {
-    provides: "settings",
-    name: "settings/shipping",
-    template: "shippingSettings"
-  };
-
-  // If shipping not set, show shipping settings dashboard
-  if (!isEnabled) {
-    Reaction.showActionView(shippingOpts);
-  }
 });
 
 Template.coreCheckoutShipping.helpers({
@@ -128,17 +99,9 @@ Template.coreCheckoutShipping.helpers({
   // in the users cart collection (historical, and prevents repeated rate lookup)
   shipmentQuotes() {
     const instance = Template.instance();
-    if (instance.subscriptionsReady()) {
-      const cart = Cart.findOne();
+    if (!instance.subscriptionsReady()) return [];
 
-      // isLoadingShippingMethods is updated here because, when this template
-      // reacts to a change in data, this method is called before hasShippingMethods().
-      const isLoadingShippingMethods = shippingMethodsQueryStatus()[0] === "pending";
-      instance.state.set("isLoadingShippingMethods", isLoadingShippingMethods);
-
-      const shippingQuotes = cartShippingQuotes(cart);
-      return shippingQuotes;
-    }
+    return cartShippingQuotes();
   },
 
   hasShippingMethods() {
@@ -151,45 +114,30 @@ Template.coreCheckoutShipping.helpers({
     // Useful for when shipping methods are enabled, but querying them fails
     // due to internet connection issues.
     const quotesQueryStatus = shippingMethodsQueryStatus();
-    const didAllQueriesFail =
-      quotesQueryStatus[0] === "error" && quotesQueryStatus[1] === "all";
+    const didAllQueriesFail = quotesQueryStatus[0] === "error" && quotesQueryStatus[1] === "all";
     if (didAllQueriesFail) {
+      Logger.warn("All shipping method queries failed!");
       return false;
     }
 
-    const hasEnabledShippingProviders = enabledShipping().length > 0;
-    if (hasEnabledShippingProviders) {
-      return true;
-    }
-
-    return false;
+    return enabledShipping().length > 0;
   },
 
-  // helper to display currently selected shipmentMethod
+  // helper to display currently selected fulfillment option
   isSelected() {
-    const self = this;
-    const shipmentMethods = cartShipmentMethods();
+    if (!this.method) return null;
 
-    for (const method of shipmentMethods) {
-      // if there is already a selected method, set active
-      if (_.isEqual(self.method, method)) {
-        return "active";
-      }
-    }
+    const { cart } = getCart();
+    if (!cart) return null;
+
+    const match = (cart.shipping || []).find((group) => group.shipmentMethod && group.shipmentMethod._id === this.method._id);
+    if (match) return "active";
+
     return null;
   },
 
   isReady() {
-    const instance = Template.instance();
-    const isReady = instance.subscriptionsReady();
-
-    if (Reaction.Subscriptions.Cart.ready()) {
-      if (isReady) {
-        return true;
-      }
-    }
-
-    return false;
+    return Template.instance().subscriptionsReady() && Reaction.Subscriptions.Cart.ready();
   },
 
   /**
@@ -218,10 +166,10 @@ Template.coreCheckoutShipping.events({
   "click .list-group-item"(event) {
     event.preventDefault();
     event.stopPropagation();
-    const cart = Cart.findOne();
+    const { cart, token } = getCart();
 
-    Meteor.call("cart/setShipmentMethod", cart._id, this.method, (error) => {
-      if (error) throw new Meteor.Error("set-shipment-method-error", error.message);
+    Meteor.call("cart/setShipmentMethod", cart._id, token, this.method._id, (error) => {
+      if (error) throw new ReactionError("set-shipment-method-error", error.message);
     });
   },
   "click [data-event-action=configure-shipping]"(event) {

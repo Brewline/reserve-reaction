@@ -1,7 +1,7 @@
-import GraphTester from "../GraphTester";
+import TestApp from "../TestApp";
 import CatalogItemProductFullQuery from "./CatalogItemProductFullQuery.graphql";
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+jest.setTimeout(300000);
 
 const internalShopId = "123";
 const opaqueShopId = "cmVhY3Rpb24vc2hvcDoxMjM="; // reaction/shop:123
@@ -179,11 +179,11 @@ const mockCatalogProduct = {
       productId: internalProductId,
       variantId: null,
       URLs: {
-        thumbnail: "http://localhost/thumbnail",
-        small: "http://localhost/small",
-        medium: "http://localhost/medium",
-        large: "http://localhost/large",
-        original: "http://localhost/original"
+        thumbnail: "/thumbnail",
+        small: "/small",
+        medium: "/medium",
+        large: "/large",
+        original: "/original"
       }
     }
   ],
@@ -193,15 +193,14 @@ const mockCatalogProduct = {
     productId: internalProductId,
     variantId: null,
     URLs: {
-      thumbnail: "http://localhost/thumbnail",
-      small: "http://localhost/small",
-      medium: "http://localhost/medium",
-      large: "http://localhost/large",
-      original: "http://localhost/original"
+      thumbnail: "/thumbnail",
+      small: "/small",
+      medium: "/medium",
+      large: "/large",
+      original: "/original"
     }
   },
   productType: "productType",
-  requiresShipping: true,
   shopId: internalShopId,
   sku: "ABC123",
   slug: productSlug,
@@ -211,6 +210,7 @@ const mockCatalogProduct = {
     { service: "googleplus", message: "googlePlusMessage" },
     { service: "pinterest", message: "pinterestMessage" }
   ],
+  supportedFulfillmentTypes: ["shipping"],
   tagIds: internalTagIds,
   taxCode: "taxCode",
   taxDescription: "taxDescription",
@@ -399,11 +399,11 @@ const expectedItemsResponse = {
           productId: opaqueProductId,
           variantId: null,
           URLs: {
-            thumbnail: "http://localhost/thumbnail",
-            small: "http://localhost/small",
-            medium: "http://localhost/medium",
-            large: "http://localhost/large",
-            original: "http://localhost/original"
+            thumbnail: "https://shop.fake.site/thumbnail",
+            small: "https://shop.fake.site/small",
+            medium: "https://shop.fake.site/medium",
+            large: "https://shop.fake.site/large",
+            original: "https://shop.fake.site/original"
           }
         }
       ],
@@ -413,15 +413,14 @@ const expectedItemsResponse = {
         productId: opaqueProductId,
         variantId: null,
         URLs: {
-          thumbnail: "http://localhost/thumbnail",
-          small: "http://localhost/small",
-          medium: "http://localhost/medium",
-          large: "http://localhost/large",
-          original: "http://localhost/original"
+          thumbnail: "https://shop.fake.site/thumbnail",
+          small: "https://shop.fake.site/small",
+          medium: "https://shop.fake.site/medium",
+          large: "https://shop.fake.site/large",
+          original: "https://shop.fake.site/original"
         }
       },
       productType: "productType",
-      requiresShipping: true,
       shop: {
         _id: opaqueShopId
       },
@@ -433,6 +432,7 @@ const expectedItemsResponse = {
         { service: "googleplus", message: "googlePlusMessage" },
         { service: "pinterest", message: "pinterestMessage" }
       ],
+      supportedFulfillmentTypes: ["shipping"],
       tagIds: opaqueTagIds,
       tags: {
         nodes: [{ _id: opaqueTagIds[0] }, { _id: opaqueTagIds[1] }]
@@ -449,21 +449,21 @@ const expectedItemsResponse = {
   }
 };
 
-let tester;
+let testApp;
 let query;
 beforeAll(async () => {
-  tester = new GraphTester();
-  await tester.start();
-  query = tester.query(CatalogItemProductFullQuery);
-  await tester.insertPrimaryShop({ _id: internalShopId, name: shopName });
-  await Promise.all(internalTagIds.map((_id) => tester.collections.Tags.insert({ _id, shopId: internalShopId })));
-  await tester.collections.Catalog.insert(mockCatalogItem);
+  testApp = new TestApp();
+  await testApp.start();
+  query = testApp.query(CatalogItemProductFullQuery);
+  await testApp.insertPrimaryShop({ _id: internalShopId, name: shopName });
+  await Promise.all(internalTagIds.map((_id) => testApp.collections.Tags.insert({ _id, shopId: internalShopId })));
+  await testApp.collections.Catalog.insert(mockCatalogItem);
 });
 
 afterAll(async () => {
-  await tester.collections.Shops.remove({ _id: internalShopId });
-  await tester.collections.Catalog.remove({ _id: internalCatalogItemId });
-  tester.stop();
+  await testApp.collections.Shops.remove({ _id: internalShopId });
+  await testApp.collections.Catalog.remove({ _id: internalCatalogItemId });
+  testApp.stop();
 });
 
 test("get a catalog product by slug", async () => {

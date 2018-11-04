@@ -13,6 +13,7 @@
  */
 
 import "./schemaIndex";
+import "./schemaErrors";
 
 export * from "./accounts";
 export * from "./address";
@@ -22,7 +23,6 @@ export * from "./cart";
 export * from "./emails";
 export * from "./inventory";
 export * from "./layouts";
-export * from "./logs";
 export * from "./metafield";
 export * from "./notifications";
 export * from "./orders";
@@ -32,7 +32,6 @@ export * from "./registry";
 export * from "./shipping";
 export * from "./shops";
 export * from "./groups";
-export * from "./sms";
 export * from "./social";
 export * from "./tags";
 export * from "./templates";

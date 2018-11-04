@@ -1,19 +1,17 @@
 import _ from "lodash";
+import Logger from "@reactioncommerce/logger";
 import { Meteor } from "meteor/meteor";
 import { Roles } from "meteor/alanning:roles";
 import { Accounts, Groups } from "/lib/collections";
 import { lifecycle } from "recompose";
 import { composeWithTracker } from "./composer";
 
-let Logger;
 let Reaction;
 
 if (Meteor.isClient) {
-  ({ Logger } = require("/client/api"));
   ({ Reaction } = require("/client/api"));
 } else {
-  ({ Logger } = require("/server/api"));
-  ({ Reaction } = require("/server/api"));
+  Reaction = require("/imports/plugins/core/core/server/Reaction").default;
 }
 
 
@@ -44,11 +42,9 @@ export function withMoment(component) {
   return lifecycle({
     componentDidMount() {
       import("moment")
-        .then((moment) => {
+        .then(({ default: moment }) => {
           moment.locale(Reaction.Locale.get().language);
-          this.setState({
-            moment
-          });
+          this.setState({ moment });
           return null;
         })
         .catch((error) => {
@@ -71,10 +67,8 @@ export function withMomentTimezone(component) {
   return lifecycle({
     componentDidMount() {
       import("moment-timezone")
-        .then((moment) => {
-          this.setState({
-            momentTimezone: moment.tz
-          });
+        .then(({ default: moment }) => {
+          this.setState({ momentTimezone: moment.tz });
           return null;
         })
         .catch((error) => {
@@ -99,23 +93,20 @@ export function withCurrentAccount(component) {
     const shopId = Reaction.getShopId();
     const user = Meteor.user();
 
-    if (!shopId || !user) {
-      return null;
-    }
+    if (!shopId || !user) return;
 
-    const accSub = Meteor.subscribe("Accounts", user._id);
-    if (accSub.ready()) {
-      // shoppers should always be guests
-      const isGuest = Reaction.hasPermission("guest");
-      // but if a user has never logged in then they are anonymous
-      const isAnonymous = Roles.userIsInRole(user, "anonymous", shopId);
-      // this check for "anonymous" uses userIsInRole instead of hasPermission because hasPermission
-      // always return `true` when logged in as the owner.
-      // But in this case, the anonymous check should be false when a user is logged in
-      const account = Accounts.findOne(user._id);
+    const account = Accounts.findOne({ userId: user._id });
+    if (!account) return;
 
-      onData(null, { currentAccount: isGuest && !isAnonymous && account });
-    }
+    // shoppers should always be guests
+    const isGuest = Reaction.hasPermission("guest");
+    // but if a user has never logged in then they are anonymous
+    const isAnonymous = Roles.userIsInRole(user, "anonymous", shopId);
+    // this check for "anonymous" uses userIsInRole instead of hasPermission because hasPermission
+    // always return `true` when logged in as the owner.
+    // But in this case, the anonymous check should be false when a user is logged in
+
+    onData(null, { currentAccount: isGuest && !isAnonymous && account });
   }, false)(component);
 }
 
@@ -168,6 +159,8 @@ export function withPermissions({ roles = ["guest", "anonymous"], group }) {
 
       onData(null, { hasPermissions });
     }
+
+    return null;
   });
 }
 
@@ -184,5 +177,91 @@ export function withPermissions({ roles = ["guest", "anonymous"], group }) {
 export function withIsOwner(component) {
   return composeWithTracker((props, onData) => {
     onData(null, { isOwner: Reaction.hasOwnerAccess() });
+  })(component);
+}
+
+/**
+ * @name withCSSTransition
+ * @method
+ * @summary A wrapper to dynamically import & inject react-transition-group's <CSSTransition /> into a component
+ * @param {Function|React.Component} component - the component to wrap
+ * @return {Object} the new wrapped component with a "CSSTransition" prop
+ * @memberof Components/Helpers
+ */
+export function withCSSTransition(component) {
+  return lifecycle({
+    componentDidMount() {
+      import("react-transition-group")
+        .then((module) => {
+          if (this.willUnmount === true) {
+            return null;
+          }
+
+          this.setState({
+            CSSTransition: module.CSSTransition
+          });
+
+          return null;
+        })
+        .catch((error) => {
+          Logger.error(error.message, "Unable to load react-transition-group");
+        });
+    },
+    componentWillUnmount() {
+      // Prevent dynamic import from setting state if component is about to unmount
+      this.willUnmount = true;
+    }
+  })(component);
+}
+
+/**
+ * @name withAnimateHeight
+ * @method
+ * @summary A wrapper that reactively injects an extended version of react-animate-height's <AnimateHeight />
+ *  into a component.
+ * @param {Function|React.Component} component - the component to wrap
+ * @return {Function} the new wrapped component with a "AnimateHeight" prop
+ * @memberof Components/Helpers
+ */
+export function withAnimateHeight(component) {
+  return lifecycle({
+    componentDidMount() {
+      import("react-animate-height")
+        .then((module) => {
+          if (this.willUnmount) {
+            return null;
+          }
+
+          // Extend AnimateHeight so that setState can't be called when component is unmounted (prevents memory leak)
+          const AnimateHeight = module.default;
+          class ExtendedAnimateHeight extends AnimateHeight {
+            componentWillUnmount() {
+              this.willUnmount = true;
+              super.componentWillUnmount();
+            }
+
+            setState(partialState, callback) {
+              if (this.willUnmount) {
+                return;
+              }
+              super.setState(partialState, callback);
+            }
+          }
+
+          // Pass extended AnimateHeight to child component
+          this.setState({
+            AnimateHeight: ExtendedAnimateHeight
+          });
+
+          return null;
+        })
+        .catch((error) => {
+          Logger.error(error.message, "Unable to load react-animate-height");
+        });
+    },
+    componentWillUnmount() {
+      // Prevent dynamic import from setting state if component is about to unmount
+      this.willUnmount = true;
+    }
   })(component);
 }

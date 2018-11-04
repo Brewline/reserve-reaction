@@ -1,7 +1,9 @@
+import Logger from "@reactioncommerce/logger";
 import { Meteor } from "meteor/meteor";
 import { HTTP } from "meteor/http";
 import { check } from "meteor/check";
-import { Reaction, Logger } from "/server/api";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
+import ReactionError from "@reactioncommerce/reaction-error";
 import { Packages } from "/lib/collections";
 
 export const methods = {
@@ -11,10 +13,10 @@ export const methods = {
     check(shopId, String);
     check(authCode, String);
 
-    if (!Reaction.hasPermission(["owner", "admin", "reaction-stripe"], Meteor.userId(), shopId)) {
-      Logger.warn(`user: ${Meteor.userId()} attempted to authorize merchant account
+    if (!Reaction.hasPermission(["owner", "admin", "reaction-stripe"], Reaction.getUserId(), shopId)) {
+      Logger.warn(`user: ${Reaction.getUserId()} attempted to authorize merchant account
         for shopId ${shopId} but was denied access due to insufficient privileges.`);
-      throw new Meteor.Error("access-denied", "Access Denied");
+      throw new ReactionError("access-denied", "Access Denied");
     }
 
     let result;
@@ -25,7 +27,7 @@ export const methods = {
     });
 
     if (!stripePkg || !stripePkg.settings || !stripePkg.settings.api_key) {
-      throw new Meteor.Error("invalid-parameters", "Cannot authorize stripe connect merchant. Primary shop stripe must be configured.");
+      throw new ReactionError("invalid-parameters", "Cannot authorize stripe connect merchant. Primary shop stripe must be configured.");
     }
 
     const merchantStripePkg = Reaction.getPackageSettingsWithOptions({
@@ -53,7 +55,7 @@ export const methods = {
       });
 
       if (result.error) {
-        throw new Meteor.Error("There was a problem authorizing stripe connect", result.error, result.error_description);
+        throw new ReactionError("There was a problem authorizing stripe connect", result.error, result.error_description);
       }
 
       if (result && result.data) {

@@ -1,11 +1,21 @@
 /* eslint camelcase: 0 */
-import { Reaction } from "/server/api";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
+import resolvers from "./server/no-meteor/resolvers";
+import schemas from "./server/no-meteor/schemas";
 
 Reaction.registerPackage({
   label: "Stripe",
   name: "reaction-stripe",
   icon: "fa fa-cc-stripe",
   autoEnable: true,
+  graphQL: {
+    resolvers,
+    schemas
+  },
+  paymentMethods: [{
+    name: "stripe_card",
+    displayName: "Stripe Card"
+  }],
   settings: {
     "mode": false,
     "api_key": "",
@@ -18,6 +28,7 @@ Reaction.registerPackage({
       ]
     },
     "public": {
+      publishable_key: "",
       client_id: ""
     },
     "connectAuth": {}

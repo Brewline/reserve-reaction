@@ -1,7 +1,6 @@
-import { $ } from "meteor/jquery";
-import { Reaction } from "/client/api";
-import { Cart } from "/lib/collections";
 import { Template } from "meteor/templating";
+import { Reaction } from "/client/api";
+import getCart from "/imports/plugins/core/cart/client/util/getCart";
 
 /**
  * cartIcon helpers
@@ -9,12 +8,14 @@ import { Template } from "meteor/templating";
  */
 Template.cartIcon.helpers({
   cart() {
-    return Cart.findOne();
+    const { cart } = getCart();
+    return cart;
   }
 });
 
 Template.cartIcon.events({
   "click .cart-icon"() {
-    return $("#cart-drawer-container").fadeOut(300, () => Reaction.toggleSession("displayCart"));
+    document.querySelector("#cart-drawer-container").classList.remove("opened");
+    Reaction.toggleSession("displayCart");
   }
 });
