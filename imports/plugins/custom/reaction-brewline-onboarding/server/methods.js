@@ -2,7 +2,8 @@ import UntappdClient from "node-untappd";
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
 import { Accounts, Shops } from "/lib/collections";
-import { Logger, Reaction } from "/server/api";
+import Logger from "@reactioncommerce/logger";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { saveWatchlistItem } from "@brewline/watchlist/server/methods/watchlist";
 import { WatchlistItems } from "@brewline/watchlist/lib/collections";
 
@@ -76,13 +77,16 @@ export function transferFavorites(previousUserId, currentUserId = Meteor.userId(
 }
 
 Meteor.methods({
-  "onboarding/updateWorkflow"(currentStatus, completedStatuses = []) {
+  "onboarding/updateWorkflow"(currentStatus, providedCompletedStatuses = []) {
     check(currentStatus, String);
-    check(completedStatuses, Match.Maybe([String]));
-    // this.unblock();
+    check(providedCompletedStatuses, Match.Maybe([String]));
 
-    if (!completedStatuses || !completedStatuses.length) {
+    let completedStatuses;
+
+    if (!providedCompletedStatuses || !providedCompletedStatuses.length) {
       completedStatuses = [currentStatus];
+    } else {
+      completedStatuses = providedCompletedStatuses;
     }
 
     const result = Accounts.update(Meteor.userId(), {

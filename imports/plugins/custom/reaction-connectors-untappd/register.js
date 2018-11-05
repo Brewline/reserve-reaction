@@ -1,5 +1,5 @@
 import { BrowserPolicy } from "meteor/browser-policy-common";
-import { Reaction } from "/server/api";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 
 Reaction.registerPackage({
   label: "Untappd Connect",

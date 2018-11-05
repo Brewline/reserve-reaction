@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
-import { Reaction } from "/server/api";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { Cart } from "/lib/collections";
 
 // customize RC stock server method. skip shipment for digital goods.
@@ -12,6 +12,8 @@ Meteor.startup(() => {
     check(workflow, String);
     check(newWorkflowStatus, String);
     check(cartId, Match.Optional(String));
+
+    let nextWorkflowStatus;
 
     const inSkippableState = workflow === "coreCartWorkflow" &&
       newWorkflowStatus === "coreCheckoutShipping";
@@ -33,10 +35,12 @@ Meteor.startup(() => {
 
       const shipmentMethod = Reaction.Collections.Shipping.findOne().methods[0];
       Meteor.call("cart/setShipmentMethod", currentCart._id, shipmentMethod);
-      newWorkflowStatus = "checkoutReview";
+      nextWorkflowStatus = "checkoutReview";
+    } else {
+      nextWorkflowStatus = newWorkflowStatus;
     }
 
-    return original.call(this, workflow, newWorkflowStatus, cartId);
+    return original.call(this, workflow, nextWorkflowStatus, cartId);
   }
 
   Meteor.default_server.method_handlers["workflow/pushCartWorkflow"] =

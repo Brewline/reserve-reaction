@@ -4,13 +4,14 @@ import UntappdClient from "node-untappd";
 import { Job } from "/imports/plugins/core/job-collection/lib";
 // import { methods as RegistryMethods } from "/server/methods/core/registry";
 import { Meteor } from "meteor/meteor";
-import { Logger, Reaction } from "/server/api";
+import Logger from "@reactioncommerce/logger";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { check, Match } from "meteor/check";
 import { Shops, Jobs, Packages } from "/lib/collections";
 import { connectorsRoles } from "../../lib/roles";
 import { importShopImages } from "../../jobs/image-import";
 
-import { getSlug } from "/lib/api";
+import getSlug from "/imports/plugins/core/core/server/Reaction/getSlug";
 
 // function requestUntappdCredential(options, fnCallback) {
 //   const untappdService = Package["brewline:accounts-untappd"].Untappd;

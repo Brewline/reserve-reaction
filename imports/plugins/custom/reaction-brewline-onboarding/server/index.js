@@ -1,4 +1,6 @@
-import { Hooks, Logger, Reaction } from "/server/api";
+import Hooks from "@reactioncommerce/hooks";
+import Logger from "@reactioncommerce/logger";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { Shops } from "/lib/collections";
 
 import "./collections"; // TODO: move to ../lib/collections

@@ -1,7 +1,8 @@
 import Untappd from "node-untappd";
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
-import { Reaction, Logger } from "/server/api";
+import Logger from "@reactioncommerce/logger";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { connectorsRoles } from "../../lib/roles";
 import { getApiInfo } from "./api";
 

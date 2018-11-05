@@ -3,8 +3,7 @@ import { Match } from "meteor/check";
 import { expect } from "meteor/practicalmeteor:chai";
 import { sinon } from "meteor/practicalmeteor:sinon";
 import Random from "@reactioncommerce/random";
-import { Logger } from "/server/api";
-// import { Reaction, Logger } from "/server/api";
+import Logger from "@reactioncommerce/logger";
 // import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { WatchlistItems } from "@brewline/watchlist/lib/collections";
 
