@@ -1,6 +1,7 @@
 import { Reaction } from "/client/api";
 import { Packages } from "/lib/collections";
 import merge from "lodash/merge";
+import { Reaction } from "/client/api";
 
 export function createSocialSettings(options) {
   let socialSettings;

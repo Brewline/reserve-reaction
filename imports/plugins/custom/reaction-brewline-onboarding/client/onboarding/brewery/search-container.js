@@ -1,6 +1,8 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
+import ReactGA from "react-ga";
 import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 // import { Products, Media } from "/lib/collections";
@@ -11,6 +13,10 @@ const ACCOUNT_TYPE_BREWERY = "brewery";
 // const ACCOUNT_TYPE_USER = "user";
 
 class SearchContainer extends Component {
+  static propTypes = {
+    onNextStep: PropTypes.func
+  };
+
   state = {
     searchResults: []
   };
@@ -31,7 +37,8 @@ class SearchContainer extends Component {
   }
 
   addShop = (untappdShopId) => {
-    const msg = `Importing ${this.getShopName(untappdShopId, "your shop")} from Untappd...`;
+    const displayName = this.getShopName(untappdShopId, "your shop");
+    const msg = `Importing ${displayName} from Untappd...`;
     Alerts.toast(msg, "info");
     Meteor.call("onboarding/createUntappdShop", untappdShopId, (err, shop) => {
       if (err) {
@@ -44,6 +51,12 @@ class SearchContainer extends Component {
       Reaction.setShopId(shop._id);
 
       this.props.onNextStep();
+
+      ReactGA.event({
+        category: "Resources",
+        action: "Create Shop",
+        label: displayName
+      });
     });
   }
 
@@ -55,6 +68,12 @@ class SearchContainer extends Component {
       }
 
       this.setState({ searchResults: res.response.brewery.items });
+
+      ReactGA.event({
+        category: "Search",
+        action: "My Brewery Search",
+        label: q
+      });
     });
   }
 
@@ -74,30 +93,35 @@ function composer(props, onData) {
   let userBrewery;
   let currentBrewery;
   const user = Meteor.user();
+
+  // this is wrong... it was written assuming user is returned from Untappd
+  // this user is a Meteor user and doesn't know what `account_type` is
+  if (user && user.account_type === ACCOUNT_TYPE_BREWERY) {
+    userBrewery = user.brewery_details;
+
+    if (userBrewery) {
+      props.onNextStep();
+      return;
+    }
+  }
+
   const shopSubscription = Meteor.subscribe("PrimaryShop");
 
   if (shopSubscription.ready()) {
     const shop = Reaction.getShop();
 
-    if (shop.UntappdId) {
+    if (shop && shop.UntappdId) {
       currentBrewery = shop;
     }
   }
 
-  if (user && user.account_type === ACCOUNT_TYPE_BREWERY) {
-    userBrewery = user.brewery_details;
-  }
-
-  if (userBrewery || currentBrewery) {
-    onData(null, {
-      ...props,
-      userBrewery,
-      currentBrewery
-    });
-  } else {
-    // avoid a re-paint by passing the original instance of props... maybe?
-    onData(null, props);
-  }
+  // if (currentBrewery) {
+  onData(null, {
+    ...props,
+    userBrewery,
+    currentBrewery
+  });
+  // }
 }
 
 registerComponent(

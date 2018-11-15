@@ -1,0 +1,45 @@
+.loading-placeholder-light,
+.loading-placeholder-dark {
+  position: relative;
+
+	// Gray, translucent bar to show "loading." Renders as 86% of the parent's
+	// height, vertically centered, and 100% of its width.
+	&:before {
+		content: ' ';
+		display: block;
+		position: absolute;
+		top: 7%;
+		height: 86%;
+		width: 100%;
+  }
+
+	.loaded-content {
+		transform: translateZ(0); // ensure the content loads above the placeholder
+	}
+
+	// Inserts a non-breaking space into the parent to guarantee that it has at
+	// least one line's worth of height. (Necessary for the 'before' block to do
+	// a relatively-sized height.)
+	&:after {
+		content: '\00a0';
+	}
+}
+
+.loading-placeholder-full:before {
+  top: 0;
+  height: 100%;
+}
+
+.loading-placeholder-light:before {
+  background-color: rgba(235, 237, 241, 0.1);
+}
+
+.loading-placeholder-dark:before {
+  background-color: rgba(235, 237, 241, 0.5);
+}
+
+span.loading-placeholder-light,
+span.loading-placeholder-dark {
+  // Useful for being able to set an explicit width on the placeholder.
+  display: inline-block;
+}

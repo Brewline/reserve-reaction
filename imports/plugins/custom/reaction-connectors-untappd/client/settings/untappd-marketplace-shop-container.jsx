@@ -1,27 +1,24 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
+import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { Reaction } from "/client/api";
-import { composeWithTracker, registerComponent } from "@reactioncommerce/reaction-components";
+import {
+  Components,
+  composeWithTracker,
+  registerComponent
+} from "@reactioncommerce/reaction-components";
+import { Modal } from "@brewline/theme/client/components";
 
 import UntappdMarketplaceShop from "./untappd-marketplace-shop-component";
 
 class UntappdMarketplaceShopContainer extends Component {
-  constructor(props) {
-    super(props);
+  static propTypes = {
+    brewery: PropTypes.shape({
+      brewery_name: PropTypes.string // eslint-disable-line camelcase
+    })
+  };
 
-    this.addShop = this.addShop.bind(this);
-
-    // initial state
-    const alertId = "connectors-untappd-add-shop";
-
-    this.state = {
-      alertOptions: {
-        placement: alertId,
-        id: alertId,
-        autoHide: 4000
-      }
-    };
-  }
+  state = {};
 
   getShopName(defaultValue) {
     const {
@@ -33,11 +30,24 @@ class UntappdMarketplaceShopContainer extends Component {
     return breweryName || defaultValue;
   }
 
-  addShop(untappdShopId) {
+  getShopSlug(defaultValue) {
+    const {
+      brewery: {
+        brewery_slug: brewerySlug
+      }
+    } = this.props;
+
+    return brewerySlug || defaultValue;
+  }
+
+  addShop = () => {
     const msg = `Importing ${this.getShopName("your shop")} from Untappd...`;
     Alerts.toast(msg, "info");
 
-    Meteor.call("connectors/untappd/import/shops", untappdShopId, (err, shop) => {
+    const untappdShopId = this.state.requestedUntappdShopId;
+    const ownerEmailAddress = this.emailRef ? this.emailRef.value : null;
+
+    Meteor.call("connectors/untappd/import/shops", untappdShopId, ownerEmailAddress, (err, shop) => {
       if (err) {
         // TODO: correct wording
         return Alerts.toast(err.reason, "error");
@@ -50,12 +60,54 @@ class UntappdMarketplaceShopContainer extends Component {
     });
   }
 
+  requestPromptForEmailAddress = (untappdShopId) => {
+    this.setState({
+      shouldShopEmailPrompt: true,
+      requestedUntappdShopId: untappdShopId
+    });
+  }
+
+  cancelPromptForEmailAddress = () => {
+    this.setState({
+      shouldShopEmailPrompt: false,
+      requestedUntappdShopId: null
+    });
+  }
+
   render() {
     return (
-      <UntappdMarketplaceShop
-        {...this.props}
-        onAddShop={this.addShop}
-      />
+      <Fragment>
+        <UntappdMarketplaceShop
+          {...this.props}
+          onAddShop={this.requestPromptForEmailAddress}
+        />
+
+        <Modal
+          isOpen={this.state.shouldShopEmailPrompt}
+          onRequestClose={this.cancelPromptForEmailAddress}
+          size="sm"
+        >
+          <form>
+            <label className="rui textfield">
+              Set the owner email address (optional)
+              <input
+                ref={(ref) => { this.emailRef = ref; }}
+                placeholder={`${this.getShopSlug("brewery")}@brewline.io (or something)`}
+              />
+            </label>
+
+            <Components.Button
+              bezelStyle="solid"
+              className={{
+                btn: true
+              }}
+              label="Use this email"
+              onClick={this.addShop}
+              primary={true}
+            />
+          </form>
+        </Modal>
+      </Fragment>
     );
   }
 }

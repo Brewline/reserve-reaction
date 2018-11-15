@@ -1,5 +1,7 @@
+import "velocity-animate";
+import "velocity-animate/velocity.ui";
+
 import "./onboarding";
-import "./index.less";
 
 import classnames from "classnames";
 import React, { Component } from "react";

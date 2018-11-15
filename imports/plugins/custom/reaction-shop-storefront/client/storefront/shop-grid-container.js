@@ -6,8 +6,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 // import update from "react/lib/update";
-import _ from "lodash";
-import { Components, registerComponent } from "@reactioncommerce/reaction-components";
+import { registerComponent } from "@reactioncommerce/reaction-components";
 // import { Meteor } from "meteor/meteor";
 // import { Session } from "meteor/session";
 // import { Reaction } from "/client/api";

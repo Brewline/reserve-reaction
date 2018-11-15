@@ -1,4 +1,6 @@
+import ReactGA from "react-ga";
 import { Meteor } from "meteor/meteor";
+import { Accounts } from "meteor/accounts-base";
 import {
   composeWithTracker,
   registerComponent
@@ -10,12 +12,50 @@ import Login from "./login-component";
 
 function composer(props, onData) {
   const onLogin = () => {
+    ReactGA.event({
+      category: "Auth",
+      action: "Brewery Onboarding Sign Up w/Untappd"
+    });
+
     Meteor.loginWithUntappd({ source: "onboardingBrewery" }, (error) => {
       if (error) {
         console.log(error);
       } else {
+        ReactGA.event({
+          category: "Auth",
+          action: "Brewery Onboarding Sign Up Complete"
+        });
+
         props.onNextStep();
       }
+    });
+  };
+
+  let onLoginHandler;
+  const onOpenSignUpModal = () => {
+    ReactGA.event({
+      category: "Auth",
+      action: "Brewery Onboarding Sign Up"
+    });
+
+    onLoginHandler = Accounts.onLogin(() => {
+      props.onNextStep();
+
+      ReactGA.event({
+        category: "Auth",
+        action: "Brewery Onboarding Sign Up Complete"
+      });
+    });
+  };
+
+  const onCloseSignUpModal = () => {
+    if (onLoginHandler && onLoginHandler.stop) {
+      onLoginHandler.stop();
+    }
+
+    ReactGA.event({
+      category: "Auth",
+      action: "Brewery Onboarding Sign Up Cancelled"
     });
   };
 
@@ -27,7 +67,9 @@ function composer(props, onData) {
   onData(null, {
     ...props,
     loggedInUser,
-    onLogin
+    onLogin,
+    onCloseSignUpModal,
+    onOpenSignUpModal
   });
 }
 

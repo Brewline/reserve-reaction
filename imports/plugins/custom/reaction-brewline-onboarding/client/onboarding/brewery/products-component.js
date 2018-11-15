@@ -1,10 +1,16 @@
 import _ from "lodash";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Components } from "@reactioncommerce/reaction-components";
 
 import UntappdConnectorProduct from "@brewline/untappd-connector/client/settings/untappd-connector-product-component";
 
 export default class Products extends Component {
+  static propTypes = {
+    onAddProduct: PropTypes.func.isRequired,
+    searchResults: PropTypes.arrayOf(PropTypes.object)
+  };
+
   renderSearchResult(product, index) {
     // <i className="fa fa-cloud-download"></i>
     return (
@@ -45,7 +51,7 @@ export default class Products extends Component {
 
   render() {
     return (
-      <div>
+      <div className="onboarding__step brewline-onboarding__products">
         <h1>Set up your Beer Release</h1>
 
         <p>

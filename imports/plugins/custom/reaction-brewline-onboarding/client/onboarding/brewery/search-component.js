@@ -4,13 +4,17 @@ import { Components } from "@reactioncommerce/reaction-components";
 import { Button } from "/imports/plugins/core/ui/client/components";
 
 import UntappdMarketplaceShop from "@brewline/untappd-connector/client/settings/untappd-marketplace-shop-component";
+import PropTypes from "prop-types";
 
 export default class Search extends Component {
-  componentWillMount() {
-    if (!this.props.userBrewery || !this.props.onNextStep) { return; }
-
-    this.props.onNextStep();
-  }
+  static propTypes = {
+    currentBrewery: PropTypes.object,
+    onAddShop: PropTypes.func.isRequired,
+    onNextStep: PropTypes.func.isRequired,
+    onSearch: PropTypes.func.isRequired,
+    searchResults: PropTypes.arrayOf(PropTypes.object),
+    userBrewery: PropTypes.object
+  };
 
   handleSearch = (e) => {
     e.preventDefault();
@@ -69,16 +73,16 @@ export default class Search extends Component {
         </p>
 
         <Button
+          bezelStyle="solid"
           className={{
             "btn": true,
-            "btn-primary": true,
             "btn-lg": true,
-            "flat": false
+            "btn-success": true
           }}
+          label="Next step"
           onClick={this.props.onNextStep}
-        >
-          Next step
-        </Button>
+          primary={true}
+        />
       </div>
     );
   }
@@ -93,16 +97,16 @@ export default class Search extends Component {
         </p>
 
         <Button
+          bezelStyle="solid"
           className={{
             "btn": true,
-            "btn-primary": true,
             "btn-lg": true,
-            "flat": false
+            "btn-success": true
           }}
+          label="Next step"
           onClick={() => this.props.onAddShop(breweryId)}
-        >
-          Next step
-        </Button>
+          primary={true}
+        />
       </div>
     );
   }
@@ -125,14 +129,14 @@ export default class Search extends Component {
 
 
           <Button
-            type="submit"
+            bezelStyle="solid"
             className={{
               "btn": true,
-              "btn-primary": true,
-              "btn-lg": true,
-              "flat": false
+              "btn-lg": true
             }}
             icon="search"
+            primary={true}
+            type="submit"
           >
             <span data-i18n="admin.untappdConnectSettings.startImport">
               Search
@@ -157,7 +161,7 @@ export default class Search extends Component {
     }
 
     return (
-      <div className="admin-controls-content">
+      <div className="admin-controls-content onboarding__step brewline-onboarding__search">
         <h1>Search for your Brewery</h1>
 
         {content}

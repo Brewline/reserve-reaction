@@ -64,15 +64,16 @@ class SocialSettingsContainer extends Component {
 }
 
 function composer(props, onData) {
-  const subscription = Reaction.Subscriptions.Packages;
+  // const subscription = Reaction.Subscriptions.Packages;
+  const subscription = Meteor.subscribe("Packages", Reaction.getShopId());
   const preferences = Reaction.getUserPreferences("reaction-social", "settingsCards", {});
 
-  const socialPackage = Packages.findOne({
-    name: "reaction-social",
-    shopId: Reaction.getShopId()
-  });
-
   if (subscription.ready()) {
+    const socialPackage = Packages.findOne({
+      name: "reaction-social",
+      shopId: Reaction.getShopId()
+    });
+
     onData(null, {
       preferences,
       packageData: socialPackage,

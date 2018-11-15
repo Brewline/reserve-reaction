@@ -1,26 +1,62 @@
-import React, { Component } from "react";
 import _ from "lodash";
-import { Button } from "/imports/plugins/core/ui/client/components";
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { VelocityComponent } from "velocity-react";
+import { Components } from "@reactioncommerce/reaction-components";
+import { Modal } from "@brewline/theme/client/components";
 
 export default class Login extends Component {
+  static propTypes = {
+    loggedInUser: PropTypes.object,
+    onCloseSignUpModal: PropTypes.func,
+    onLogin: PropTypes.func.isRequired,
+    onNextStep: PropTypes.func.isRequired,
+    onOpenSignUpModal: PropTypes.func
+  };
+
+  state = {
+    shouldShowAuthModal: false
+  };
+
+  handleClickSignUp = () => {
+    const { onOpenSignUpModal } = this.props;
+
+    this.setState({ shouldShowAuthModal: true });
+
+    if (!onOpenSignUpModal) { return; }
+
+    onOpenSignUpModal();
+  }
+
+  handleRequestClose = () => {
+    const { onCloseSignUpModal } = this.props;
+
+    this.setState({ shouldShowAuthModal: false });
+
+    if (!onCloseSignUpModal) { return; }
+
+    onCloseSignUpModal();
+  }
+
   renderLoggedIn() {
     return (
       <div>
         <p>
-          Great! You&rsquo;re already logged in.
+          Great! You are logged in.
         </p>
 
-        <Button
+        <Components.Button
+          bezelStyle="solid"
           className={{
             "btn": true,
-            "btn-primary": true,
             "btn-lg": true,
-            "flat": false
+            "btn-success": true
           }}
           onClick={this.props.onNextStep}
+          primary={true}
         >
           Next step
-        </Button>
+        </Components.Button>
       </div>
     );
   }
@@ -37,17 +73,64 @@ export default class Login extends Component {
           automatically.
         </p>
 
-        <Button
-          className={{
-            "btn": true,
-            "btn-primary": true,
-            "btn-lg": true,
-            "flat": false
-          }}
-          onClick={this.props.onLogin}
+        <VelocityComponent animation="callout.shake" runOnMount={true}>
+          <Components.Button
+            bezelStyle="solid"
+            className={{
+              "btn": true,
+              "btn-lg": true,
+              "btn-success": true
+            }}
+            onClick={this.props.onLogin}
+            primary={true}
+          >
+            Login with Untappd
+          </Components.Button>
+        </VelocityComponent>
+
+        <Components.Divider />
+
+        <p>
+          We use information from Untappd to
+        </p>
+        <ol>
+          <li>create your account (using your email)</li>
+          <li>create your shop (using name, description, website, etc.)</li>
+          <li>import the beers that you choose</li>
+        </ol>
+        <p>
+          We chose Untappd for your convenience and as a way to verify Brewery
+          ownership.
+        </p>
+
+        <p>
+          We do not post, toast, or otherwise change content on your behalf.
+        </p>
+
+        <p>
+          <Components.Button
+            tagName="a"
+            className={{
+              "btn": false,
+              "btn-default": false,
+              "link": true
+            }}
+            label="Prefer to set up your account manually? click here."
+            i18nKeyLabel="onboarding.manualShopCreationCta"
+            data-event-category="accounts"
+            onClick={this.handleClickSignUp}
+          />
+        </p>
+
+        <Modal
+          isOpen={this.state.shouldShowAuthModal}
+          onRequestClose={this.handleRequestClose}
+          size="sm"
         >
-          Login with Untappd
-        </Button>
+          <Components.Login
+            loginFormCurrentView="loginFormSignUpView"
+          />
+        </Modal>
       </div>
     );
   }
@@ -62,7 +145,7 @@ export default class Login extends Component {
     }
 
     return (
-      <div className="brewline-onboarding__about">
+      <div className="onboarding__step brewline-onboarding__login">
         <h1>Create an account on Brewline</h1>
 
         {content}

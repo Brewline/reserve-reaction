@@ -108,7 +108,7 @@ export class ServiceConfigHelper {
    * @method addProvider
    * @memberof Accounts
    * @summary Add an OAuth provider, with field definitions required to render the form
-   * which collects and stores configuation settings for the provider.
+   * which collects and stores configuration settings for the provider.
    * @example ServiceConfigHelper.addProvider("Untappd", [{ property: "clientId", label: "Client ID" }]), { property:
    *  "secret", label: "Client Secret" }]);
    * @see https://github.com/reactioncommerce/reaction/pull/3231
@@ -116,6 +116,7 @@ export class ServiceConfigHelper {
    * @param {object[]} fields Array of plain old JavaScript objects with the keys `property`
    * ("apiKey", for example. `apiKey` should correspond to your OAuth provider's
    * implementation) and `label` ("API Key", for example)
+   * @returns {undefined}
    */
   static addProvider(provider, fields) {
     providers[provider] = {

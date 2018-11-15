@@ -2,7 +2,6 @@ import _ from "lodash";
 import { registerComponent, composeWithTracker } from "@reactioncommerce/reaction-components";
 import { Reaction } from "/client/api";
 import OnboardingNavBar from "./onboarding-navbar-component";
-import { Shops } from "/lib/collections";
 import { Media } from "/imports/plugins/core/files/client";
 
 export function composer(props, onData) {

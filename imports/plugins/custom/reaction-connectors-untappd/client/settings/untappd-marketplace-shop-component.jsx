@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { a11yOnEnter } from "./a11yHelpers";
+import { a11yOnEnter } from "@brewline/theme/client/lib";
 
 // TODO: wrap this component
 export default class UntappdMarketplaceShopComponent extends Component {

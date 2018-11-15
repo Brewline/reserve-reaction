@@ -14,7 +14,7 @@ export default class WhatsNext extends Component {
 
   render() {
     return (
-      <div>
+      <div className="onboarding__step brewline-onboarding__whats-next">
         <h1>You&rsquo;re Almost Done!</h1>
 
         <p>

@@ -3,10 +3,10 @@ ul.storefront-social {
 	padding-left: 0;
 	list-style-type: none;
 
-	justify-content: flex-end;
-	@media (min-width: @screen-md-min) {
-		justify-content: space-between;
-	}
+	justify-content: flex-start;
+	// @media @mobile {
+	// 	justify-content: space-between;
+	// }
 
 	li {
 		margin: 10px 10px 0 0;
@@ -26,9 +26,29 @@ ul.storefront-social {
 // }
 
 .shop-storefront {
-	.shop-storefront__brand {
-		background-color: white;
+	display: flex;
+	box-lines: single;
+	box-orient: horizontal;
+	flex-direction: row;
+	flex-wrap: nowrap;
+
+	@media @mobile {
+		box-lines: multiple;
+		box-orient: vertical;
+		flex-direction: column;
+		flex-wrap: wrap;
+
+		&,
+		.shop-storefront__content {
+			align-items: center;
+			justify-content: center;
+		}
 	}
+
+	// this was here for a reason, but not sure what that was!
+	// .shop-storefront__brand {
+	// 	background-color: white;
+	// }
 
 	.logo {
 		margin-top: 8px; // idk... just felt right
