@@ -1,4 +1,5 @@
 import _ from "lodash";
+import slugify from "slugify";
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -72,11 +73,13 @@ class ProductsContainer extends Component {
     const thisFriday = getUpcomingFriday();
 
     const headline = `${displayName} Can Release`;
+    // const slug = await Reaction.getSlug(headline);
+    const slug = slugify(headline.toLowerCase());
     const saleData = {
-      slug: Reaction.getSlug(headline),
+      slug,
       headline,
       beginsAt: thisFriday,
-      endsAt: new Date(thisFriday.getTime() + 2 * 86400000 - 1000),
+      endsAt: new Date(thisFriday.getTime() + 2 * 86400000 - 60000), // 11:59 pm
       isDemo: false,
       isVisible: false
     };

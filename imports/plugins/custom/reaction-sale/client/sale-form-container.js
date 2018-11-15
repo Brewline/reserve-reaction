@@ -9,7 +9,7 @@ import SaleForm from "./sale-form-component";
 
 const handlers = {
   onSave(saleData) {
-    const { _id: saleId, headline } = saleData;
+    const { _id: saleId, headline, slug } = saleData;
 
     Meteor.call("Sales/save", saleData, (err, res) => {
       if (err) {
@@ -18,8 +18,11 @@ const handlers = {
         return Alerts.toast("Oops... something went wrong. try again later, maybe?", "error");
       }
 
-      // TODO: close the menu
-      Router.go("sale", { id: res });
+      Reaction.hideActionView();
+
+      if (!saleId) { // i.e., an update
+        Router.go("sale", { idOrSlug: slug || res });
+      }
 
       ReactGA.event({
         category: "Can Releases",

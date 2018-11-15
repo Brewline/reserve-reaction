@@ -8,8 +8,8 @@ import { Session } from "meteor/session";
 import { Tracker } from "meteor/tracker";
 import { Reaction } from "/client/api";
 import { ITEMS_INCREMENT } from "/client/config/defaults";
-import { ReactionProduct } from "/lib/api";
-import { Products, Tags, Shops } from "/lib/collections";
+import { Products, Tags } from "/lib/collections";
+import { resubscribeAfterCloning } from "/lib/api/products";
 import ProductsComponent from "../components/products";
 
 const reactiveProductIds = new ReactiveVar([], (oldVal, newVal) => JSON.stringify(oldVal.sort()) === JSON.stringify(newVal.sort()));

@@ -7,6 +7,8 @@ class SaleDetail extends Component {
   static propTypes = {
     // cartQuantity: PropTypes.number,
     hasAdminPermission: PropTypes.bool,
+    isProductsSubscriptionReady: PropTypes.bool,
+    isReady: PropTypes.bool,
     mediaGalleryComponent: PropTypes.node,
     moment: PropTypes.func,
     // onAddToCart: PropTypes.func,
@@ -16,7 +18,6 @@ class SaleDetail extends Component {
     onEdit: PropTypes.func,
     onViewContextChange: PropTypes.func,
     products: PropTypes.arrayOf(PropTypes.object), // TODO: is there a productPropType?
-    productsSubscription: PropTypes.object, // a Subscription
     sale: PropTypes.object,
     socialComponent: PropTypes.node,
     viewAs: PropTypes.string
@@ -48,14 +49,20 @@ class SaleDetail extends Component {
     }
 
     if (mEndsAt.isAfter(now)) {
-      return `Ends in ${mBeginsAt.fromNow(true)}`; // TODO: i18n
+      return `Ends in ${mEndsAt.fromNow(true)}`; // TODO: i18n
     }
 
     return `Ended ${mEndsAt.calendar()}`; // TODO: i18n
   }
 
   render() {
-    const { headline, description } = this.sale;
+    const { headline, description, isVisible } = this.sale;
+    const {
+      hasAdminPermission,
+      isProductsSubscriptionReady,
+      isReady,
+      products
+    } = this.props;
 
     return (
       <div className="pdp" style={{ position: "relative" }}>
@@ -72,11 +79,11 @@ class SaleDetail extends Component {
             <Components.Divider />
 
             <Products
-              loadMoreProducts={() => false}
-              products={this.props.products}
-              productsSubscription={this.props.productsSubscription}
-              ready={this.props.productsSubscription.ready}
-              showNotFound={false}
+              canLoadMoreProducts={false}
+              products={products}
+              isProductsSubscriptionReady={isProductsSubscriptionReady}
+              isReady={isReady}
+              showNotFound={!hasAdminPermission && !isVisible}
             />
           </div>
         </div>

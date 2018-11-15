@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import slugify from "slugify"; // TODO: figure out why Reaction.getSlug isn't loading slugify
 import { Components } from "@reactioncommerce/reaction-components";
 import { Reaction, Router } from "/client/api";
 
@@ -39,11 +40,12 @@ function dateTimeIsoStringWithZone(date, time) {
   if (!date || !time) { return ""; }
 
   const offset = new Date().getTimezoneOffset();
-  const op = offset > 0 ? "+" : "-";
+  // - for positive values, + for negative values
+  const op = offset < 0 ? "+" : "-";
   const offsetHours = `0${offset / 60}`.slice(-2);
-  const offsetMinutes = `0${offset / 60}`.slice(-2);
+  const offsetMinutes = `0${offset % 60}`.slice(-2);
 
-  return `${date}T${time}:00${op}-${offsetHours}:${offsetMinutes}`;
+  return `${date}T${time}:00${op}${offsetHours}:${offsetMinutes}`;
 }
 
 export default class SaleFormComponent extends Component {
@@ -125,7 +127,7 @@ export default class SaleFormComponent extends Component {
       helpText: (value) => {
         // TODO: this will not work for i18n
         if (value) {
-          const path = Router.pathFor("sale", { idOrSlug: value });
+          const path = Router.pathFor("sale", { hash: { idOrSlug: value } });
           return `URL: ${path}`;
         }
 
@@ -186,38 +188,37 @@ export default class SaleFormComponent extends Component {
   }
 
   splitDateAndTime(dateAndTime, ignoreDefaults = false) {
-    let dateAndTimeString;
-    let date;
-    let time;
+    let d;
+    let iDate;
 
     if (!dateAndTime) { return []; }
 
     if (dateAndTime.toISOString) {
-      dateAndTimeString = dateAndTime.toISOString();
+      iDate = dateAndTime.getTime();
     } else {
-      dateAndTimeString = dateAndTime;
+      iDate = Date.parse(dateAndTime);
     }
 
-    const matches = /(.*)T(\d{2}:\d{2})(:\d{2}.\d{3}Z)?$/.exec(dateAndTimeString);
+    if (!iDate) {
+      if (ignoreDefaults) { return []; }
 
-    if (matches) {
-      date = matches[1]; // eslint-disable-line prefer-destructuring
-      time = matches[2]; // eslint-disable-line prefer-destructuring
+      d = new Date();
+      d.setHours(0, 0, 0, 0);
+    } else {
+      // round to the nearest minute. it's weird, I know
+      d = new Date(iDate);
     }
 
-    if (!date && !time && ignoreDefaults) { return []; }
+    // all in the current time zone
+    const yyyy = d.getFullYear();
+    const mm = `0${d.getMonth() + 1}`.slice(-2);
+    const dd = `0${d.getDate()}`.slice(-2);
+    const h = `0${d.getHours()}`.slice(-2);
+    const m = `0${d.getMinutes()}`.slice(-2);
+    const s = `0${d.getSeconds()}`.slice(-2);
 
-    if (!date) {
-      const d = new Date();
-      const yyyy = d.getFullYear();
-      const mm = `0${d.getMonth()}`.slice(-2);
-      const dd = `0${d.getDay()}`.slice(-2);
-      date = `${yyyy}-${mm}-${dd}`;
-    }
-
-    if (!time) {
-      time = "00:00";
-    }
+    const date = `${yyyy}-${mm}-${dd}`;
+    const time = `${h}:${m}:${s}`;
 
     return [date, time];
   }
@@ -308,7 +309,8 @@ export default class SaleFormComponent extends Component {
     // nothing to set? bail.
     if (!value) { return; }
 
-    fields.slug = Reaction.getSlug(value);
+    // fields.slug = Reaction.getSlug(value.toLowerCase());
+    fields.slug = slugify(value.toLowerCase());
     this.setState({ fields });
   }
 

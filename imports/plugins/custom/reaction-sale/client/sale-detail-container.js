@@ -164,7 +164,8 @@ function composer(props, onData) {
   // we may want to wait for the Media subscription to come back
   onData(null, {
     products,
-    productsSubscription,
+    isProductsSubscriptionReady: productsSubscription.ready(),
+    isReady: productsSubscription.ready(),
     sale,
     media: mediaArray,
     viewAs: viewSaleAs,

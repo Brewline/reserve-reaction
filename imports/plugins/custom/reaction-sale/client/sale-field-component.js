@@ -21,7 +21,7 @@ class SaleField extends ProductField {
     Reaction.setActionView({
       i18nKeyLabel: "saleDetailEdit.saleDashboard",
       label: "Sale Dashboard",
-      template: "SaleDashboard"
+      template: "saleDashboard"
     });
   }
 }

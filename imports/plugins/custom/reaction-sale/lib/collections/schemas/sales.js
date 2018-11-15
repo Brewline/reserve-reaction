@@ -54,13 +54,11 @@ export const Sale = new SimpleSchema({
   },
   description: {
     type: String,
-    defaultValue: "",
     label: "Description",
     optional: true
   },
   instructions: {
     type: String,
-    defaultValue: "",
     label: "Instructions",
     optional: true
   },

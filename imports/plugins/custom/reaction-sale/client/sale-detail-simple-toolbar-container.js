@@ -37,7 +37,7 @@ const wrapComponent = (Comp) => (
       showActionView({
         i18nKeyLabel: "saleDetailEdit.saleDashboard",
         label: "Sale Dashboard",
-        template: "SaleDashboard"
+        template: "saleDashboard"
       });
     }
 

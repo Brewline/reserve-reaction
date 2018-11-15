@@ -1,7 +1,8 @@
 import _ from "lodash";
 import { Meteor } from "meteor/meteor";
 import { check, Match } from "meteor/check";
-import { Reaction, Logger } from "/server/api";
+import Logger from "@reactioncommerce/logger";
+import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { Catalog, Products, Shops } from "/lib/collections";
 import { saveProductFromUntappd } from "@brewline/untappd/methods/import/products";
 import { Sales } from "../../lib/collections";
