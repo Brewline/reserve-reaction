@@ -18,6 +18,8 @@
             "./"
           ],
           "alias": {
+            "@reactioncommerce/reaction-graphql-utils": "./imports/plugins/core/graphql/server/no-meteor/util",
+            "@reactioncommerce/reaction-graphql-xforms": "./imports/plugins/core/graphql/server/no-meteor/xforms",
             "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib",
             "@brewline/untappd/methods": "./imports/plugins/custom/reaction-connectors-untappd/server/methods",
             "@brewline/theme": "./imports/plugins/custom/reaction-brewline-theme/client/components"

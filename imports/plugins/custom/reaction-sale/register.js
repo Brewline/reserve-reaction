@@ -1,10 +1,21 @@
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 
+import queries from "./lib/queries";
+import resolvers from "./lib/resolvers";
+import schemas from "./lib/schemas";
+
 Reaction.registerPackage({
   label: "Sales",
   name: "reaction-sale",
   icon: "fa fa-beer",
   autoEnable: true,
+
+  graphQL: {
+    resolvers,
+    schemas
+  },
+  queries,
+
   registry: [{
     route: "/can-release/:idOrSlug?",
     name: "sale",
