@@ -76,7 +76,7 @@ extend type Query {
   "Returns a paged list of tags for a shop. You must include a shopId when querying."
   tags(
     "Only tags associated with this shop will be returned"
-    shopId: ID!,
+    shopId: ID,
 
     "If set, the query will return only top-level tags or only non-top-level tags. By default, both types of tags are returned."
     isTopLevel: Boolean,

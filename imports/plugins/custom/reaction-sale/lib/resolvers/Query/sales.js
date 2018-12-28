@@ -14,9 +14,9 @@ import { getPaginatedResponse } from "@reactioncommerce/reaction-graphql-utils";
 export default async function sales(_, connectionArgs, context) {
   let queryShopId;
   let queryOptions;
-  const { collections, shopId } = context;
+  const { shopId } = context;
 
-  const primaryShopId = await context.queries.primaryShopId(collections);
+  const primaryShopId = await context.queries.primaryShopId(context);
 
   if (shopId !== primaryShopId) {
     queryShopId = shopId;

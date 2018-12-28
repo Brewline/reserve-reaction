@@ -1,5 +1,6 @@
 import { getPaginatedResponse } from "@reactioncommerce/reaction-graphql-utils";
 import { decodeShopOpaqueId } from "@reactioncommerce/reaction-graphql-xforms/shop";
+import ReactionError from "@reactioncommerce/reaction-error";
 
 /**
  * Arguments passed by the client for a tags query
@@ -13,19 +14,33 @@ import { decodeShopOpaqueId } from "@reactioncommerce/reaction-graphql-xforms/sh
  */
 
 /**
- * @name "Query.tags"
+ * @name Query.tags
  * @method
  * @memberof Tag/GraphQL
  * @summary Returns the tags for a shop
  * @param {Object} _ - unused
- * @param {TagConnectionArgs} args - arguments sent by the client {@link ConnectionArgs|See default connection arguments}
+ * @param {TagConnectionArgs} connectionArgs - arguments sent by the client {@link ConnectionArgs|See default connection arguments}
  * @param {Object} context - an object containing the per-request state
  * @return {Promise<Object[]>} Promise that resolves with array of Tag objects
  */
 export default async function tags(_, connectionArgs, context) {
-  const { shopId } = connectionArgs;
+  let dbShopId;
 
-  const dbShopId = decodeShopOpaqueId(shopId);
+  const { shopId: requestShopId } = connectionArgs;
+  const { userHasPermission, shopId: contextShopId } = context;
+
+  if (requestShopId) {
+    dbShopId = decodeShopOpaqueId(requestShopId);
+
+    // ensure user has permission to query tags for this shop.
+    // (for demo purposes. guest should always be true)
+    const requiredPermissions = ["guest"];
+    if (dbShopId !== contextShopId && !userHasPermission(requiredPermissions, dbShopId)) {
+      throw new ReactionError("access-denied", "Access denied");
+    }
+  } else {
+    dbShopId = contextShopId;
+  }
 
   const query = await context.queries.tags(context, dbShopId, connectionArgs);
 
