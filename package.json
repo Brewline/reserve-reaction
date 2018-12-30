@@ -372,7 +372,8 @@
     }
   },
   "jest": {
-    "setupTestFrameworkScriptFile": "<rootDir>/imports/test-utils/setupJestTests.js"
+    "setupTestFrameworkScriptFile": "<rootDir>/imports/test-utils/setupJestTests.js",
+    "testURL": "http://jest.reactioncommerce.com"
   },
   "eslintConfig": {
     "extends": "@reactioncommerce",
