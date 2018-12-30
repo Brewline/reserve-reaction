@@ -46,6 +46,7 @@ export default function createApolloServer(options = {}) {
     bodyParser.json(),
     tokenMiddleware(contextFromOptions),
     graphqlExpress(async (req) => {
+      let logFunction;
       const context = { ...contextFromOptions };
 
       // meteorTokenMiddleware will have set req.user if there is one
@@ -53,6 +54,10 @@ export default function createApolloServer(options = {}) {
       await buildContext(context, req);
 
       addCallMeteorMethod(context);
+
+      if (options.debug) {
+        logFunction = (...args) => { console.log(...args); };
+      }
 
       return {
         context,
@@ -67,6 +72,7 @@ export default function createApolloServer(options = {}) {
 
           return res;
         },
+        logFunction,
         schema: makeExecutableSchema({ typeDefs, resolvers, resolverValidationOptions })
       };
     })
