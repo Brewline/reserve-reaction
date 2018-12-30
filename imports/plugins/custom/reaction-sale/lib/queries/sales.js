@@ -20,8 +20,13 @@ export default async function sales(_context, shopId, options = {}) {
     shouldIncludeHidden = false
   } = options;
 
-  const query = { shopId };
+  const query = {};
 
+  if (shopId) {
+    query.shopId = shopId;
+  }
+
+  // TODO: enforce ownership of the shop to allow these options
   if (shouldIncludeDemo !== true) {
     query.isDemo = { $eq: false };
   }

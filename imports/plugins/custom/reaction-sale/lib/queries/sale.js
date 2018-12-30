@@ -1,5 +1,3 @@
-import { decodeSaleOpaqueId } from "../xforms/sale";
-
 import { Sales } from "../collections";
 
 /**
@@ -7,14 +5,17 @@ import { Sales } from "../collections";
  * @method
  * @memberof Sale/GraphQL
  * @summary query the Sales collection and return sale data
- * @param {Object} _ - unused
- * @param {Object} args - an object of all arguments that were sent by the client
- * @param {String} args.id - ID of sale to query
  * @param {Object} _context - (unused) an object containing the per-request state
+ * @param {Object} shopId - sale belonging to this shop
+ * @param {String} slugOrId - slug or ID of sale to query
  * @return {Promise<Object>} sale object
  */
-export default async function sale(_, { id }, _context) {
-  const dbSaleId = decodeSaleOpaqueId(id);
-
-  return Sales.findOne({ _id: dbSaleId });
+export default async function sale(_context, shopId, slugOrId) {
+  return Sales.findOne({
+    shopId,
+    $or: [
+      { _id: slugOrId },
+      { slug: slugOrId }
+    ]
+  });
 }

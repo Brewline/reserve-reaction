@@ -6,6 +6,9 @@ type Sale implements Node {
   "The Shop ID to which this Sale belongs"
   shopId: ID!
 
+  "The Shop to which this Sale belongs"
+  shop: Shop
+
   "Headline"
   headline: String
 
@@ -31,7 +34,7 @@ type Sale implements Node {
   #   type: String,
 
   "Demo Sale?"
-  isDemo: Boolean!
+  isDemo: Boolean
 
   "Is Visible?"
   isVisible: Boolean
@@ -40,14 +43,24 @@ type Sale implements Node {
   createdAt: DateTime!
 
   "The date and time at which this sale was last updated"
-  updatedAt: DateTime!
+  updatedAt: DateTime
 
   """
   The date and time at which this sale was deleted
   When set, this object should be considered deleted. Soft deleted objects are
   not returned in query results unless you explicitly ask for them.
   """
-  deletedAt: DateTime!
+  deletedAt: DateTime
+
+  isBackorder: Boolean
+  isBestseller: Boolean
+  isLowQuantity: Boolean
+  isOnSale: Boolean
+  isSoldOut: Boolean
+  hasNotBegun: Boolean
+  hasEnded: Boolean
+
+  products: [CatalogProduct]
 }
 
 "The fields by which you are allowed to sort any query that returns a `SaleConnection`"
@@ -94,16 +107,22 @@ type SaleConnection implements NodeConnection {
 extend type Query {
   "Returns all sales for a shop"
   sales(
-    "Only sales associated with this shop will be returned"
-    shopId: ID!,
-
     "Set to true if you want soft deleted sales to be included in the response"
     shouldIncludeDeleted: Boolean = false,
+
+    after: ConnectionCursor,
+    before: ConnectionCursor,
+    first: ConnectionLimitInt,
+    last: ConnectionLimitInt,
+    sortOrder: SortOrder = asc,
+
+    """
+    By default, sales are sorted by next to start.
+    Set this to sort by one of the other allowed fields
+    """
+    sortBy: SaleSortByField = beginsAt
   ): SaleConnection
 
-  "Returns a sale by ID"
-  sale(id: ID!): Sale
-
-  "Returns a sale by slug"
-  saleBySlug(slug: String!): Sale
+  "Returns a sale by slug or ID"
+  sale(slugOrId: String): Sale
 }

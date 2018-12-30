@@ -1,9 +1,7 @@
-import sale from "./sale";
-import saleBySlug from "./saleBySlug";
 import sales from "./sales";
+import sale from "./sale";
 
 export default {
   sales,
-  sale,
-  saleBySlug
+  sale
 };
