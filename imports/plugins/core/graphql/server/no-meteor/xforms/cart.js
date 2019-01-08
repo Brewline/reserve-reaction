@@ -94,7 +94,11 @@ export async function xformCartItems(context, items) {
     "product.productId": {
       $in: productIds
     },
-    "product.isVisible": true,
+    // "product.isVisible": true, // #brewlinecustom
+    "$or": [ // #salelogic
+      { saleId: { $ne: null } },
+      { "product.isVisible": true }
+    ],
     "product.isDeleted": { $ne: true },
     "isDeleted": { $ne: true }
   }).toArray();

@@ -27,5 +27,8 @@ export default async function catalogItems(context, { shopIds, tagIds } = {}) {
   if (shopIds) query.shopId = { $in: shopIds };
   if (tagIds) query["product.tagIds"] = { $in: tagIds };
 
+  // #brewlinecustom
+  query.saleId = null;
+
   return Catalog.find(query);
 }

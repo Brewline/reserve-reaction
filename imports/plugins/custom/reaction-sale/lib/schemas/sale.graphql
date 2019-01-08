@@ -4,7 +4,7 @@ type Sale implements Node {
   _id: ID!
 
   "The Shop ID to which this Sale belongs"
-  shopId: ID!
+  shopId: ID
 
   "The Shop to which this Sale belongs"
   shop: Shop
@@ -52,12 +52,19 @@ type Sale implements Node {
   """
   deletedAt: DateTime
 
-  isBackorder: Boolean
-  isBestseller: Boolean
+  "Indicated one or more products have Low Quantity: UI Suggestion: FOMO labelling"
   isLowQuantity: Boolean
-  isOnSale: Boolean
+
+  "Backorder is a subset of Sold Out. UI Suggestion: add to waitlist"
+  isBackorder: Boolean
+
+  "Sold Out. UI Suggestion: Sign up to be notified of the next (similar?) sale"
   isSoldOut: Boolean
+
+  "Not yet taking orders. UI Suggestion: Count down timer + Get notified when sale is upcoming"
   hasNotBegun: Boolean
+
+  "No longer taking orders. UI Suggestion: Sign up to be notified"
   hasEnded: Boolean
 
   products: [CatalogProduct]

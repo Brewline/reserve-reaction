@@ -12,7 +12,11 @@ export default async function findProductAndVariant(collections, productId, vari
 
   const catalogProductItem = await Catalog.findOne({
     "product.productId": productId,
-    "product.isVisible": true,
+    // "product.isVisible": true, // #brewlinecustom
+    "$or": [ // #salelogic
+      { saleId: { $ne: null } },
+      { "product.isVisible": true }
+    ],
     "product.isDeleted": { $ne: true },
     "isDeleted": { $ne: true }
   });

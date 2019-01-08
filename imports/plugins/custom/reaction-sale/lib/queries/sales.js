@@ -22,6 +22,8 @@ export default async function sales(_context, shopId, options = {}) {
 
   const query = {};
 
+  // absence of shopId should only be for the Primary Shop, but if you really
+  // know what you are doing, it's allowed to be null.
   if (shopId) {
     query.shopId = shopId;
   }
