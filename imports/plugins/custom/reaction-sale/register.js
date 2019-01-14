@@ -3,6 +3,7 @@ import Reaction from "/imports/plugins/core/core/server/Reaction";
 import queries from "./lib/queries";
 import resolvers from "./lib/resolvers";
 import schemas from "./lib/schemas";
+// import publishProductToCatalog from "./server/publishProductToCatalog";
 
 Reaction.registerPackage({
   label: "Sales",
@@ -15,6 +16,15 @@ Reaction.registerPackage({
     schemas
   },
   queries,
+  catalog: {
+    publishedProductVariantFields: ["saleId"]
+  },
+  functionsByType: {
+    // mutateNewVariantBeforeCreate: [mutateNewVariantBeforeCreate],
+    // publishProductToCatalog: [publishProductToCatalog],
+    // registerPluginHandler: [registerPluginHandler],
+    // startup: [startup]
+  },
 
   registry: [{
     route: "/can-release/:idOrSlug?",

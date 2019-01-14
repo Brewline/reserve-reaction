@@ -22,6 +22,7 @@
           ],
           "alias": {
             "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib",
+            "@reactioncommerce/core": "./imports/plugins/core",
             "@brewline/theme": "./imports/plugins/custom/reaction-brewline-theme"
           }
         }

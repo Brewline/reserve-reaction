@@ -25,7 +25,7 @@ export const SALES_PERMISSION = "createProduct"; // borrowing this for now
  * (include title, price, inventoryLimit)
  * @returns {number} Number of products
  */
-export function importUntappdSaleProduct(saleId, untappdProductId, options = []) {
+export async function importUntappdSaleProduct(saleId, untappdProductId, options = []) {
   check(saleId, String);
   check(untappdProductId, Number);
   check(options, Array);
@@ -56,13 +56,25 @@ export function importUntappdSaleProduct(saleId, untappdProductId, options = [])
 
   const upsert = true;
   // returns a promise
-  return saveProductFromUntappd(
+  const productIds = await saveProductFromUntappd(
     untappdProductId,
     productData,
     variantData,
     optionsData,
     upsert
   );
+
+  await Catalog.updateMany(
+    { "product.productId": productIds },
+    {
+      saleId: sale._id,
+      product: {
+        isVisible: false // hide saleProducts from the standard Catalog
+      }
+    }
+  );
+
+  return productIds;
 }
 
 const methods = {

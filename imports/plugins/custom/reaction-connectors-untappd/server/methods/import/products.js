@@ -7,6 +7,10 @@ import { Meteor } from "meteor/meteor";
 import Logger from "@reactioncommerce/logger";
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { check, Match } from "meteor/check";
+
+import publishProductsMutation from "@reactioncommerce/core/catalog/server/no-meteor/mutations/publishProducts";
+import getGraphQLContextInMeteorMethod from "/imports/plugins/core/graphql/server/getGraphQLContextInMeteorMethod";
+
 import { Products, Jobs, Tags } from "/lib/collections";
 import { connectorsRoles } from "../../lib/roles";
 import { importProductImages } from "../../jobs/image-import";
@@ -230,16 +234,16 @@ export function saveUntappdProductImage(untappdProduct, shopId, reactionProductI
 }
 
 const defaultOptions = [
-  { title: "4 Pack Cans (16oz)", price: "11.99", inventoryLimit: 6 },
-  { title: "6 Pack Cans (12oz)", price: "11.99", inventoryLimit: 4 },
-  { title: "6 Pack Bottles (12oz)", price: "11.99", inventoryLimit: 4 },
-  { title: "Crowler (32oz)", price: "11.99", inventoryLimit: 3 },
-  { title: "Bomber (22oz)", price: "7.99", inventoryLimit: 12 },
-  { title: "750ml", price: "9.99", inventoryLimit: 6 },
-  { title: "Growler Refill", price: "14.99" },
-  { title: "Case (24) Cans", price: "47.99", inventoryLimit: 1 },
-  { title: "Case (24) Bottles", price: "47.99", inventoryLimit: 1 },
-  { title: "Case (12) Bombers", price: "79.99", inventoryLimit: 1 }
+  { title: "4 Pack Cans (16oz)", price: "11.99", inventoryLimit: 6 } // ,
+  // { title: "6 Pack Cans (12oz)", price: "11.99", inventoryLimit: 4 },
+  // { title: "6 Pack Bottles (12oz)", price: "11.99", inventoryLimit: 4 },
+  // { title: "Crowler (32oz)", price: "11.99", inventoryLimit: 3 },
+  // { title: "Bomber (22oz)", price: "7.99", inventoryLimit: 12 },
+  // { title: "750ml", price: "9.99", inventoryLimit: 6 },
+  // { title: "Growler Refill", price: "14.99" },
+  // { title: "Case (24) Cans", price: "47.99", inventoryLimit: 1 },
+  // { title: "Case (24) Bottles", price: "47.99", inventoryLimit: 1 },
+  // { title: "Case (12) Bombers", price: "79.99", inventoryLimit: 1 }
 ];
 
 export function saveUntappdProduct(untappdProduct, productData = {}, allowExisting = false) {
@@ -347,6 +351,13 @@ export function saveProduct(reactionProductId, untappdProduct, variantData = nul
   return ids;
 }
 
+async function publishProduct(productId) {
+  const context =
+    Promise.await(getGraphQLContextInMeteorMethod(Meteor.userId()));
+
+  return publishProductsMutation(context, [productId]);
+}
+
 export async function saveProductFromUntappd(productId, productData, variantData, options, upsert = false) {
   const { ServiceConfiguration } = Package["service-configuration"];
 
@@ -398,6 +409,11 @@ export async function saveProductFromUntappd(productId, productData, variantData
       reject(error);
     }
   });
+
+  const [topLevelProductId] = result;
+  if (topLevelProductId) {
+    publishProduct(topLevelProductId);
+  }
 
   importProductImages();
   return result;
