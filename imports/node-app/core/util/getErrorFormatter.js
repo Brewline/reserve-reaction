@@ -15,6 +15,8 @@ function getErrorFormatter(context = {}) {
   return (err) => {
     const { originalError } = err;
 
+    console.error(err.stack);
+
     // Generate an ID that can be used to correlate client errors with this server error
     err.errorId = cuid();
 

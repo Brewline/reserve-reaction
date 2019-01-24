@@ -1,10 +1,21 @@
 import { BrowserPolicy } from "meteor/browser-policy-common";
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 
+// import queries from "./lib/queries";
+import resolvers from "./lib/resolvers";
+import schemas from "./lib/schemas";
+
 Reaction.registerPackage({
   label: "Untappd Connect",
   name: "reaction-connectors-untappd",
   icon: "fa fa-exchange",
+
+  graphQL: {
+    resolvers,
+    schemas
+  },
+  // queries,
+
   autoEnable: true,
   settings: {
     apiKey: "",

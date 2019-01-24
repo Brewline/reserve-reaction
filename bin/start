@@ -15,4 +15,5 @@ source .env
 set +a
 
 printf "Starting meteor…"
-meteor run --port 3000 --inspect
+# meteor run --port 3000 --inspect
+reaction debug

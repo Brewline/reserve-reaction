@@ -1,0 +1,112 @@
+"Represents an Untappd Beer Search Result"
+type UntappdSearchResult {
+  beers: UntappdSearchResultBeers,
+  breweries: UntappdSearchResultBreweries,
+  brewery_id: Int,
+  found: Int,
+  limit: Int,
+  offset: Int,
+  message: String,
+  parsed_term: String,
+  search_type: String,
+  search_version: Float,
+  term: String,
+  time_taken: Float,
+  type_id: Int
+}
+
+"Represents an Untappd Beer Search Resultset"
+type UntappdSearchResultBeers {
+  count: Int
+  items: [UntappdSearchResultBeer]
+}
+
+"Represents an Untappd Breweries Search Resultset"
+type UntappdSearchResultBreweries {
+  count: Int
+  items: [UntappdSearchResultBrewery]
+}
+
+"Represents an Untappd Beer Search Result"
+type UntappdSearchResultBeer {
+  checkin_count: Int
+  beer: UntappdBeer
+  brewery: UntappdBrewery
+}
+
+"Represents an Untappd Brewery Search Result"
+type UntappdSearchResultBrewery {
+  checkin_count: Int
+  brewery: UntappdBrewery
+}
+
+"Represents an Untappd Beer"
+type UntappdBeer {
+  auth_rating: Float
+  bid: Int
+  beer_abv: Float
+  beer_description: String
+  beer_ibu: Float
+  beer_label: String
+  beer_name: String
+  beer_slug: String
+  beer_style: String
+  created_at: String # DateTime # comes back like 'Fri, 13 May 2011 19:35:42 +0000'
+  in_production: Boolean
+}
+
+"Represents an Untappd Brewery"
+type UntappdBrewery {
+  brewery_id: Int
+  brewery_label: String
+  brewery_name: String
+  brewery_page_url: String
+  brewery_slug: String
+  brewery_type: String
+  country_name: String
+  contact: UntappdBreweryContact
+  location: UntappdBreweryLocation
+  brewery_active: Boolean
+}
+
+type UntappdBreweryContact {
+  twitter: String
+  facebook: String
+  instagram: String
+  url: String
+}
+
+type UntappdBreweryLocation {
+  brewery_city: String
+  brewery_state: String
+  lat: Float
+  lng: Float
+}
+
+extend type Query {
+  "Returns the results of an Untappd Product Search"
+  untappdProducts(
+    q: String,
+
+    """
+    Page offset, where page size defined by limit
+    """
+    offset: Int = 0,
+
+    """
+    Max: 50
+    Default: 25
+    """
+    limit: Int = 25
+
+    # sort does not seem to be implemented, despite the Untappd docs
+    # """
+    # By default, results are sorted by ... name?
+    # Set this to sort by one of the other allowed fields
+    # """
+    # sort: UntappdSortByField = beginsAt
+  ): UntappdSearchResult
+
+  # "Returns a sale by slug or ID"
+  # untappdProduct(slugOrId: String): Sale
+}
