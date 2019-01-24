@@ -16,7 +16,7 @@ export default async function sale(_, args, context) {
   let queryShopId;
   let slugOrId;
   const { slugOrId: slugOrEncodedId } = args;
-  const { shopId } = context;
+  const { collections, shopId } = context;
 
   try {
     slugOrId = decodeSaleOpaqueId(slugOrEncodedId);
@@ -24,7 +24,7 @@ export default async function sale(_, args, context) {
     slugOrId = slugOrEncodedId;
   }
 
-  const primaryShopId = await context.queries.primaryShopId(context);
+  const primaryShopId = await context.queries.primaryShopId(collections);
 
   // if you are on a non-primary shop and try to request a sale that does not
   // belong to you, 404. If we are on the primary shop, all sales 200

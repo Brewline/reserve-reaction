@@ -11,6 +11,7 @@ import { encodeShopOpaqueId } from "@reactioncommerce/reaction-graphql-xforms/sh
  * @return {Promise<String>} The shop ID based on the domain in ROOT_URL
  */
 export default async function primaryShopId(_, __, context) {
-  const shopId = await context.queries.primaryShopId(context);
+  const { collections } = context;
+  const shopId = await context.queries.primaryShopId(collections);
   return encodeShopOpaqueId(shopId);
 }

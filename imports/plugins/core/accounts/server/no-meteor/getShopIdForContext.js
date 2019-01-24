@@ -8,7 +8,7 @@ import getShopIdByDomain from "./getShopIdByDomain";
  * @returns {String|null} Shop ID or `null`
  */
 export default async function getShopIdForContext(context) {
-  const { user } = context;
+  const { collections, user } = context;
 
   let shopId;
 
@@ -30,5 +30,5 @@ export default async function getShopIdForContext(context) {
   }
 
   // if still not found, use the primaryShopId query
-  return context.queries.primaryShopId(context);
+  return context.queries.primaryShopId(collections);
 }
