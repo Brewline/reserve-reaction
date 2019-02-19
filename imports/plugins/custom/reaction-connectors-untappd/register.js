@@ -1,7 +1,7 @@
 import { BrowserPolicy } from "meteor/browser-policy-common";
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 
-// import queries from "./lib/queries";
+import queries from "./lib/queries";
 import resolvers from "./lib/resolvers";
 import schemas from "./lib/schemas";
 
@@ -14,7 +14,7 @@ Reaction.registerPackage({
     resolvers,
     schemas
   },
-  // queries,
+  queries,
 
   autoEnable: true,
   settings: {

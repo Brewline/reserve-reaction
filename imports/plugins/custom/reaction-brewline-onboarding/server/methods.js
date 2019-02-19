@@ -17,28 +17,30 @@ import {
   updateShopSocialPackage
 } from "@brewline/untappd-connector/server/methods/import/shops";
 
-function saveUntappdShop(untappdShop) {
-  if (untappdShopExists(untappdShop.brewery_id)) {
-    const msg = `Shop (${untappdShop.brewery_name}) already exists`;
-    Logger.warn(msg);
-    throw new Meteor.Error(400, msg);
-  }
+export function saveUntappdShopFunctionGenerator(userId) {
+  return (untappdShop) => {
+    if (untappdShopExists(untappdShop.brewery_id)) {
+      const msg = `Shop (${untappdShop.brewery_name}) already exists`;
+      Logger.warn(msg);
+      throw new Meteor.Error(400, msg);
+    }
 
-  // Setup reaction product
-  const shopData = createReactionShopDataFromUntappdShop(untappdShop);
+    // Setup reaction product
+    const shopData = createReactionShopDataFromUntappdShop(untappdShop);
 
-  Meteor.call("shop/createShop", Meteor.userId(), shopData);
+    Meteor.call("shop/createShop", userId, shopData);
 
-  const shop = Shops.findOne({ name: shopData.name });
+    const shop = Shops.findOne({ name: shopData.name });
 
-  hackRestoreAddressBook(shop, shopData);
-  updateShopSocialPackage(shop);
+    hackRestoreAddressBook(shop, shopData);
+    updateShopSocialPackage(shop);
 
-  setShopImage(shop, untappdShop);
+    setShopImage(shop, untappdShop);
 
-  Logger.debug(`Shop ${untappdShop.brewery_name} added`);
+    Logger.debug(`Shop ${untappdShop.brewery_name} added`);
 
-  return shop;
+    return shop;
+  };
 }
 
 function addUntappdShopToWaitlist(untappdShop) {
@@ -108,7 +110,9 @@ Meteor.methods({
     check(untappdShopId, Number);
     // this.unblock();
 
-    return importUntappdShop(untappdShopId, saveUntappdShop);
+    const fnSaveUntappdShop = saveUntappdShopFunctionGenerator(Meteor.userId());
+
+    return importUntappdShop(untappdShopId, fnSaveUntappdShop);
   },
 
   "onboarding/addUntappdShopToWaitlist"(untappdShopId) {

@@ -15,6 +15,7 @@ import { Sales } from "../collections";
  */
 export default async function sales(_context, shopId, options = {}) {
   const {
+    shouldIncludeCompleted = false,
     shouldIncludeDemo = false,
     shouldIncludeDeleted = false,
     shouldIncludeHidden = false
@@ -29,6 +30,9 @@ export default async function sales(_context, shopId, options = {}) {
   }
 
   // TODO: enforce ownership of the shop to allow these options
+  if (shouldIncludeCompleted !== true) {
+    query.endsAt = { $gt: new Date() };
+  }
   if (shouldIncludeDemo !== true) {
     query.isDemo = { $eq: false };
   }

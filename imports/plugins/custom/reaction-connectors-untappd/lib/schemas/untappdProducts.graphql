@@ -45,14 +45,27 @@ type UntappdBeer {
   auth_rating: Float
   bid: Int
   beer_abv: Float
+  beer_active: Boolean
   beer_description: String
   beer_ibu: Float
   beer_label: String
+  beer_label_hd: String
   beer_name: String
   beer_slug: String
   beer_style: String
+  brewery: UntappdBrewery
+  # checkins: UntappdBeerCheckinResponse
   created_at: String # DateTime # comes back like 'Fri, 13 May 2011 19:35:42 +0000'
   in_production: Boolean
+  is_homebrew: Boolean
+  is_in_production: Boolean # ooph... Untappd
+  # media: UntappdBeerMediaResponse
+  rating_count: Int
+  rating_score: Float
+  # similar: UntappdBeerSimilarResponse
+  # stats: UntappdBeerStatsResponse
+  weighted_rating_score: Float
+  # vintags: UntappdBeerVintageResponse
 }
 
 "Represents an Untappd Brewery"
@@ -107,6 +120,6 @@ extend type Query {
     # sort: UntappdSortByField = beginsAt
   ): UntappdSearchResult
 
-  # "Returns a sale by slug or ID"
-  # untappdProduct(slugOrId: String): Sale
+  "Returns an Untappd Product by Id"
+  untappdProduct(untappdBeerId: Int): UntappdBeer
 }

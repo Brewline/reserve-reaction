@@ -1,9 +1,10 @@
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 
+import mutations from "./lib/mutations";
 import queries from "./lib/queries";
 import resolvers from "./lib/resolvers";
 import schemas from "./lib/schemas";
-// import publishProductToCatalog from "./server/publishProductToCatalog";
+import publishProductToCatalog from "./server/publishProductToCatalog";
 
 Reaction.registerPackage({
   label: "Sales",
@@ -16,12 +17,13 @@ Reaction.registerPackage({
     schemas
   },
   queries,
+  mutations,
   catalog: {
     publishedProductVariantFields: ["saleId"]
   },
   functionsByType: {
     // mutateNewVariantBeforeCreate: [mutateNewVariantBeforeCreate],
-    // publishProductToCatalog: [publishProductToCatalog],
+    publishProductToCatalog: [publishProductToCatalog]
     // registerPluginHandler: [registerPluginHandler],
     // startup: [startup]
   },

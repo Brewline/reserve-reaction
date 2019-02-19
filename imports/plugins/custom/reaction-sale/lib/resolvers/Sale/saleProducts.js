@@ -19,6 +19,10 @@ export default async function saleProducts(parentResult, _args, context) {
     throw new ReactionError("invalid-param", "You must provide a saleId");
   }
 
-  const catalogItems = await Catalog.find({ saleId, shopId }).toArray();
+  const catalogItems = await Catalog.find({
+    shopId,
+    "product.saleIds": saleId
+  }).toArray();
+
   return catalogItems.map((c) => c.product);
 }

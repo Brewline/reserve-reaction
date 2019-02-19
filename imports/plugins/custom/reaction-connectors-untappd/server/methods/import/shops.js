@@ -9,7 +9,7 @@ import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { check, Match } from "meteor/check";
 import { Shops, Jobs, Packages } from "/lib/collections";
 import { connectorsRoles } from "../../lib/roles";
-import { importShopImages } from "../../jobs/image-import";
+import { processImportShopImagesJobs } from "../../jobs/image-import";
 
 import getSlug from "/imports/plugins/core/core/server/Reaction/getSlug";
 
@@ -277,17 +277,13 @@ export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop, ..
     // in case you need to add additional options
     const opts = { BREWERY_ID: untappdShopId };
 
-    const result = {};
-
-    await new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       try {
         untappd.breweryInfo(Meteor.bindEnvironment((error, data) => {
           if (error) {
             reject(error);
           } else {
             const shop = fnSaveShop(data.response.brewery, ...fnSaveShopArgs);
-
-            result.shop = shop;
 
             resolve(shop);
           }
@@ -298,8 +294,8 @@ export async function importUntappdShop(untappdShopId, fnSaveShop = saveShop, ..
       }
     });
 
-    importShopImages();
-    return result.shop;
+    await processImportShopImagesJobs();
+    return result;
   } catch (error) {
     Logger.error("There was a problem importing your shop from Untappd", error);
     throw new Meteor.Error("There was a problem importing your shop from Untappd", error);

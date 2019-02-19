@@ -11,12 +11,11 @@ import { registerSchema } from "@reactioncommerce/schemas";
 export const SaleVariant = new SimpleSchema({
   saleId: {
     type: String,
-    optional: true,
-    label: "Sale Id"
+    label: "Sale Id",
+    optional: true
   }
 });
 
 registerSchema("SaleVariant", SaleVariant);
 
-Products.attachSchema(SaleVariant, { selector: { type: "simple" } });
 Products.attachSchema(SaleVariant, { selector: { type: "variant" } });

@@ -1,5 +1,9 @@
 /* eslint camelcase: 0 */
 import _ from "lodash";
+// import compose from "lodash/compose";
+// import filter from "lodash/filter";
+// import identity from "lodash/identity";
+// import map from "lodash/map";
 import moment from "moment";
 import UntappdClient from "node-untappd";
 import { Job } from "/imports/plugins/core/job-collection/lib";
@@ -12,8 +16,9 @@ import publishProductsMutation from "@reactioncommerce/core/catalog/server/no-me
 import getGraphQLContextInMeteorMethod from "/imports/plugins/core/graphql/server/getGraphQLContextInMeteorMethod";
 
 import { Products, Jobs, Tags } from "/lib/collections";
+import { ProductVariant as ProductVariantSchema } from "/imports/collections/schemas";
 import { connectorsRoles } from "../../lib/roles";
-import { importProductImages } from "../../jobs/image-import";
+import { processImportProductImagesJobs } from "../../jobs/image-import";
 
 // function requestUntappdCredential(options, fnCallback) {
 //   const untappdService = Package["brewline:accounts-untappd"].Untappd;
@@ -100,7 +105,6 @@ function createReactionVariantFromUntappdVariant(untappdVariant) {
     isVisible: true,
     length: 0,
     metafields: [],
-    optionTitle: untappdVariant.title,
     price: { range: "0" },
     requiresShipping: false,
     taxable: true,
@@ -118,6 +122,10 @@ function createReactionVariantFromUntappdVariant(untappdVariant) {
     ...untappdVariant
   };
 
+  if (!reactionVariant.optionTitle) {
+    reactionVariant.optionTitle = untappdVariant.title;
+  }
+
   if (untappdVariant.inventoryLimit > 0) {
     reactionVariant.inventoryLimit = untappdVariant.inventoryLimit;
     reactionVariant.lowInventoryWarningThreshold =
@@ -128,7 +136,7 @@ function createReactionVariantFromUntappdVariant(untappdVariant) {
     reactionVariant.price = parseFloat(untappdVariant.price);
   }
 
-  return reactionVariant;
+  return ProductVariantSchema.clean(reactionVariant);
 }
 
 /**
@@ -170,7 +178,7 @@ function saveImage(url, metadata) {
 }
 
 export function saveSimpleProduct(untappdProduct, productData = {}) {
-  const shopId = Reaction.getShopId();
+  const { shopId = Reaction.getShopId() } = productData;
   const tagCache = createTagCache();
 
   // Get tags from untappd and register them if they don't exist.
@@ -216,13 +224,13 @@ export function saveSimpleProduct(untappdProduct, productData = {}) {
   );
 }
 
-export function saveUntappdProductImage(untappdProduct, shopId, reactionProductId) {
+export function saveUntappdProductImage(untappdProduct, shopId, reactionProductId, ownerId = Meteor.userId()) {
   // Save the primary image to the grid and as priority 0
   const labelUrl = untappdProduct.beer_label_hd || untappdProduct.beer_label;
   if (!labelUrl) { return false; }
 
   saveImage(labelUrl, {
-    ownerId: Meteor.userId(),
+    ownerId,
     productId: reactionProductId,
     variantId: reactionProductId,
     shopId,
@@ -246,9 +254,7 @@ const defaultOptions = [
   // { title: "Case (12) Bombers", price: "79.99", inventoryLimit: 1 }
 ];
 
-export function saveUntappdProduct(untappdProduct, productData = {}, allowExisting = false) {
-  const shopId = Reaction.getShopId();
-
+export function saveUntappdProduct(shopId, untappdProduct, productData = {}, allowExisting = false) {
   const existingProduct =
     Products.findOne({ UntappdId: untappdProduct.bid }, { fields: { _id: 1 } });
 
@@ -273,9 +279,8 @@ export function saveUntappdProduct(untappdProduct, productData = {}, allowExisti
   return reactionProductId;
 }
 
-export function saveProduct(reactionProductId, untappdProduct, variantData = null, options = defaultOptions) {
+export function saveProductVariants(shopId, reactionProductId, untappdProduct, variantData = null, options = defaultOptions) {
   const ids = [];
-  const shopId = Reaction.getShopId();
 
   ids.push(reactionProductId);
 
@@ -359,6 +364,7 @@ async function publishProduct(productId) {
 }
 
 export async function saveProductFromUntappd(productId, productData, variantData, options, upsert = false) {
+  const shopId = Reaction.getShopId();
   const { ServiceConfiguration } = Package["service-configuration"];
 
   const config =
@@ -386,6 +392,7 @@ export async function saveProductFromUntappd(productId, productData, variantData
           let reactionProductId;
           try {
             reactionProductId = saveUntappdProduct(
+              shopId,
               data.response.beer,
               productData,
               upsert
@@ -394,7 +401,8 @@ export async function saveProductFromUntappd(productId, productData, variantData
             reject(e);
           }
 
-          const productIds = saveProduct(
+          const productIds = saveProductVariants(
+            shopId,
             reactionProductId,
             data.response.beer,
             variantData,
@@ -415,7 +423,7 @@ export async function saveProductFromUntappd(productId, productData, variantData
     publishProduct(topLevelProductId);
   }
 
-  importProductImages();
+  processImportProductImagesJobs();
   return result;
 }
 

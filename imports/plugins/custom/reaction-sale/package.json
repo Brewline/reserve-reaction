@@ -23,7 +23,8 @@
             "@reactioncommerce/reaction-components": "./imports/plugins/core/components/lib",
             "@reactioncommerce/reaction-error": "./imports/utils/ReactionError.js",
             "@brewline/untappd/methods": "./imports/plugins/custom/reaction-connectors-untappd/server/methods",
-            "@brewline/theme": "./imports/plugins/custom/reaction-brewline-theme/client/components"
+            "@brewline/theme": "./imports/plugins/custom/reaction-brewline-theme/client/components",
+            "@brewline/untappd": "./imports/plugins/custom/reaction-connectors-untappd"
           }
         }
       ]

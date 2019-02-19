@@ -1,21 +1,41 @@
-import SimpleSchema from "simpl-schema";
-import { Catalog } from "/lib/collections";
-import { registerSchema } from "@reactioncommerce/schemas";
-
+import {
+  CatalogProduct,
+  CatalogVariantSchema
+} from "/imports/collections/schemas";
 /**
  * @name SaleCatalog
  * @type {SimpleSchema}
  * @memberof Schemas
+ * @property {[String]} saleIds Sale Ids
+ */
+export const SaleCatalogProductExtension = {
+  "saleIds": {
+    type: Array,
+    label: "Sale Ids",
+    optional: true
+  },
+
+  "saleIds.$": {
+    type: String,
+    label: "Sale Id",
+    optional: true
+  }
+};
+
+CatalogProduct.extend(SaleCatalogProductExtension);
+
+/**
+ * @name SaleCatalogVariant
+ * @type {SimpleSchema}
+ * @memberof Schemas
  * @property {String} saleId Sale Id
  */
-export const SaleCatalog = new SimpleSchema({
+export const SaleCatalogVariantExtension = {
   saleId: {
     type: String,
-    optional: true,
-    label: "Sale Id"
+    label: "Sale Id",
+    optional: true
   }
-});
+};
 
-registerSchema("SaleCatalog", SaleCatalog);
-
-Catalog.attachSchema(SaleCatalog);
+CatalogVariantSchema.extend(SaleCatalogVariantExtension);
