@@ -26,7 +26,7 @@ export default {
     return node.products.every((p) => p.isSoldOut);
   },
 
-  hasNotBegun: (node) => node.beginsAt > new Date(),
+  hasNotBegun: (node) => new Date(node.beginsAt) > new Date(),
 
-  hasEnded: (node) => node.endsAt < new Date()
+  hasEnded: (node) => new Date(node.endsAt) < new Date()
 };

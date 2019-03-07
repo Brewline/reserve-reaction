@@ -6,6 +6,11 @@ Migrations.add({
   version: 50.1,
   name: "Create an 'onboarding' user against which Shops can be created",
   up() {
+    let onboardingUserId = Meteor.users.findOne({ username: "onboarding" });
+    const onboardingAccountId = Accounts.findOne({ username: "onboarding" });
+
+    if (onboardingUserId && onboardingAccountId) { return; }
+
     const now = new Date();
 
     const onboardingData = {
@@ -19,26 +24,27 @@ Migrations.add({
       updatedAt: now
     };
 
-    const adminUser = Meteor.users.findOne({ username: "admin" });
+    if (!onboardingUserId) {
+      const adminUser = Meteor.users.findOne({ username: "admin" });
+      const userData = {
+        ...adminUser,
+        ...onboardingData,
+        // users-specific stuff
+        services: {}
+        // TODO: should roles be limited?
+      };
+      delete userData._id;
+      delete userData.username;
+
+      onboardingUserId =
+        Meteor.users.update(
+          { username: "onboarding" },
+          userData,
+          { bypassCollection2: true, upsert: true }
+        );
+    }
+
     const adminAccount = Accounts.findOne({ username: "admin" });
-
-    const userData = {
-      ...adminUser,
-      ...onboardingData,
-      // users-specific stuff
-      services: {}
-      // TODO: should roles be limited?
-    };
-    delete userData._id;
-    delete userData.username;
-
-    const onboardingUserId =
-      Meteor.users.update(
-        { username: "onboarding" },
-        userData,
-        { bypassCollection2: true, upsert: true }
-      );
-
     const accountData = {
       ...adminAccount,
       ...onboardingData,
