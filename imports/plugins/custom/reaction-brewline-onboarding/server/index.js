@@ -1,4 +1,4 @@
-import Hooks from "@reactioncommerce/hooks";
+import appEvents from "/imports/node-app/core/util/appEvents";
 import Logger from "@reactioncommerce/logger";
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { Shops } from "/lib/collections";
@@ -34,6 +34,6 @@ function addRolesToVisitors() {
 /**
  * Hook to make additional configuration changes
  */
-Hooks.Events.add("afterCoreInit", () => {
+appEvents.on("afterCoreInit", () => {
   addRolesToVisitors();
 });

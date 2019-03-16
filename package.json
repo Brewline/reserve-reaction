@@ -93,7 +93,7 @@
     "later": "^1.2.0",
     "libphonenumber-js": "1.4.2",
     "lodash": "^4.17.11",
-//    "lodash.pick": "^4.4.0",
+    "lodash.pick": "^4.4.0",
     "match-sorter": "^2.3.0",
     "meteor-node-stubs": "0.4.1",
     "mobx": "^5.8.0",
@@ -123,7 +123,7 @@
     "react-container-query": "^0.11.0",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dates": "17.1.0",
-    "react-dnd": "^7.0.1",
+    "react-dnd": "^7.3.1",
     "react-dnd-html5-backend": "^7.0.1",
     "react-dom": "16.4.2",
     "react-dropzone": "^4.3.0",
@@ -378,7 +378,7 @@
   },
   "jest": {
     "setupTestFrameworkScriptFile": "<rootDir>/imports/test-utils/setupJestTests.js",
-    "testURL": "http://jest.reactioncommerce.com"
+    "testURL": "http://jest.reactioncommerce.com",
     "modulePathIgnorePatterns": [
       "node_modules"
     ]
