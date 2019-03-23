@@ -28,7 +28,7 @@ export default async function selectFulfillmentOptionForGroup(context, input) {
   inputSchema.validate(cleanedInput);
 
   const { cartId, cartToken, fulfillmentGroupId, fulfillmentMethodId } = cleanedInput;
-  const { appEvents, collections } = context;
+  const { appEvents, collections, userId } = context;
   const { Cart } = collections;
 
   const cart = await getCartById(context, cartId, { cartToken, throwIfNotFound: true });
@@ -50,14 +50,12 @@ export default async function selectFulfillmentOptionForGroup(context, input) {
   });
   if (matchedCount !== 1) throw new ReactionError("server-error", "Unable to update cart");
 
-  // We can do the same update locally to avoid a db find
-  cart.shipping.forEach((group) => {
-    if (group._id === fulfillmentGroupId) {
-      group.shipmentMethod = option.method;
-    }
+  await appEvents.emit("afterCartUpdate", {
+    cart,
+    updatedBy: userId
   });
 
-  await appEvents.emit("afterCartUpdate", cart);
+  const updatedCart = await Cart.findOne({ _id: cartId });
 
-  return { cart };
+  return { cart: updatedCart };
 }

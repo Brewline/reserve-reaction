@@ -25,6 +25,23 @@ export default {
     ...Query
   },
   Shop,
+  Subscription: {
+    tick: {
+      subscribe: (_, __, context) => {
+        let tickValue = 0;
+        let intervalId = setInterval(() => {
+          tickValue += 1;
+          context.pubSub.publish("tick", { tick: tickValue });
+          if (tickValue === 10) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+        }, 1000);
+
+        return context.pubSub.asyncIterator("tick");
+      }
+    }
+  },
   Tag,
   Time: GraphQLTime,
   ...getConnectionTypeResolvers("Address"),
@@ -54,6 +71,8 @@ export default {
  * @property {String} country - Country
  * @property {Boolean} [failedValidation] - Mark address as failed validation by address validation service
  * @property {String} fullName - Full name
+ * @property {String} [firstName] - First name
+ * @property {String} [lastName] - Last name
  * @property {Boolean} isBillingDefault - Mark address as default for billing
  * @property {Boolean} isCommercial - Mask address as commercial
  * @property {Boolean} isShippingDefault -  Mark address as default for shipping

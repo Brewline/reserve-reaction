@@ -1,6 +1,5 @@
 import {
   encodeOrderFulfillmentGroupOpaqueId,
-  xformOrderFulfillmentGroupPayment,
   xformOrderFulfillmentGroupSelectedOption
 } from "@reactioncommerce/reaction-graphql-xforms/order";
 import { resolveShopFromShopId } from "@reactioncommerce/reaction-graphql-utils";
@@ -16,8 +15,8 @@ export default {
     return null;
   },
   items,
-  payment: (node) => xformOrderFulfillmentGroupPayment(node.payment),
   selectedFulfillmentOption: (node) => xformOrderFulfillmentGroupSelectedOption(node.shipmentMethod, node),
   shop: resolveShopFromShopId,
+  status: (node) => node.workflow.status,
   summary
 };

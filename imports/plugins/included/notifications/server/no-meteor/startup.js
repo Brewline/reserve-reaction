@@ -1,4 +1,5 @@
 import appEvents from "/imports/node-app/core/util/appEvents";
+import sendCanceledOrderNotifications from "./sendCanceledOrderNotifications";
 import sendNewOrderNotifications from "./sendNewOrderNotifications";
 
 /**
@@ -8,5 +9,7 @@ import sendNewOrderNotifications from "./sendNewOrderNotifications";
  * @returns {undefined}
  */
 export default function startup({ collections }) {
-  appEvents.on("afterOrderCreate", (order) => sendNewOrderNotifications(collections, order));
+  appEvents.on("afterOrderCreate", ({ order }) => sendNewOrderNotifications(collections, order));
+
+  appEvents.on("afterOrderCancel", ({ order }) => sendCanceledOrderNotifications(collections, order));
 }

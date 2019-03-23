@@ -11,6 +11,10 @@ import update from "immutability-helper";
 import { getVariantIds } from "/lib/selectors/variants";
 import { Media } from "/imports/plugins/core/files/client";
 
+/**
+ *
+ * @param {*} variantId
+ */
 function variantIsSelected(variantId) {
   const current = ReactionProduct.selectedVariant();
   if (
@@ -24,6 +28,10 @@ function variantIsSelected(variantId) {
   return false;
 }
 
+/**
+ *
+ * @param {*} variantId
+ */
 function variantIsInActionView(variantId) {
   const actionViewVariant = Reaction.getActionView().data;
 
@@ -35,6 +43,9 @@ function variantIsInActionView(variantId) {
   return false;
 }
 
+/**
+ *
+ */
 function getTopVariants() {
   let inventoryTotal = 0;
   const variants = ReactionProduct.getTopVariants();
@@ -42,7 +53,7 @@ function getTopVariants() {
     // calculate inventory total for all variants
     for (const variant of variants) {
       if (variant.inventoryManagement) {
-        const qty = ReactionProduct.getVariantQuantity(variant);
+        const qty = variant.inventoryAvailableToSell;
         if (typeof qty === "number") {
           inventoryTotal += qty;
         }
@@ -50,7 +61,7 @@ function getTopVariants() {
     }
     // calculate percentage of total inventory of this product
     for (const variant of variants) {
-      const qty = ReactionProduct.getVariantQuantity(variant);
+      const qty = variant.inventoryAvailableToSell;
       variant.inventoryTotal = inventoryTotal;
       if (variant.inventoryManagement && inventoryTotal) {
         variant.inventoryPercentage = parseInt(qty / inventoryTotal * 100, 10);
@@ -73,13 +84,20 @@ function getTopVariants() {
   return [];
 }
 
+/**
+ *
+ * @param {*} variant
+ */
 function isSoldOut(variant) {
-  return ReactionProduct.getVariantQuantity(variant) < 1;
+  return variant.inventoryAvailableToSell < 1;
 }
 
+/**
+ *
+ */
 class VariantListContainer extends Component {
-  componentWillReceiveProps() {
-    this.setState({});
+  state = {
+    selectedVariant: null
   }
 
   get variants() {
@@ -120,13 +138,8 @@ class VariantListContainer extends Component {
     ReactionProduct.setCurrentVariant(variant._id);
     Session.set(`variant-form-${editVariant._id}`, true);
 
-    if (Reaction.hasPermission("createProduct") && !Reaction.isPreview()) {
-      Reaction.showActionView({
-        label: "Edit Variant",
-        i18nKeyLabel: "productDetailEdit.editVariant",
-        template: "variantForm",
-        data: editVariant
-      });
+    if (Reaction.hasPermission("createProduct")) {
+      this.setState({ selectedVariant: variant });
     }
 
     // Prevent the default edit button `onEditButtonClick` function from running
@@ -145,7 +158,7 @@ class VariantListContainer extends Component {
       $splice: [[dragIndex, 1], [hoverIndex, 0, variant]]
     });
 
-    // Set local state so the component does't have to wait for a round-trip
+    // Set local state so the component doesn't have to wait for a round-trip
     // to the server to get the updated list of variants
     this.setState({
       variants: newVariantOrder
@@ -153,27 +166,33 @@ class VariantListContainer extends Component {
 
     // Save the updated positions
     Meteor.defer(() => {
-      Meteor.call("products/updateVariantsPosition", getVariantIds(newVariantOrder));
+      Meteor.call("products/updateVariantsPosition", getVariantIds(newVariantOrder), variant.shopId);
     });
   };
 
   render() {
     return (
-      <Components.DragDropProvider>
-        <Components.VariantList
-          onEditVariant={this.handleEditVariant}
-          onMoveVariant={this.handleMoveVariant}
-          onVariantClick={this.handleVariantClick}
-          onVariantVisibiltyToggle={this.handleVariantVisibilityToggle}
-          onCreateVariant={this.handleCreateVariant}
-          {...this.props}
-          variants={this.variants}
-        />
-      </Components.DragDropProvider>
+      <Components.VariantList
+        onEditVariant={this.handleEditVariant}
+        onMoveVariant={this.handleMoveVariant}
+        onVariantClick={this.handleVariantClick}
+        onVariantVisibiltyToggle={this.handleVariantVisibilityToggle}
+        onCreateVariant={this.handleCreateVariant}
+        selectedVariant={this.state.selectedVariant}
+        onVariantEditComplete={() => this.setState({ selectedVariant: null })}
+        {...this.props}
+        variants={this.variants}
+      />
     );
   }
 }
 
+/**
+ * @private
+ * @param {Object} props Props
+ * @param {Function} onData Call this to update props
+ * @returns {undefined}
+ */
 function composer(props, onData) {
   let childVariantMedia = [];
   const childVariants = getChildVariants();
@@ -193,13 +212,7 @@ function composer(props, onData) {
     );
   }
 
-  let editable;
-
-  if (Reaction.isPreview() === true) {
-    editable = false;
-  } else {
-    editable = Reaction.hasPermission(["createProduct"]);
-  }
+  const editable = Reaction.hasPermission(["createProduct"]);
 
   onData(null, {
     variants: getTopVariants(),

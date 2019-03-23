@@ -1,4 +1,4 @@
-($accountId: ID!, $address: AddressInput!) {
+mutation ($accountId: ID!, $address: AddressInput!) {
   addAccountAddressBookEntry(input: { accountId: $accountId, address: $address }) {
     address {
       address1
@@ -7,6 +7,8 @@
       company
       country
       fullName
+      firstName
+      lastName
       isBillingDefault
       isCommercial
       isShippingDefault

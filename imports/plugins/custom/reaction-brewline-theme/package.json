@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "lodash.pick": "^4.4.0"
+  },
   "babel": {
     "plugins": [
       [

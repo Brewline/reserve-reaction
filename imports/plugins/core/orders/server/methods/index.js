@@ -1,6 +1,5 @@
 import approvePayment from "./approvePayment";
 import cancelOrder from "./cancelOrder";
-import capturePayments from "./capturePayments";
 import createRefund from "./createRefund";
 import listRefunds from "./listRefunds";
 import makeAdjustmentsToInvoice from "./makeAdjustmentsToInvoice";
@@ -13,7 +12,6 @@ import shipmentPacked from "./shipmentPacked";
 import shipmentPicked from "./shipmentPicked";
 import shipmentShipped from "./shipmentShipped";
 import updateHistory from "./updateHistory";
-import updateShipmentTracking from "./updateShipmentTracking";
 
 /**
  * @file Methods for Orders.
@@ -25,7 +23,6 @@ import updateShipmentTracking from "./updateShipmentTracking";
 export default {
   "orders/approvePayment": approvePayment,
   "orders/cancelOrder": cancelOrder,
-  "orders/capturePayments": capturePayments,
   "orders/makeAdjustmentsToInvoice": makeAdjustmentsToInvoice,
   "orders/processPayment": processPayment,
   "orders/refunds/create": createRefund,
@@ -37,6 +34,5 @@ export default {
   "orders/shipmentPacked": shipmentPacked,
   "orders/shipmentPicked": shipmentPicked,
   "orders/shipmentShipped": shipmentShipped,
-  "orders/updateHistory": updateHistory,
-  "orders/updateShipmentTracking": updateShipmentTracking
+  "orders/updateHistory": updateHistory
 };

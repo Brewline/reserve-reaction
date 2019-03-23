@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import _ from "lodash";
 import { StyleRoot } from "radium";
 import { compose } from "recompose";
+import { withRouter } from "react-router";
 import { Components, registerComponent, composeWithTracker } from "@reactioncommerce/reaction-components";
 import { $ } from "meteor/jquery";
 import { Meteor } from "meteor/meteor";
@@ -72,7 +73,7 @@ const wrapComponent = (Comp) =>
           }
         }
 
-        if (currentVariant.inventoryPolicy && currentVariant.inventoryQuantity < 1) {
+        if (currentVariant.inventoryPolicy && currentVariant.inventoryInStock < 1) {
           Alerts.inline("Sorry, this item is out of stock!", "warning", {
             placement: "productDetail",
             i18nKey: "productDetail.outOfStock",
@@ -91,7 +92,7 @@ const wrapComponent = (Comp) =>
 
         quantity = parseInt(this.state.cartQuantity, 10);
         totalQuantity = quantity + storedQuantity;
-        maxQuantity = currentVariant.inventoryQuantity;
+        maxQuantity = currentVariant.inventoryInStock;
 
         if (quantity < 1) {
           quantity = 1;
@@ -313,10 +314,6 @@ const wrapComponent = (Comp) =>
       });
     };
 
-    handleViewContextChange = (event, value) => {
-      Reaction.Router.setQueryParams({ as: value });
-    };
-
     handleDeleteProduct = () => {
       ReactionProduct.archiveProduct(this.props.product);
     };
@@ -335,7 +332,6 @@ const wrapComponent = (Comp) =>
             mediaGalleryComponent={<Components.MediaGallery media={media} />}
             onAddToCart={this.handleAddToCart}
             onCartQuantityChange={this.handleCartQuantityChange}
-            onViewContextChange={this.handleViewContextChange}
             socialComponent={<SocialContainer />}
             topVariantComponent={<VariantListContainer />}
             onDeleteProduct={this.handleDeleteProduct}
@@ -347,13 +343,18 @@ const wrapComponent = (Comp) =>
     }
   };
 
+/**
+ * @private
+ * @param {Object} props Props
+ * @param {Function} onData Call this to update props
+ * @returns {undefined}
+ */
 function composer(props, onData) {
   const tagSub = Meteor.subscribe("Tags");
   const shopIdOrSlug = Reaction.Router.getParam("shopSlug");
-  const productId = Reaction.Router.getParam("handle");
+  const productId = props.match.params.handle;
   const variantId = ReactionProduct.selectedVariantId();
   const revisionType = Reaction.Router.getQueryParam("revision");
-  const viewProductAs = Reaction.getUserPreferences("reaction-dashboard", "viewAs", "administrator");
 
   let productSub;
   if (productId) {
@@ -438,13 +439,7 @@ function composer(props, onData) {
         productRevision = product.__published;
       }
 
-      let editable;
-
-      if (viewProductAs === "customer") {
-        editable = false;
-      } else {
-        editable = Reaction.hasPermission(["createProduct"]);
-      }
+      const editable = Reaction.hasPermission(["createProduct"]);
 
       const topVariants = ReactionProduct.getTopVariants();
 
@@ -458,7 +453,6 @@ function composer(props, onData) {
         tags,
         media: mediaArray,
         editable,
-        viewAs: viewProductAs,
         hasAdminPermission: Reaction.hasPermission(["createProduct"]),
         storedCart
       });
@@ -469,7 +463,7 @@ function composer(props, onData) {
   }
 }
 
-registerComponent("ProductDetail", ProductDetail, [composeWithTracker(composer), wrapComponent]);
+registerComponent("ProductDetail", ProductDetail, [withRouter, composeWithTracker(composer), wrapComponent]);
 
 // Decorate component and export
-export default compose(composeWithTracker(composer), wrapComponent)(ProductDetail);
+export default compose(withRouter, composeWithTracker(composer), wrapComponent)(ProductDetail);

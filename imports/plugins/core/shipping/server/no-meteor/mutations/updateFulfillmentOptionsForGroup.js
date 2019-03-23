@@ -30,14 +30,14 @@ function getShipmentQuotesQueryStatus(rates) {
     };
   }
 
-  const firstRateItem = rates[0];
-  if (firstRateItem.requestStatus === "error") {
+  const errorResult = rates.find((option) => option.requestStatus === "error");
+  if (errorResult) {
     return {
       shipmentQuotes: [],
       shipmentQuotesQueryStatus: {
-        requestStatus: firstRateItem.requestStatus,
-        shippingProvider: firstRateItem.shippingProvider,
-        message: firstRateItem.message
+        requestStatus: errorResult.requestStatus,
+        shippingProvider: errorResult.shippingProvider,
+        message: errorResult.message
       }
     };
   }
@@ -66,7 +66,7 @@ export default async function updateFulfillmentOptionsForGroup(context, input) {
   inputSchema.validate(cleanedInput);
 
   const { cartId, cartToken, fulfillmentGroupId } = cleanedInput;
-  const { appEvents, collections } = context;
+  const { appEvents, collections, userId } = context;
   const { Cart } = collections;
 
   const cart = await getCartById(context, cartId, { cartToken, throwIfNotFound: true });
@@ -97,7 +97,10 @@ export default async function updateFulfillmentOptionsForGroup(context, input) {
     if (matchedCount !== 1) throw new ReactionError("server-error", "Unable to update cart");
 
     const updatedCart = await Cart.findOne({ _id: cartId });
-    await appEvents.emit("afterCartUpdate", updatedCart);
+    await appEvents.emit("afterCartUpdate", {
+      cart: updatedCart,
+      updatedBy: userId
+    });
 
     return { cart: updatedCart };
   }

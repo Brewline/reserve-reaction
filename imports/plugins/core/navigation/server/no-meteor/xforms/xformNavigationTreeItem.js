@@ -11,20 +11,20 @@ import getNavigationItemContentForLanguage from "../util/getNavigationItemConten
 export default async function xformNavigationTreeItem(context, language, item) {
   const { collections } = context;
   const { NavigationItems } = collections;
-  const { navigationItemId } = item;
+  const { expanded, navigationItemId } = item;
   let { items = [] } = item;
 
   const navigationItem = await NavigationItems.findOne({ _id: navigationItemId });
 
-  // Filter navigation content by language
+  // Add translated content value
   const { draftData, data } = navigationItem;
   const { content: draftContent } = draftData || {};
   const { content } = data;
   if (draftContent) {
-    navigationItem.draftData.content = getNavigationItemContentForLanguage(draftContent, language);
+    navigationItem.draftData.contentForLanguage = getNavigationItemContentForLanguage(draftContent, language);
   }
   if (content) {
-    navigationItem.data.content = getNavigationItemContentForLanguage(content, language);
+    navigationItem.data.contentForLanguage = getNavigationItemContentForLanguage(content, language);
   }
 
   if (items.length) {
@@ -33,6 +33,7 @@ export default async function xformNavigationTreeItem(context, language, item) {
 
   return {
     navigationItem,
+    expanded,
     items
   };
 }

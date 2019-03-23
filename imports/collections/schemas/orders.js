@@ -2,17 +2,11 @@ import SimpleSchema from "simpl-schema";
 import { registerSchema } from "@reactioncommerce/schemas";
 import { createdAtAutoValue } from "./helpers";
 import { Address } from "./address";
+import { Money, AppliedSurcharge } from "./core";
 import { Invoice, Payment } from "./payments";
 import { ShippingParcel } from "./shipping";
 import { Workflow } from "./workflow";
 
-const Money = new SimpleSchema({
-  currencyCode: String,
-  amount: {
-    type: Number,
-    min: 0
-  }
-});
 
 /**
  * @name Document
@@ -168,6 +162,7 @@ export const OrderDiscount = new SimpleSchema({
  * @type {SimpleSchema}
  * @property {String} _id Unique ID for the item
  * @property {String} addedAt Date/time when this was first added to the cart/order
+ * @property {String} cancelReason Free text reason for cancel, if this item is canceled
  * @property {String} createdAt Date/time when this order item was created
  * @property {Document[]} documents optional
  * @property {History[]} history optional
@@ -191,6 +186,10 @@ export const OrderDiscount = new SimpleSchema({
 export const OrderItem = new SimpleSchema({
   "_id": String,
   "addedAt": Date,
+  "cancelReason": {
+    type: String,
+    optional: true
+  },
   "createdAt": Date,
   "documents": {
     type: Array,
@@ -322,6 +321,7 @@ registerSchema("OrderTransaction", OrderTransaction);
  * @property {String} shopId The shop that fulfills this group
  * @property {Number} totalItemQuantity The total item quantity, sum of all quantities
  * @property {String} tracking Tracking reference ID
+ * @property {String} trackingUrl Tracking URL
  * @property {String} type Fulfillment type
  * @property {Object} workflow Current status and past statuses for this fulfillment
  */
@@ -342,7 +342,6 @@ export const OrderFulfillmentGroup = new SimpleSchema({
   },
   "items.$": OrderItem,
   "itemIds": [String],
-  "payment": Payment,
   "shipmentMethod": SelectedFulfillmentOption,
   "shippingLabelUrl": {
     type: String,
@@ -357,9 +356,17 @@ export const OrderFulfillmentGroup = new SimpleSchema({
     type: String,
     optional: true
   },
+  "trackingUrl": {
+    type: String,
+    optional: true
+  },
   "type": {
     type: String,
     allowedValues: ["shipping"]
+  },
+  "updatedAt": {
+    type: Date,
+    optional: true
   },
   "workflow": Workflow
 });
@@ -372,16 +379,20 @@ export const OrderFulfillmentGroup = new SimpleSchema({
  * @property {String} _id required
  * @property {String} accountId Account ID for account orders, or null for anonymous
  * @property {String} anonymousAccessToken Token for accessing anonymous carts, null for account carts
+ * @property {Address} [billingAddress] Optional billing address
  * @property {String} cartId optional For tracking which cart created this order
  * @property {Date} createdAt required
  * @property {String} currencyCode required
+ * @property {Object} customFields optional
  * @property {Document[]} documents optional
  * @property {String} email optional
  * @property {Object[]} exportHistory optional
  * @property {History[]} history optional
  * @property {Notes[]} notes optional
+ * @property {Payment[]} payments Array of payments
  * @property {Shipment[]} shipping Array of fulfillment groups
  * @property {String} shopId required The owner shop
+ * @property {Surcharges[]} surcharges Surcharges applied to this order
  * @property {OrderTransaction[]} transactions optional
  * @property {Date} updatedAt optional
  * @property {Workflow} workflow optional
@@ -401,12 +412,24 @@ export const Order = new SimpleSchema({
     index: 1,
     optional: true
   },
+  // Although billing address is typically needed only by the payment plugin,
+  // some tax services require it to calculate taxes for digital items. Thus
+  // it should be provided here in order to be added to the CommonOrder if possible.
+  "billingAddress": {
+    type: Address,
+    optional: true
+  },
   "cartId": {
     type: String,
     optional: true
   },
   "createdAt": Date,
   "currencyCode": String,
+  "customFields": {
+    type: Object,
+    blackbox: true,
+    optional: true
+  },
   "discounts": {
     type: Array,
     optional: true
@@ -438,11 +461,23 @@ export const Order = new SimpleSchema({
     optional: true
   },
   "notes.$": Notes,
+  "payments": {
+    type: Array,
+    optional: true
+  },
+  "payments.$": Payment,
   "referenceId": String,
   "shipping": [OrderFulfillmentGroup],
   "shopId": {
     type: String,
     index: 1
+  },
+  "surcharges": {
+    type: Array,
+    optional: true
+  },
+  "surcharges.$": {
+    type: AppliedSurcharge
   },
   "totalItemQuantity": {
     type: SimpleSchema.Integer,

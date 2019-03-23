@@ -181,6 +181,7 @@
         "addedToCart": "added",
         "showBarcodes": "Show barcodes",
         "soldOut": "Sold out!",
+        "inStock": "In Stock",
         "backOrder": "Backorder",
         "limitedSupply": "Limited supply",
         "publishProductVisible": "{{product}} is now visible",
@@ -256,7 +257,7 @@
       },
       "productVariant": {
         "addVariantOptions": "Add options to enable 'Add to Cart' button",
-        "inventoryQuantity": "Quantity",
+        "inventoryInStock": "Quantity",
         "title": "Title",
         "price": "Price",
         "optionTitle": "Option title",
@@ -318,6 +319,7 @@
         "orderItems": "Items in order",
         "subtotal": "Sub total",
         "shipping": "Shipping",
+        "surcharge": "Surcharge",
         "tax": "Tax",
         "total": "Total"
       },
