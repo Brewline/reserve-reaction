@@ -1,6 +1,0 @@
-COPY ./bin/heroku.sh /
-RUN chmod a+x /heroku.sh
-
-ENTRYPOINT ["/bin/sh"]
-
-CMD ["/heroku.sh"]

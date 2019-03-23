@@ -1,3 +1,5 @@
 build:
   docker:
-    web: Dockerfile-heroku
+    web: Dockerfile
+run:
+  web: meteor npm install --no-audit && node ./.reaction/waitForMongo.js && node --experimental-modules ./.reaction/run/index.mjs

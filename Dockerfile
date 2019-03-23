@@ -27,8 +27,8 @@ FROM meteor-dev as builder
 
 RUN printf "\\n[-] Running Reaction plugin loader...\\n" \
  && reaction plugins load
-# RUN printf "\\n[-] Building Meteor application...\\n" \
-#  && meteor build --server-only --architecture os.linux.x86_64 --directory "$APP_BUNDLE_DIR"
+RUN printf "\\n[-] Building Meteor application...\\n" \
+ && meteor build --server-only --architecture os.linux.x86_64 --directory "$APP_BUNDLE_DIR"
 
 WORKDIR $APP_BUNDLE_DIR/bundle/programs/server/
 
