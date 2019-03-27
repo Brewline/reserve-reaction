@@ -7,13 +7,18 @@ set -o pipefail # don't ignore exit codes when piping output
 IFS="$(printf "\n\t")"
 
 cd "$(dirname "$0")/.."
-yarn install
+echo "installing node packages…"
+time meteor npm install --no-audit
 
-printf "Loading environment…"
+echo "Loading environment…"
 set -a # automatically export all variables
 source .env
 set +a
 
-printf "Starting meteor…"
+echo "waiting for mongo…"
+node ./.reaction/waitForMongo.js
+
+echo "Starting app…"
 # meteor run --port 3000 --inspect
-reaction debug
+# reaction debug
+node --experimental-modules ./.reaction/run/index.mjs
