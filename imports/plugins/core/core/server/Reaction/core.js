@@ -858,7 +858,7 @@ export default {
    *  import is processed on hook in init()
    *  @return {String} returns insert result
    */
-  loadPackages() {
+  async loadPackages() {
     const packages = Packages.find().fetch();
 
     let registryFixtureData;
