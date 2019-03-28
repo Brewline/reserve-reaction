@@ -889,11 +889,12 @@ export default {
     }
 
     const layouts = [];
-    const totalPackages = Object.keys(this.Packages).length;
+    const shops = Shops.find();
+    const totalPackages = Object.keys(this.Packages).length * shops.length;
     let loadedIndex = 1;
     // for each shop, we're loading packages in a unique registry
     _.each(this.Packages, (config, pkgName) =>
-      Shops.find().forEach((shop) => {
+      shops.forEach((shop) => {
         const shopId = shop._id;
         if (!shopId) return [];
 
