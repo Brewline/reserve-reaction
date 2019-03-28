@@ -889,7 +889,7 @@ export default {
     }
 
     const layouts = [];
-    const shops = Shops.find();
+    const shops = Shops.find().fetch();
     const totalPackages = Object.keys(this.Packages).length * shops.length;
     let loadedIndex = 1;
     // for each shop, we're loading packages in a unique registry
@@ -950,28 +950,32 @@ export default {
         }
         // Import package data
         this.Importer.package(combinedSettings, shopId);
-        Logger.info(`Successfully initialized  package: ${pkgName}... ${loadedIndex}/${totalPackages}`);
+        Logger.info(`Successfully initialized package: ${pkgName}... ${loadedIndex}/${totalPackages}`);
         loadedIndex += 1;
       }));
 
     // helper for removing layout duplicates
     const uniqLayouts = uniqWith(layouts, _.isEqual);
     // import layouts into Shops
-    Shops.find().forEach((shop) => {
+    shops.forEach((shop) => {
       this.Importer.layout(uniqLayouts, shop._id);
     });
 
     //
     // package cleanup
     //
-    Shops.find().forEach((shop) => Packages.find().forEach((pkg) => {
-      // delete registry entries for packages that have been removed
-      if (!_.has(this.Packages, pkg.name)) {
-        Logger.debug(`Removing ${pkg.name}`);
-        return Packages.remove({ shopId: shop._id, name: pkg.name });
-      }
-      return false;
-    }));
+    const packageMapper = (shop) => packages
+      .filter((p) => (!(p.name in this.Packages)))
+      .map((p) => ({ shopId: shop._id, name: p.name }));
+
+    const packageRemovalQueries = shops.flatMap(packageMapper);
+
+    if (packageRemovalQueries.length) {
+      // reduce the number of DB calls from `Shops.length` to 1.
+      Packages.remove({ $or: packageRemovalQueries }, false);
+    }
+
+    Logger.info(`Successfully removed ${packageRemovalQueries.length} packages`);
   },
 
   /**
