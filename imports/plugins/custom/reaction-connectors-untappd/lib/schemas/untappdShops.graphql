@@ -1,0 +1,83 @@
+"Represents an Untappd Brewery Search Result"
+type UntappdBrewerySearchResult {
+  brewery: UntappdSearchResultBreweries
+  engine: String
+  page: Int
+  search_type: String
+  sort: String
+  term: String
+  key: String
+  found: Int
+}
+
+"Represents an Untappd Breweries Search Resultset"
+type UntappdSearchResultBreweries {
+  count: Int
+  items: [UntappdSearchResultBrewery]
+}
+
+"Represents an Untappd Brewery Search Result"
+type UntappdSearchResultBrewery {
+  brewery: UntappdBrewery
+}
+
+"Represents an Untappd Brewery"
+type UntappdBrewery {
+  beer_count: Int
+  brewery_id: Int
+  brewery_description: String
+  brewery_label: String
+  brewery_label_hd: String
+  brewery_name: String
+  brewery_page_url: String
+  brewery_slug: String
+  brewery_type: String
+  country_name: String
+  contact: UntappdBreweryContact
+  is_independent: Int
+  location: UntappdBreweryLocation
+  # locations: [UntappdBreweryVenueResults]
+  brewery_active: Boolean
+}
+
+type UntappdBreweryContact {
+  twitter: String
+  facebook: String
+  instagram: String
+  url: String
+}
+
+type UntappdBreweryLocation {
+  brewery_city: String
+  brewery_state: String
+  lat: Float
+  lng: Float
+}
+
+extend type Query {
+  "Returns the results of an Untappd Shop Search"
+  untappdShops(
+    q: String,
+
+    """
+    Page offset, where page size defined by limit
+    """
+    offset: Int = 0,
+
+    """
+    Max: 50
+    Default: 25
+    """
+    limit: Int = 25
+
+    # sort does not seem to be implemented, despite the Untappd docs
+    # """
+    # By default, results are sorted by ... name?
+    # Set this to sort by one of the other allowed fields
+    # """
+    # sort: UntappdSortByField = beginsAt
+  ): UntappdBrewerySearchResult
+
+  "Returns an Untappd Shop by Id"
+  untappdShop(untappdBreweryId: Int): UntappdBrewery
+}

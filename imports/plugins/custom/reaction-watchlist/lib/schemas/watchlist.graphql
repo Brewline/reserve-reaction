@@ -1,0 +1,269 @@
+"a Watchlist"
+type Watchlist implements Node {
+  "WatchlistItem Id (probably === name)"
+  _id: ID!
+
+  # TODO: encode
+  # "ShopId"
+  # shopId: String
+
+  "Name"
+  name: String
+}
+
+"Items in Watchlists"
+type WatchlistItem implements Node {
+  "WatchlistItem Id"
+  _id: ID!
+
+  # TODO: encode
+  # "User ID"
+  # userId: String
+
+  # TODO: encode
+  # "ShopId"
+  # shopId: String
+
+  "Watchlist Type"
+  watchlist: String
+
+  "itemId (from source data)"
+  itemId: String
+
+  "Item metadata"
+  itemMetadata: JSONObject
+
+  "Watchlist Item Display Name"
+  displayName: String
+
+  "Label (image or icon)"
+  label: String
+
+  "Is deleted"
+  isDeleted: Boolean
+
+  "Is visible"
+  isVisible: Boolean
+
+  "Created at"
+  createdAt: DateTime
+
+  "Updated at"
+  updatedAt: DateTime
+}
+
+"Input structure when creating a Watchlist Item"
+input WatchlistItemInput {
+  "Item metadata"
+  itemMetadata: JSONObject
+
+  "Watchlist Item Display Name"
+  displayName: String
+
+  "Label (image or icon)"
+  label: String
+
+  "Is deleted"
+  isDeleted: Boolean
+
+  "Is visible"
+  isVisible: Boolean
+}
+
+type WatchlistItemSummary implements Node {
+  "WatchlistItem Id"
+  _id: ID!
+
+  # TODO: encode
+  # "ShopId"
+  # shopId: String
+
+  "Watchlist Type"
+  watchlist: String
+
+  "itemId (from source data)"
+  itemId: String
+
+  "Watchlist Item Display Name"
+  displayName: String
+
+  "Label (image or icon)"
+  label: String
+
+  "Count"
+  count: Int
+}
+
+"The fields by which you are allowed to sort any query that returns a `SaleConnection`"
+enum WatchlistItemSortByField {
+  displayName
+  createdAt
+}
+
+"The fields by which you are allowed to sort any query that returns a `SaleConnection`"
+enum WatchlistItemSummarySortByField {
+  count
+  displayName
+}
+
+"A connection edge in which each node is a `Sale` object"
+type WatchlistItemEdge implements NodeEdge {
+  cursor: ConnectionCursor!
+  node: WatchlistItem
+}
+
+"A connection edge in which each node is a `Sale` object"
+type WatchlistItemSummaryEdge implements GroupedDataNodeEdge {
+  cursor: GroupedDataConnectionCursor!
+  node: WatchlistItemSummary
+}
+
+"Wraps a list of `WatchlistItems`, providing pagination cursors and information."
+type WatchlistItemsConnection implements NodeConnection {
+  edges: [WatchlistItemEdge]
+  nodes: [WatchlistItem]
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"Wraps a list of `WatchlistItems`, providing pagination cursors and information."
+type WatchlistItemSummariesConnection implements GroupedDataNodeConnection {
+  edges: [WatchlistItemSummaryEdge]
+  nodes: [WatchlistItemSummary]
+  pageInfo: GroupedDataPageInfo!
+  totalCount: Int!
+}
+
+"The response to any create mutation"
+type CreateWatchlistItemPayload {
+  "The created item"
+  item: WatchlistItem
+
+  "The same string you sent with the mutation params, for matching mutation calls with their responses"
+  clientMutationId: String
+}
+
+"The response to the remove mutation"
+type RemoveWatchlistItemPayload {
+  "Successfully removed?"
+  wasRemoved: Boolean!
+
+  "The same string you sent with the mutation params, for matching mutation calls with their responses"
+  clientMutationId: String
+}
+
+extend type Query {
+  "Returns all sales for a shop"
+  watchlist(
+    "Watchlist Name"
+    name: String
+  ): Watchlist
+
+  watchlistUserItems(
+    "Watchlist Name"
+    name: String
+
+    after: ConnectionCursor,
+    before: ConnectionCursor,
+    first: ConnectionLimitInt,
+    last: ConnectionLimitInt,
+    sortOrder: SortOrder = desc,
+
+    """
+    By default, watchlistItems are sorted by most recent.
+    """
+    sortBy: WatchlistItemSortByField = createdAt
+  ): WatchlistItemsConnection
+}
+
+extend type Watchlist {
+  "Returns a paged list of WatchlistItems for this shop"
+  items(
+    after: ConnectionCursor,
+    before: ConnectionCursor,
+    first: ConnectionLimitInt,
+    last: ConnectionLimitInt,
+    sortOrder: SortOrder = desc,
+
+    """
+    By default, watchlistItems are sorted by most recent.
+    """
+    sortBy: WatchlistItemSortByField = createdAt
+  ): WatchlistItemsConnection
+
+  "Returns a paged list of WatchlistItemSummaries for this shop"
+  summary(
+    after: GroupedDataConnectionCursor,
+    before: GroupedDataConnectionCursor,
+    first: ConnectionLimitInt,
+    last: ConnectionLimitInt,
+    sortOrder: SortOrder = desc,
+
+    """
+    By default, watchlistItems are sorted by most common.
+    """
+    sortBy: WatchlistItemSummarySortByField = count
+  ): WatchlistItemSummariesConnection
+
+  # at this time, do not expose globalItems, just globalSummary
+}
+
+extend type Mutation {
+  "Creates a watchlist item for a given watchlist"
+  createWatchlistItem(
+    "The unique Id for the Watchlist to which this item belongs"
+    watchlist: String!
+
+    "The unique Id for this Item"
+    itemId: String!
+
+    "An object containing a sale's id, or some properties of the sale that will be created"
+    watchlistItemData: WatchlistItemInput
+
+    "An optional string identifying the mutation call, which will be returned in the response payload"
+    clientMutationId: String
+  ): CreateWatchlistItemPayload
+
+  "Creates a watchlist item for a given Untappd Beer (id)"
+  createWatchlistItemForUntappdProduct(
+    "The unique Id for the Watchlist to which this item belongs"
+    watchlist: String! = "Beers"
+
+    "The unique Id for this Item"
+    untappdId: String!
+
+    "An optional string identifying the mutation call, which will be returned in the response payload"
+    clientMutationId: String
+  ): CreateWatchlistItemPayload
+
+  "Creates a watchlist item for a given Untappd Brewery (id)"
+  createWatchlistItemForUntappdShop(
+    "The unique Id for the Watchlist to which this item belongs"
+    watchlist: String! = "Breweries"
+
+    "The unique Id for this Item"
+    untappdId: String!
+
+    "An optional string identifying the mutation call, which will be returned in the response payload"
+    clientMutationId: String
+  ): CreateWatchlistItemPayload
+
+  "Removes a watchlist item for a given watchlist"
+  removeWatchlistItem(
+    "The unique Id for the Watchlist to which this item belongs"
+    watchlist: String!
+
+    "The unique Id for this Item"
+    itemId: String!
+
+    "An optional string identifying the mutation call, which will be returned in the response payload"
+    clientMutationId: String
+  ): RemoveWatchlistItemPayload
+
+  """
+  Migrates all watchlist items from the user defined by alternate id to the
+  current user. This is useful when going from an anonymous state to a logged in
+  state.
+  """
+  migrateWatchlistItems: Int
+}

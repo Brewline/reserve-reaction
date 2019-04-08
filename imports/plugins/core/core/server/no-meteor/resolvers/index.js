@@ -4,6 +4,7 @@ import Address from "./Address";
 import ConnectionCursor from "./ConnectionCursor";
 import ConnectionLimitInt from "./ConnectionLimitInt";
 import Currency from "./Currency";
+import GroupedDataConnectionCursor from "./GroupedDataConnectionCursor"; // #brewlinecustom
 import Money from "./Money";
 import Query from "./Query";
 import Shop from "./Shop";
@@ -16,6 +17,7 @@ export default {
   Currency,
   Date: GraphQLDate,
   DateTime: GraphQLDateTime,
+  GroupedDataConnectionCursor, // #brewlinecustom
   Money,
   Mutation: {
     echo: (_, { str }) => `${str}`

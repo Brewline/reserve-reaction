@@ -6,7 +6,7 @@ import { Accounts, Shops } from "/lib/collections";
 import Logger from "@reactioncommerce/logger";
 import Reaction from "/imports/plugins/core/core/server/Reaction";
 import { saveWatchlistItem } from "@brewline/watchlist/server/methods/watchlist";
-import { WatchlistItems } from "@brewline/watchlist/lib/collections";
+import { WatchlistItemsCollection } from "@brewline/watchlist/lib/collections";
 
 import {
   createReactionShopDataFromUntappdShop,
@@ -16,6 +16,7 @@ import {
   untappdShopExists,
   updateShopSocialPackage
 } from "@brewline/untappd-connector/server/methods/import/shops";
+import scrubUntappdBrewery from "@brewline/untappd-connector/lib/scrubUntappdBrewery";
 
 export function saveUntappdShopFunctionGenerator(userId) {
   return (untappdShop) => {
@@ -50,7 +51,7 @@ function addUntappdShopToWaitlist(untappdShop) {
   const displayName = untappdShop.brewery_name;
   const label = untappdShop.brewery_label;
   const watchlistItem = {
-    itemMetadata: untappdShop,
+    itemMetadata: scrubUntappdBrewery(untappdShop),
     displayName,
     label
   };
@@ -68,7 +69,7 @@ export function transferFavorites(previousUserId, currentUserId = Meteor.userId(
     `Transferring WatchlistItems from '${previousUserId}' to '${currentUserId}'`;
   Logger.warn(msg);
 
-  return WatchlistItems.update({
+  return WatchlistItemsCollection.update({
     userId: previousUserId
   }, {
     $set: {

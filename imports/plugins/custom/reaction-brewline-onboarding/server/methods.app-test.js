@@ -5,13 +5,13 @@ import { sinon } from "meteor/practicalmeteor:sinon";
 import Random from "@reactioncommerce/random";
 import Logger from "@reactioncommerce/logger";
 // import { PublicationCollector } from "meteor/johanbrook:publication-collector";
-import { WatchlistItems } from "@brewline/watchlist/lib/collections";
+import { WatchlistItemsCollection } from "@brewline/watchlist/lib/collections";
 
 describe("Onboarding Methods", () => {
   const sandbox = sinon.sandbox.create();
 
   beforeEach(() => {
-    WatchlistItems.remove({});
+    WatchlistItemsCollection.remove({});
   });
 
   afterEach(() => {
@@ -43,13 +43,13 @@ describe("Onboarding Methods", () => {
       const loggerSpy = sandbox.stub(Logger, "warn");
       sandbox.stub(Meteor, "userId", () => currentUserId);
 
-      WatchlistItems.insert(createWatchlistData(previousUserId));
-      WatchlistItems.insert(createWatchlistData(previousUserId));
+      WatchlistItemsCollection.insert(createWatchlistData(previousUserId));
+      WatchlistItemsCollection.insert(createWatchlistData(previousUserId));
 
       // make sure we are set up correctly
-      expect(WatchlistItems.find({ userId: previousUserId }).count())
+      expect(WatchlistItemsCollection.find({ userId: previousUserId }).count())
         .to.equal(2);
-      expect(WatchlistItems.find({ userId: currentUserId }).count())
+      expect(WatchlistItemsCollection.find({ userId: currentUserId }).count())
         .to.equal(0);
 
       // do the work
@@ -58,9 +58,9 @@ describe("Onboarding Methods", () => {
       expect(loggerSpy).to.have.been.called;
 
       // make sure the job got done
-      expect(WatchlistItems.find({ userId: previousUserId }).count())
+      expect(WatchlistItemsCollection.find({ userId: previousUserId }).count())
         .to.equal(0);
-      expect(WatchlistItems.find({ userId: currentUserId }).count())
+      expect(WatchlistItemsCollection.find({ userId: currentUserId }).count())
         .to.equal(2);
     });
   });

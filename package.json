@@ -411,7 +411,8 @@
       "no-unused-vars": [
         "error",
         {
-          "argsIgnorePattern": "^_"
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "[iI]gnored$"
         }
       ],
       "require-jsdoc": [

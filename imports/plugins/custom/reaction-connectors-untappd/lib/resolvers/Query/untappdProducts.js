@@ -9,7 +9,7 @@
  * @param {Int} args.limit - the number of results to return (aka, page size)
  * @param {Int} args.offset - the number of pages to skip
  * @param {Object} context - unused
- * @return {Promise<Object>} A Sale object
+ * @return {Promise<Object>} A Product object
  */
 export default async function untappdProducts(_, args, context) {
   const { q, limit, offset } = args;

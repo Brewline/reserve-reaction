@@ -50,4 +50,18 @@ export default async function buildContext(context, request = {}) {
   context.shopsUserHasPermissionFor = getShopsUserHasPermissionForFunctionForUser(context.user);
 
   context.requestHeaders = request.headers;
+  // #brewlinecustom
+  applyBrewlineCustom(context, request);
+}
+
+function applyBrewlineCustom(context, request) {
+  // give access to the entire request object
+  context.request = request;
+
+  // expose the alternate id
+  // used for tying anonymous actions to authenticated actions
+  // protip: the client can use whatever it wants as the alternateId. It should
+  // probably be device specific, and should not be used for anything sensitive
+  const { "x-brewline-alternate-id": alternateId } = request.headers || {};
+  context.alternateId = alternateId;
 }

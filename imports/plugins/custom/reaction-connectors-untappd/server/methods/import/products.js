@@ -19,6 +19,7 @@ import { Products, Jobs, Tags } from "/lib/collections";
 import { ProductVariant as ProductVariantSchema } from "/imports/collections/schemas";
 import { connectorsRoles } from "../../lib/roles";
 import { processImportProductImagesJobs } from "../../jobs/image-import";
+import scrubUntappdBeer from "../../../lib/scrubUntappdBeer";
 
 // function requestUntappdCredential(options, fnCallback) {
 //   const untappdService = Package["brewline:accounts-untappd"].Untappd;
@@ -67,7 +68,7 @@ function createReactionProductFromUntappdProduct(untappdProduct, productData = {
     },
     skipRevision: true,
     UntappdId: untappdProduct.bid,
-    UntappdResource: untappdProduct,
+    UntappdResource: scrubUntappdBeer(untappdProduct),
     ...productData
   };
 

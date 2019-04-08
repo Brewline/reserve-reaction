@@ -21,4 +21,4 @@ node ./.reaction/waitForMongo.js
 echo "Starting app…"
 # meteor run --port 3000 --inspect
 # reaction debug
-node --experimental-modules ./.reaction/run/index.mjs
+node --experimental-modules ./.reaction/run/index.mjs --inspect

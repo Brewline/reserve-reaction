@@ -6,7 +6,7 @@
  * @param {Object} _ - unused
  * @param {Int} untappdId - Untappd Beer Id
  * @param {Object} context - unused
- * @return {Promise<Object>} A Sale object
+ * @return {Promise<Object>} A Product object
  */
 export default async function untappdProduct(_, untappdId, context) {
   return context.queries.untappdProduct(untappdId);

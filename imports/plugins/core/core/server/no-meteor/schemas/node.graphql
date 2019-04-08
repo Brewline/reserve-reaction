@@ -1,4 +1,5 @@
 scalar ConnectionCursor
+scalar GroupedDataConnectionCursor
 scalar ConnectionLimitInt
 
 "The order in which the connection results should be sorted, based on the `sortBy` field."
@@ -38,6 +39,18 @@ interface NodeEdge {
 }
 
 """
+Objects implementing the `NodeEdge` interface will always have a `node` and a `cursor`
+that represents that node for purposes of requesting paginated results.
+"""
+interface GroupedDataNodeEdge {
+  "The cursor that represents this node in the paginated results"
+  cursor: GroupedDataConnectionCursor!
+
+  "The node itself"
+  node: Node
+}
+
+"""
 Objects implementing the `NodeConnection` interface are Relay-compatible connections.
 
 For information about what Relay-style connections are and how to use them, see the following articles:
@@ -63,6 +76,31 @@ interface NodeConnection {
 }
 
 """
+Objects implementing the `NodeConnection` interface are Relay-compatible connections.
+
+For information about what Relay-style connections are and how to use them, see the following articles:
+- [Relay Connection Documentation](https://facebook.github.io/relay/docs/en/graphql-server-specification.html#connections)
+- [Relay Connection Specification](https://facebook.github.io/relay/graphql/connections.htm)
+- [Using Relay-style Connections With Apollo Client](https://www.apollographql.com/docs/react/recipes/pagination.html)
+"""
+interface GroupedDataNodeConnection {
+  "The list of nodes that match the query, wrapped in an edge to provide a cursor string for each"
+  edges: [GroupedDataNodeEdge]
+
+  """
+  You can request the `nodes` directly to avoid the extra wrapping that `NodeEdge` has,
+  if you know you will not need to paginate the results.
+  """
+  nodes: [Node]
+
+  "Information to help a client request the next or previous page"
+  pageInfo: GroupedDataPageInfo!
+
+  "The total number of nodes that match your query"
+  totalCount: Int!
+}
+
+"""
 Pagination information. When requesting pages of results, you can use `endCursor` or `startCursor`
 as your `before` or `after` parameters for the query you are paging.
 """
@@ -78,4 +116,23 @@ type PageInfo {
 
   "When paginating backwards, the cursor to continue."
   startCursor: ConnectionCursor
+}
+
+"""
+Pagination information for grouped data. When requesting pages of results, you
+can use `endCursor` or `startCursor` as your `before` or `after` parameters for
+the query you are paging.
+"""
+type GroupedDataPageInfo {
+  "When paginating forwards, the cursor to continue."
+  endCursor: GroupedDataConnectionCursor
+
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+
+  "When paginating backwards, the cursor to continue."
+  startCursor: GroupedDataConnectionCursor
 }

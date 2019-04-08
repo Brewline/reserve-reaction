@@ -1,5 +1,5 @@
 "Represents an Untappd Beer Search Result"
-type UntappdSearchResult {
+type UntappdProductSearchResult {
   beers: UntappdSearchResultBeers,
   breweries: UntappdSearchResultBreweries,
   brewery_id: Int,
@@ -21,22 +21,10 @@ type UntappdSearchResultBeers {
   items: [UntappdSearchResultBeer]
 }
 
-"Represents an Untappd Breweries Search Resultset"
-type UntappdSearchResultBreweries {
-  count: Int
-  items: [UntappdSearchResultBrewery]
-}
-
 "Represents an Untappd Beer Search Result"
 type UntappdSearchResultBeer {
   checkin_count: Int
   beer: UntappdBeer
-  brewery: UntappdBrewery
-}
-
-"Represents an Untappd Brewery Search Result"
-type UntappdSearchResultBrewery {
-  checkin_count: Int
   brewery: UntappdBrewery
 }
 
@@ -68,34 +56,6 @@ type UntappdBeer {
   # vintags: UntappdBeerVintageResponse
 }
 
-"Represents an Untappd Brewery"
-type UntappdBrewery {
-  brewery_id: Int
-  brewery_label: String
-  brewery_name: String
-  brewery_page_url: String
-  brewery_slug: String
-  brewery_type: String
-  country_name: String
-  contact: UntappdBreweryContact
-  location: UntappdBreweryLocation
-  brewery_active: Boolean
-}
-
-type UntappdBreweryContact {
-  twitter: String
-  facebook: String
-  instagram: String
-  url: String
-}
-
-type UntappdBreweryLocation {
-  brewery_city: String
-  brewery_state: String
-  lat: Float
-  lng: Float
-}
-
 extend type Query {
   "Returns the results of an Untappd Product Search"
   untappdProducts(
@@ -118,7 +78,7 @@ extend type Query {
     # Set this to sort by one of the other allowed fields
     # """
     # sort: UntappdSortByField = beginsAt
-  ): UntappdSearchResult
+  ): UntappdProductSearchResult
 
   "Returns an Untappd Product by Id"
   untappdProduct(untappdBeerId: Int): UntappdBeer

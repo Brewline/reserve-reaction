@@ -7,6 +7,8 @@ import "./schemas/watchlist-items";
  * @memberof Collections
  * @type {MongoCollection}
  */
-export const WatchlistItems = new Mongo.Collection("WatchlistItems");
+export const WatchlistItemsCollection = new Mongo.Collection("WatchlistItems");
 
-WatchlistItems.attachSchema(Schemas.WatchlistItem);
+WatchlistItemsCollection.attachSchema(Schemas.WatchlistItem);
+
+export const WatchlistItems = WatchlistItemsCollection.rawCollection();

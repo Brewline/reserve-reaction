@@ -27,6 +27,7 @@ export const WatchlistItem = new SimpleSchema({
     label: "WatchlistItem Id",
     optional: true
   },
+  // this could store an anonymous user token as well.
   userId: {
     type: String,
     index: true
@@ -58,6 +59,7 @@ export const WatchlistItem = new SimpleSchema({
   },
   label: {
     type: String,
+    optional: true,
     defaultValue: "",
     label: "Label (image or icon)"
   },
@@ -71,10 +73,15 @@ export const WatchlistItem = new SimpleSchema({
     index: true,
     defaultValue: true
   },
+  metadata: { // used for location data initially (so we could show where the likes are coming from for a brewer)
+    type: Object, // TODO: formalize this (define appropriate keys, e.g., ip)
+    optional: true,
+    blackbox: true
+  },
   createdAt: {
     type: Date,
     autoValue: createdAtAutoValue,
-    index: true
+    optional: true
   },
   updatedAt: {
     type: Date,

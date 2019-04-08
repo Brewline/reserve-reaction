@@ -12,6 +12,7 @@ import { connectorsRoles } from "../../lib/roles";
 import { processImportShopImagesJobs } from "../../jobs/image-import";
 
 import getSlug from "/imports/plugins/core/core/server/Reaction/getSlug";
+import scrubUntappdBrewery from "../../../lib/scrubUntappdBrewery";
 
 // function requestUntappdCredential(options, fnCallback) {
 //   const untappdService = Package["brewline:accounts-untappd"].Untappd;
@@ -112,7 +113,7 @@ export function createReactionShopDataFromUntappdShop(untappdShop) {
     },
 
     UntappdId: untappdShop.brewery_id,
-    UntappdResource: untappdShop
+    UntappdResource: scrubUntappdBrewery(untappdShop)
   });
 
   delete reactionShop._id;

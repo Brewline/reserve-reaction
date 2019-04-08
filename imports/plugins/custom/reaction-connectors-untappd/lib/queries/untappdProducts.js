@@ -1,5 +1,5 @@
-import UntappdClient from "node-untappd";
 import Logger from "@reactioncommerce/logger";
+import getUntappdClient from "./getUntappdClient";
 
 /**
  * @name Query.untappdProducts
@@ -9,27 +9,16 @@ import Logger from "@reactioncommerce/logger";
  * @param {String} q - the query string to pass to Untappd
  * @param {Int} limit - the number of results to return (aka, page size)
  * @param {Int} offset - the number of pages to skip
- * @return {Promise<Object>} A Sale object
+ * @return {Promise<Object>} A list of Beer objects
  */
 export default async function untappdProducts(q, limit, offset) {
-  // TODO: this feels like a meteor dependency
-  const { ServiceConfiguration } = Package["service-configuration"];
-
-  const config =
-    ServiceConfiguration.configurations.findOne({ service: "untappd" });
-
-  if (!config) {
-    throw new ServiceConfiguration.ConfigError();
-  }
-
-  const debug = false;
-  const untappd = new UntappdClient(debug);
-  untappd.setClientId(config.clientId);
-  untappd.setClientSecret(config.secret);
+  const untappdClient = getUntappdClient();
 
   const result = await new Promise((resolve, reject) => {
     try {
-      untappd.beerSearch((error, data) => {
+      const query = { q, offset, limit };
+
+      untappdClient.beerSearch((error, data) => {
         if (error) {
           reject(error);
         } else if (!data || !data.meta || data.meta.code !== 200) {
@@ -37,7 +26,7 @@ export default async function untappdProducts(q, limit, offset) {
         } else {
           resolve(data.response);
         }
-      }, { q, offset, limit });
+      }, query);
     } catch (error) {
       Logger.error("There was a problem searching Untappd", error);
       reject(error);
