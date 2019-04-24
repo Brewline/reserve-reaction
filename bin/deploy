@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+: ${APP:=brewline-reserve-staging}
+
+echo "tagging"
+docker tag brewline-reserve:latest registry.heroku.com/${APP}/web
+
+echo "pushing tag to Heroku Container Registry"
+docker push registry.heroku.com/${APP}/web
+
+echo "Releasing $APP to Heroku"
+heroku container:release web --app ${APP}
