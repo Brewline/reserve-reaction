@@ -44,8 +44,6 @@ export default async function createWatchlistItem(_context, shopId, userId, watc
 
   WatchlistItemsCollection.simpleSchema(data).validate(data);
 
-  console.log(identifier, { $set: data });
-
   await WatchlistItemsCollection.upsert(identifier, { $set: data });
 
   return WatchlistItemsCollection.findOne(identifier);

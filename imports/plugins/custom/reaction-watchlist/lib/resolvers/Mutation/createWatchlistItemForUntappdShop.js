@@ -1,4 +1,5 @@
 import scrubUntappdBrewery from "@brewline/untappd/lib/scrubUntappdBrewery";
+import { notifyCreationOfWatchlistItem, processWatchlistItemNotifications } from "../../utils/notify";
 
 /**
  * @name Query.createWatchlistItemForUntappdShop
@@ -43,7 +44,7 @@ export default async function createWatchlistItemForUntappdShop(_, args, context
 
   const label = breweryLabelHd || breweryLabel;
 
-  const item = mutations.createWatchlistItem(
+  const item = await mutations.createWatchlistItem(
     context,
     shopId,
     userId || alternateId,
@@ -51,6 +52,14 @@ export default async function createWatchlistItemForUntappdShop(_, args, context
     untappdId,
     { displayName, label, itemMetadata, metadata }
   );
+
+  notifyCreationOfWatchlistItem(
+    "New Shop Watchlist Item",
+    "createWatchlistItemForUntappdProduct",
+    item,
+    { color: "#36C5F0" }
+  );
+  processWatchlistItemNotifications();
 
   return { item, clientMutationId };
 }

@@ -1,4 +1,5 @@
 import scrubUntappdBeer from "@brewline/untappd/lib/scrubUntappdBeer";
+import { notifyCreationOfWatchlistItem, processWatchlistItemNotifications } from "../../utils/notify";
 
 /**
  * @name Query.createWatchlistItemForUntappdProduct
@@ -35,13 +36,13 @@ export default async function createWatchlistItemForUntappdProduct(_, args, cont
   const { beer = {} } = untappdResponse || {};
   const itemMetadata = scrubUntappdBeer(beer);
 
-  /* eslint-disable camelcase */
   const {
     beer_name: displayName,
-    beer_label,
-    beer_label_hd: label = beer_label
+    brewery_label: breweryLabel,
+    brewery_label_hd: breweryLabelHd
   } = itemMetadata || {};
-  /* eslint-enable camelcase */
+
+  const label = breweryLabelHd || breweryLabel;
 
   const item = mutations.createWatchlistItem(
     context,
@@ -51,6 +52,14 @@ export default async function createWatchlistItemForUntappdProduct(_, args, cont
     untappdId,
     { displayName, label, itemMetadata, metadata }
   );
+
+  notifyCreationOfWatchlistItem(
+    "New Product Watchlist Item",
+    "createWatchlistItemForUntappdProduct",
+    item,
+    { color: "#36C5F0" }
+  );
+  processWatchlistItemNotifications();
 
   return { item, clientMutationId };
 }

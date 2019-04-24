@@ -1,3 +1,8 @@
+import {
+  notifyCreationOfWatchlistItem,
+  processWatchlistItemNotifications
+} from "../../utils/notify";
+
 /**
  * @name Query.createWatchlistItem
  * @method
@@ -16,7 +21,7 @@
  * @param {Object} context.shopId - sale belonging to this shop
  * @return {Promise<Object>} A Watchlist object
  */
-export default function createWatchlistItem(_, args, context) {
+export default async function createWatchlistItem(_, args, context) {
   const { watchlist, itemId, watchlistItemData = {}, clientMutationId } = args;
   const {
     alternateId,
@@ -30,7 +35,7 @@ export default function createWatchlistItem(_, args, context) {
     ip // get from request
   };
 
-  const item = mutations.createWatchlistItem(
+  const item = await mutations.createWatchlistItem(
     context,
     shopId,
     userId || alternateId,
@@ -38,6 +43,14 @@ export default function createWatchlistItem(_, args, context) {
     itemId,
     { ...watchlistItemData, metadata }
   );
+
+  notifyCreationOfWatchlistItem(
+    "Up-vote Watchlist Item",
+    "createWatchlistItem",
+    item,
+    { color: "#2EB67D" }
+  );
+  processWatchlistItemNotifications();
 
   return { item, clientMutationId };
 }

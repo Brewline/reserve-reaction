@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lodash.pick": "^4.4.0"
+    "lodash.pick": "^4.4.0",
+    "slack-notify": "0.1.7"
   },
   "babel": {
     "plugins": [

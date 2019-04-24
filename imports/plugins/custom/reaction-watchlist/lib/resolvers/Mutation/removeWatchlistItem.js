@@ -1,3 +1,5 @@
+import { notifyCreationOfWatchlistItem, processWatchlistItemNotifications } from "../../utils/notify";
+
 /**
  * @name Query.removeWatchlistItem
  * @method
@@ -29,6 +31,20 @@ export default async function removeWatchlistItem(_, args, context) {
     watchlist,
     itemId
   );
+
+  const fakeItem = {
+    watchlist,
+    itemId,
+    displayName: `(removed from ${watchlist})`,
+    createdAt: new Date()
+  };
+  notifyCreationOfWatchlistItem(
+    "Down-vote Watchlist Item",
+    "createWatchlistItem",
+    fakeItem,
+    { color: "#E01E5A" }
+  );
+  processWatchlistItemNotifications();
 
   return { wasRemoved: updateCount > 0, clientMutationId };
 }
