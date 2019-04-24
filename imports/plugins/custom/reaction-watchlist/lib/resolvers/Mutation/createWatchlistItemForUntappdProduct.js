@@ -23,12 +23,13 @@ export default async function createWatchlistItemForUntappdProduct(_, args, cont
     mutations,
     queries,
     request: { ip } = {},
+    requestHeaders,
     shopId,
     userId
   } = context;
 
   const metadata = {
-    ip // get from request
+    ip: requestHeaders["x-forwarded-for"] || ip
   };
 
   // TODO: consider some throttling (to protect our API key usage)

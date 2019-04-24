@@ -27,12 +27,13 @@ export default async function createWatchlistItem(_, args, context) {
     alternateId,
     mutations,
     request: { ip } = {},
+    requestHeaders,
     shopId,
     userId
   } = context;
 
   const metadata = {
-    ip // get from request
+    ip: requestHeaders["x-forwarded-for"] || ip
   };
 
   const item = await mutations.createWatchlistItem(
