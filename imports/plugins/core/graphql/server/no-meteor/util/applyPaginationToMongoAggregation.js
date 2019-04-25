@@ -1,3 +1,5 @@
+import { isEqual } from "lodash";
+
 const DEFAULT_LIMIT = 20;
 
 /**
@@ -50,13 +52,13 @@ export default async function applyPaginationToMongoAggregation(aggregationParam
     totalCount = unpaginatedResults[0].pageInfo[0].totalCount;
     if (after) {
       // first and after
-      const indexOfCursor = unpaginatedItems.findIndex((item) => item._id === after);
+      const indexOfCursor = unpaginatedItems.findIndex((item) => isEqual(item._id, after));
       hasPreviousPage = indexOfCursor > 0;
       hasNextPage = ((totalCount - (limit + indexOfCursor + 1)) > 0);
       paginatedItems = unpaginatedItems.slice(indexOfCursor + 1, indexOfCursor + 1 + limit);
     } else if (before) {
       // before and last
-      const indexOfCursor = unpaginatedItems.findIndex((item) => item._id === before);
+      const indexOfCursor = unpaginatedItems.findIndex((item) => isEqual(item._id, before));
       hasNextPage = totalCount > indexOfCursor;
       const startIndex = ((indexOfCursor - limit) > 0) ? (indexOfCursor - limit) : 0;
       paginatedItems = unpaginatedItems.slice(startIndex, indexOfCursor);
