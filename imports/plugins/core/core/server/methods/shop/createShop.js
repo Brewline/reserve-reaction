@@ -101,7 +101,7 @@ export default function createShop(shopAdminUserId, partialShopData) {
   }
 
   const currentUser = Meteor.users.findOne({ _id: userId });
-  const currentAccount = Accounts.findOne({ _id: currentUser._id });
+  const currentAccount = Accounts.findOne({ userId: currentUser._id });
   if (!currentUser) {
     throw new ReactionError("server-error", "Unable to create shop without a user");
   }
